@@ -1,7 +1,60 @@
 {
   "root": true,
   "ignorePatterns": ["**/*"],
-  "plugins": ["@nx"],
+  "plugins": ["@nx", "@typescript-eslint", "promise", "import"],
+  "extends": [
+    "eslint:recommended",
+    "plugin:@typescript-eslint/recommended",
+    "prettier",
+    "plugin:security/recommended",
+    "plugin:node/recommended",
+    "plugin:security/recommended"
+  ],
+  "parser": "@typescript-eslint/parser",
+  "rules": {
+    "indent": "off",
+    "linebreak-style": ["error", "unix"],
+    "quotes": ["error", "single"],
+    "semi": "off",
+
+    "space-before-function-paren": "off",
+    "@typescript-eslint/space-before-function-paren": "off",
+
+
+    "@typescript-eslint/indent": "off",
+    "@typescript-eslint/semi": "off",
+    "@typescript-eslint/member-delimiter-style": "off",
+    "@typescript-eslint/strict-boolean-expressions": "off",
+    "@typescript-eslint/explicit-function-return-type": "off",
+    "@typescript-eslint/restrict-plus-operands": "off",
+    "@typescript-eslint/restrict-template-expressions": "off",
+    "@typescript-eslint/prefer-optional-chain": "off",
+    "@typescript-eslint/no-misused-promises": "off",
+    "@typescript-eslint/consistent-type-assertions": "off",
+
+
+        // plugin promise
+        "promise/always-return": "error",
+        "promise/no-return-wrap": "error",
+        "promise/param-names": "error",
+        "promise/catch-or-return": "error",
+        "promise/no-native": "off",
+        "promise/no-nesting": "warn",
+        "promise/no-promise-in-callback": "off",
+        "promise/no-callback-in-promise": "warn",
+        "promise/avoid-new": "warn",
+        "promise/no-new-statics": "error",
+        "promise/no-return-in-finally": "warn",
+        "promise/valid-params": "warn",
+    
+        "n/no-callback-literal": "off",
+        "security/detect-object-injection": "off",
+    
+        "sort-imports": [
+          "error",
+          { "ignoreDeclarationSort": true, "ignoreCase": true }
+        ]
+  },
   "overrides": [
     {
       "files": ["*.ts", "*.tsx", "*.js", "*.jsx"],
