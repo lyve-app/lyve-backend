@@ -2,7 +2,16 @@
   "name": "@lyve/source",
   "version": "0.0.0",
   "license": "MIT",
-  "scripts": {},
+  "scripts": {
+    "api:dev": "",
+    "api:build": "",
+    "api:start": "",
+    "api:test": "",
+    "media:dev": "",
+    "media:build": "",
+    "media:start": "",
+    "media:test": ""
+  },
   "private": true,
   "dependencies": {
     "@expo/metro-config": "~0.17.3",
