@@ -14,7 +14,7 @@
         "outputPath": "dist/apps/media-server",
         "format": ["cjs"],
         "bundle": false,
-        "main": "apps/media-server/src/main.ts",
+        "main": "apps/media-server/src/index.ts",
         "tsConfig": "apps/media-server/tsconfig.app.json",
         "assets": ["apps/media-server/src/assets"],
         "generatePackageJson": true,
