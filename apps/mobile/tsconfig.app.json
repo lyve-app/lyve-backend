@@ -6,10 +6,10 @@
   },
   "files": ["../../node_modules/@nx/expo/typings/svg.d.ts"],
   "exclude": [
-    "jest.config.ts",
+    "jest.config.mts",
     "**/*.spec.ts",
     "**/*.spec.tsx",
     "test-setup.ts"
   ],
-  "include": ["**/*.ts", "**/*.tsx", "**/*.js", "**/*.jsx"]
+  "include": ["**/*.ts", "**/*.tsx", "**/*.js", "**/*.jsx", "jest.config.mts", "metro.config.mjs", "postcss.config.mjs"]
 }

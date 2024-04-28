@@ -36,7 +36,7 @@
       "options": {
         "targetName": "test"
       },
-      "exclude": ["apps/api-e2e/**/*", "apps/media-server-e2e/**/*"]
+      "exclude": []
     },
     {
       "plugin": "@nx/expo/plugin",

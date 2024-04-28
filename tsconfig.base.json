@@ -15,23 +15,21 @@
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
     "paths": {},
-
-      // strict settings
-      "strict": true,
-      "strictNullChecks": true,
-      "allowUnusedLabels": false,
-      "noImplicitAny": true,
-      "noImplicitThis": true,
-      "allowUnreachableCode": false,
-      "exactOptionalPropertyTypes": true,
-      "noFallthroughCasesInSwitch": true,
-      "noImplicitOverride": true,
-      "noImplicitReturns": true,
-      "noPropertyAccessFromIndexSignature": false,
-      "noUncheckedIndexedAccess": true,
-      "noUnusedLocals": true,
-      "noUnusedParameters": true,
-      "forceConsistentCasingInFileNames": true
+    "strict": true,
+    "strictNullChecks": true,
+    "allowUnusedLabels": false,
+    "noImplicitAny": true,
+    "noImplicitThis": true,
+    "allowUnreachableCode": false,
+    "exactOptionalPropertyTypes": true,
+    "noFallthroughCasesInSwitch": true,
+    "noImplicitOverride": true,
+    "noImplicitReturns": true,
+    "noPropertyAccessFromIndexSignature": false,
+    "noUncheckedIndexedAccess": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "forceConsistentCasingInFileNames": true
   },
   "exclude": ["node_modules", "tmp"]
 }
