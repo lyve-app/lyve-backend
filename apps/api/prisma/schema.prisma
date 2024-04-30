@@ -12,3 +12,120 @@ datasource db {
   provider = "mysql"
   url      = env("DATABASE_URL")
 }
+
+model User {
+  id         String   @id @default(cuid())
+  username   String
+  email      String   @unique
+  avatar_url String?
+  bio        String   @default("")
+  created_at DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  followerCount   Int   @default(0)
+  followingCount  Int   @default(0)
+  numStreams      Int   @default(0)
+  num10minStreams Int   @default(0)
+  minStreamed     Float @default(0)
+
+  level           Int @default(1)
+  promotionPoints Int @default(0)
+
+  streams Stream[]
+
+  followedBy Follows[] @relation("followedBy")
+  following  Follows[] @relation("following")
+
+  notifications     Notification[]
+  userToAchievement UserToAchievement[]
+  receivedRewards   Rewards[]
+}
+
+model Follows {
+  followedBy   User     @relation("followedBy", fields: [followedById], references: [id])
+  followedById String
+  following    User     @relation("following", fields: [followingId], references: [id])
+  followingId  String
+  created_at   DateTime @default(now())
+
+  @@id([followingId, followedById])
+}
+
+model Stream {
+  id            String  @default(cuid())
+  serverId      String
+  active        Boolean @default(true)
+  streamer      User    @relation(fields: [streamerId], references: [id])
+  streamerId    String  @unique
+  viewerCount   Int     @default(0)
+  previewImgUrl String
+
+  created_at DateTime  @default(now())
+  ended_at   DateTime?
+  duration   Float     @default(0) // in seconds
+
+  genre String
+}
+
+model Notification {
+  id   String           @id @default(cuid())
+  type NotificationType
+
+  streamId          String?
+  userWhoFiredEvent String?
+
+  recipient   User     @relation(fields: [recipientId], references: [id])
+  recipientId String
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+}
+
+model Achievement {
+  id                String              @id
+  type              AchievementType
+  name              String
+  level             Int                 @default(0)
+  bannerUrl         String
+  condition         Int
+  progress          Int // progress to condition 1/10 progress/condition
+  promotionPoints   Int // promotionPoints a user receives for reaching the achievement
+  userToAchievement UserToAchievement[]
+}
+
+model UserToAchievement {
+  user          User        @relation(fields: [userId], references: [id])
+  userId        String
+  achievement   Achievement @relation(fields: [achievementId], references: [id])
+  achievementId String
+  created_at    DateTime    @default(now())
+
+  @@id([userId, achievementId])
+}
+
+model Rewards {
+  id         String     @id @default(uuid())
+  type       RewardType
+  points     Int
+  receiver   User       @relation(fields: [receiverId], references: [id])
+  receiverId String
+  senderId   String
+  created_at DateTime   @default(now())
+}
+
+enum RewardType {
+  ONE
+  TWO
+  THREE
+}
+
+enum AchievementType {
+  NTH_STREAM
+  NTH_VIEWERS
+}
+
+enum NotificationType {
+  STREAM_STARTED
+  REWARD_RECEIVED
+  ACHIEVEMENT_RECEIVED
+  NEW_FOLLOWER
+}
