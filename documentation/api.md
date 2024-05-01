@@ -20,6 +20,8 @@ type TypedResponse = {
 
 #### `/api/user/create`
 
+Creates a User
+
 **Method**: POST
 
 Auth required : yes
@@ -75,6 +77,8 @@ Error:
 
 #### `/api/user/:id`
 
+Gets the user with the specified id
+
 **Method**: GET
 
 Auth required : yes
@@ -105,7 +109,19 @@ Success:
       "avatar_url": "",
       "followingCount": 0,
       "followerCount": 0,
-      "level": 0
+      "level": 0,
+      "achievements": [
+        {
+          "id": "achievement id",
+          "type": "",
+          "name": "",
+          "level": 0,
+          "bannerUrl": "",
+          "condition": 10,
+          "progress": 5,
+          "promotionPoints": 10
+        }
+      ]
     }
   },
   "error": []
@@ -129,6 +145,8 @@ Error:
 ```
 
 #### `/api/user/:id/following`
+
+Gets all the users the specified user is following
 
 **Method**: GET
 
@@ -164,7 +182,6 @@ Success:
             "avatar_url": "",
             "followerCount": 200
           },
-          "followed": true,
           "created_at": ""
         },
         {
@@ -174,7 +191,6 @@ Success:
             "avatar_url": "",
             "followerCount": 0
           },
-          "followed": false,
           "created_at": ""
         },
         ...
@@ -216,6 +232,8 @@ Error:
 
 #### `/api/user/:id/follower`
 
+Gets all the followers (users) of the specified user
+
 **Method**: GET
 
 Auth required : yes
@@ -250,7 +268,7 @@ Success:
             "avatar_url": "",
             "followerCount": 0
           },
-          "followed": false,
+          "subscribed": false,
           "created_at": ""
         },
         {
@@ -260,7 +278,7 @@ Success:
             "avatar_url": "",
             "followerCount": 1736
           },
-          "followed": true,
+          "subscribed": true,
           "created_at": ""
         },
         ...
@@ -303,6 +321,8 @@ Error:
 ```
 
 #### `/api/users/:userId/following-active-streams`
+
+Gets all the active streams from the users that the users follows
 
 **Method**: GET
 
@@ -369,6 +389,8 @@ Error:
 
 #### `/api/user/:id/achievements`
 
+Gets all the Achievements of the specified user
+
 **Method**: GET
 
 Auth required : yes
@@ -431,6 +453,8 @@ Error:
 
 #### `/api/user/:id/statistics/most-streamed-genre`
 
+Calculates the most streamed genres of the users and returns it
+
 **Method**: GET
 
 Auth required : yes
@@ -486,6 +510,8 @@ Error:
 ```
 
 #### `/api/user/:id/streams`
+
+Get all the streams a user created
 
 **Method**: POST
 
@@ -558,6 +584,8 @@ Error:
 
 #### `/api/user/:id/update`
 
+Update a user
+
 **Method**: POST
 
 Auth required : yes
@@ -623,6 +651,8 @@ Error:
 
 #### `/api/user/:id/delete`
 
+Deletes the specified user from the database
+
 **Method**: DELETE
 
 Auth required : yes
@@ -685,6 +715,8 @@ Error:
 ### Stream
 
 #### `/api/stream/create`
+
+Creates a stream
 
 **Method**: POST
 
@@ -766,6 +798,8 @@ Error:
 
 #### `/api/stream/:id/join`
 
+Lets a user join a stream and updates the stream record in the database
+
 **Method**: POST
 
 Auth required : yes
@@ -845,6 +879,8 @@ Error:
 
 #### `/api/stream/:id/leave`
 
+Lets a user leave a stream and updates the stream record in the database
+
 **Method**: POST
 
 Auth required : yes
@@ -890,6 +926,8 @@ Error:
 ```
 
 #### `/api/stream/:id/`
+
+Gets infos the specified stream
 
 **Method**: GET
 
@@ -945,6 +983,8 @@ Error:
 
 #### `/api/stream/recommended`
 
+Returns all the recommended streams with a high promotion score
+
 **Method**: GET
 
 Auth required : yes
@@ -998,6 +1038,8 @@ Error:
 ```
 
 #### `/api/stream/:id/end`
+
+Updates a stream and produces a remove-stream event that will be send to the media server
 
 **Method**: POST
 
@@ -1080,16 +1122,148 @@ Error:
 
 #### Client to Server
 
-##### `"chat:join"`
+##### `"join"`
 
-##### `"chat:leave"`
+Lets the user join the chat room
 
-##### `"chat:sendMsg"`
+**Payload**
+
+```json
+{}
+```
+
+**Acknowledgment:** Yes
+
+```json
+{
+  "data": {
+    "viewerCount": 0
+  }
+}
+```
+
+##### `"leave"`
+
+Lets the user leave the chat room
+
+**Payload**
+
+```json
+{}
+```
+
+**Acknowledgment:** No
+
+##### `"sendMsg"`
+
+Broadcasts a message to all users in the same room
+
+**Payload**
+
+```json
+{
+  "data": {
+    "msg": "..."
+  }
+}
+```
+
+**Acknowledgment:** No
 
 #### Server to Client
 
-##### `"chat:joined"`
+##### `"streamEnded"`
 
-##### `"chat:userLeaved"`
+Informs all users in the room that the stream has ended
 
-##### `"chat:msg"`
+**Payload**
+
+```json
+{
+  "data": {
+    "ended_at": ""
+  }
+}
+```
+
+**Acknowledgment:** No
+
+##### `"userJoined"`
+
+Informs all users in the room that a new user has joined
+
+**Receiving Payload**
+
+```json
+{
+  "data": {
+    "viewerCount": 100 // for updating the viewer count
+  }
+}
+```
+
+**Acknowledgment:** No
+
+##### `"userLeaved"`
+
+Informs all users in the room that a user leaved
+
+**Receiving Payload**
+
+```json
+{
+  "data": {
+    "viewerCount": 100 // for updating the viewer count
+  }
+}
+```
+
+**Acknowledgment:** No
+
+##### `"newChatMsg"`
+
+Broadcasts message to all users in the room that a new user has joined
+
+**Receiving Payload**
+
+```json
+{
+  "data": {
+    "id": "", // msg id
+    "msg": "" // maybe this is later updated to tokens: MessageToken[]
+    "sender": {
+      "id": "",
+      "username": "",
+      "avatar_url": ""
+    }
+  }
+}
+```
+
+**Acknowledgment:** No
+
+##### `"receivedReward"`
+
+Broadcasts to all users in the room user gifted a reward
+
+**Receiving Payload**
+
+```json
+{
+  "data": {
+    "msg": "",
+    "reward": {
+      "id": "",
+      "type": "",
+      "points": "" // the promotion points one receives for receiving the reward
+    },
+    "sender": {
+      "id": "",
+      "username": "",
+      "avatar_url": ""
+    }
+  }
+}
+```
+
+**Acknowledgment:** No
