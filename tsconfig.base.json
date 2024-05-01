@@ -14,7 +14,9 @@
     "skipLibCheck": true,
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
-    "paths": {},
+    "paths": {
+      "@lyve/types": ["libs/shared/types/src/index.ts"]
+    },
     "strict": true,
     "strictNullChecks": true,
     "allowUnusedLabels": false,
