@@ -5,7 +5,7 @@
 ```ts
 type TypedResponse = {
   success: boolean;
-  data: Record<string, string> | Record<string, string>[] | null;
+  data: Record<string, unknown> | Record<string, unknown>[] | null;
   error: {
     name: string;
     code: number;
