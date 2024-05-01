@@ -49,7 +49,9 @@ Lyve ist eine Livestreaming-Plattform in der User livestreamen oder Livestreams 
 
 ## 2.2 Funktionale Anforderungen
 
-Use Case Diagramme fehlen
+![Untitled](../assets/UseCase.drawio.png)
+
+Akteure: User (Viewer/Streamer), Keycloak, API, Mediaserver
 
 ## 2.3 Nicht-funktionale Anforderungen
 
