@@ -6,7 +6,7 @@
     "api:dev": "nx serve api",
     "api:build": "",
     "api:start": "",
-    "api:test": "",
+    "api:test": "nx test api",
     "api:test:watch": "",
     "api:coverage": "",
     "api:lint": "",
@@ -117,3 +117,4 @@
     "typescript": "~5.4.2"
   }
 }
+
