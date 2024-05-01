@@ -228,16 +228,9 @@ Nur verifizierte Konten können auf die Plattform zugreifen | should |
 
 ## 3.3 Schnittstellen
 
-Genutzte Protokolle/Messaging Queues/etc..
-
-- REST
-- Websocket
-- WebRTC
-- RabbitMQ
+Siehe [API Dokumentation](https://github.com/Louis3797/Lyve/blob/main/documentation/api.md)
 
 ### 3.3.1 Ereignisse
-
-**REST**
 
 **RabbitMQ (erstmal nur gedanklich)**
 
