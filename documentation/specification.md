@@ -102,59 +102,65 @@ Akteure: User (Viewer/Streamer), Keycloak, API, Mediaserver
 - **Login**
 
   ![Untitled](../assets/1%20-%20Login.png)
+
 - **Register**
 
   ![Untitled](../assets/2%20-%20Registration.png)
+
 - **Home Page**
 
   ![Untitled](../assets/9%20-%20Frontpage.png)
   ![Untitled](../assets/mockup_homepage.png)
+
 - **Search Page**
 
   ![Untitled](../assets/10%20-%20Search.png)
+
 - **Stream**
 
   - **Sicht Viewer**
-  
+
     ![Untitled](../assets/7%20-%20Viewer%20View.png)
     ![Untitled](../assets/mockup_stream.png)
+
   - **Sicht Streamer**
 
     ![Untitled](../assets/8%20-%20Streamer%20View.png)
+
 - **Profile**
 
   - **Eigenes Profil**
 
     ![Untitled](../assets/4%20-%20Own%20Profile%20-%20Statistics.png)
     ![Untitled](../assets/6%20-%20Own%20Profile%20-%20Achievements.png)
+
   - **Anderes Profil**
 
     ![Untitled](../assets/3%20-%20Streamer%20Profile%20-%20Statistics.png)
     ![Untitled](../assets/5%20-%20Streamer%20Profile%20-%20Achievements.png)
+
 - **Einstellungen**
 
-    ![Untitled](../assets/11%20-%20Settings.png)
-
+  ![Untitled](../assets/11%20-%20Settings.png)
 
 ## 2.5 Anforderungen im Detail
 
-| Rolle                 | Anforderung                                                                                         | Ziel                                                              | Beschreibung                                                                                                                                                                                                                                                               | Priorität |
-| --------------------- | -------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------- |
-| Streamer              | Livestreams erstellen können                                                                       | Um ein Publikum zu erreichen                                      | Benutzer der App können mit ihrer Smartphone-Kamera Livestreams erstellen, die dann in der App angezeigt werden und von anderen Benutzern live angesehen werden können.                                                                                                      | must      |
-| Streamer              | Rewards von meinen Zuschauern erhalten können                                                      | Um meine Arbeit geschätzt zu wissen und meine Streams verbessern zu können | Zuschauer können virtuelle Belohnungen kaufen und an den Streamer senden. Der Streamer erhält Echtzeitbenachrichtigungen über jede erhaltene Belohnung, was ihm hilft, seine Streams zu verbessern.                                                         | should    |
-| Zuschauer             | Livestreams nach Kategorien filtern können                                                         | Um schnell Inhalte zu finden, die mich interessieren               | Die Lyve-Plattform bietet eine Filteroption, mit der Zuschauer Live-Streams nach verschiedenen Kategorien wie Mode, Musik, Fitness usw. sortieren können. Die Filterfunktion ist benutzerfreundlich und ermöglicht eine schnelle Navigation durch die verfügbaren Inhalte. | should    |
-| Zuschauer             | Benachrichtigungen über gestartete Live-Streams erhalten können, deren Streamer ich abonniert habe | Um keine wichtigen Inhalte zu verpassen                           | Zuschauer können Benachrichtigungen aktivieren, um über Live-Streams ihrer bevorzugten Streamer informiert zu werden. Die Benachrichtigungen werden rechtzeitig zum Start des Live-Streams gesendet.                                                                       | could    |
-| Zuschauer             | Während eines Live-Streams Fragen stellen können                                                   | Um mit dem Streamer interagieren zu können                        | Ein Live-Chat-Fenster ist während des Live-Streams verfügbar, das es den Zuschauern ermöglicht, Fragen zu stellen und Kommentare zu hinterlassen.                                                                                                                          | must      |
-| Böswilliger Benutzer (Zuschauer) | Den Live-Chat mit Spam-Nachrichten überfluten können                                         | Um die Kommunikation zwischen Streamer und Zuschauern zu stören   | Spam-Nachrichten werden vom Live-Chat erkannt und blockiert.                                                                                                                                                                                                              | should    |
-| Streamer              | Achievements von der App erhalten                                                                  | Um als Streamer gefördert zu werden                                | Streamer können Meilensteine wie z. B. eine bestimmte Anzahl von Zuschauern erreichen und werden von der App belohnt. Achievements sind für Zuschauer und Streamer einsehbar und tragen dazu bei, den Streamer zu fördern.                                          | must      |
-| Zuschauer             | Streamer abonnieren können                                                                         | Um über Aktivitäten und Live-Streams des Streamers auf dem Laufenden zu bleiben | Zuschauer können Streamer abonnieren und erhalten Benachrichtigungen über neue Live-Streams ihrer abonnierten Streamer. Die Abonnementverwaltung ermöglicht es den Zuschauern, ihre Abonnements zu verwalten.                                                     | must      |
-| Böswilliger Benutzer (Streamer) | Unangemessene Inhalte in Live-Streams zeigen                                                   | Um die Richtlinien der Lyve-Plattform zu brechen                   | Zuschauer können unangemessene Streams melden, sodass das System Maßnahmen gegen den Streamer und den Stream treffen kann.                                                                                                                                             | could    |
-| Böswilliger Benutzer (Zuschauer) | Streams melden, die nicht gegen die Plattformrichtlinien verstoßen                              | Um Unterbrechungen von Live-Streams oder die Sperrung von Streamern zu verhindern | Die Moderation von gemeldeten Streams sollte feststellen können, ob ein Stream tatsächlich unangemessen ist. Eine Gruppe von Zuschauern, die einen Stream wiederholt als unangemessen melden, sollte nicht dazu führen, dass ein Stream unterbrochen oder der Streamer gesperrt wird. | could |
-| Böswilliger Benutzer   | Viele Fake-Accounts erstellen                                                                      | Um Livestreams oder die Plattform mit Fakenutzern zu fluten        | Erstellte Benutzerkonten sollten per E-Mail oder SMS verifiziert werden. Nur verifizierte Konten sollten auf die Plattform zugreifen können.                                                                                                                               | should    |
-| Frontend-Entwickler   | Benutzerfreundliche Oberfläche                                                                     | Um eine angenehme und intuitive Benutzererfahrung zu bieten       | Die Benutzeroberfläche sollte klare Navigation, konsistente Designelemente und eine ansprechende visuelle Darstellung aufweisen.                                                                                                                                         | must      |
-| Frontend-Entwickler   | Optimiertes App-Design für verschiedene Bildschirmgrößen                                         | Um eine konsistente Erfahrung auf allen Geräten zu gewährleisten | Die UI-Elemente sollten dynamisch skalierbar sein und sich automatisch anpassen, um eine optimale Darstellung auf allen Geräten sicherzustellen.                                                                                                                       | must      |
-| Benutzer              | Nach Profilen suchen können                                                                         | Um Profile anderer erkunden und abonnieren zu können             | Die App verfügt über eine Suchfunktion, mit der Benutzer nach Profilen suchen können.                                                                                                                                                                                     | should    |
-
+| Rolle                            | Anforderung                                                                                        | Ziel                                                                              | Beschreibung                                                                                                                                                                                                                                                                          | Priorität |
+| -------------------------------- | -------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------- |
+| Streamer                         | Livestreams erstellen können                                                                       | Um ein Publikum zu erreichen                                                      | Benutzer der App können mit ihrer Smartphone-Kamera Livestreams erstellen, die dann in der App angezeigt werden und von anderen Benutzern live angesehen werden können.                                                                                                               | must      |
+| Streamer                         | Rewards von meinen Zuschauern erhalten können                                                      | Um meine Arbeit geschätzt zu wissen und meine Streams verbessern zu können        | Zuschauer können virtuelle Belohnungen kaufen und an den Streamer senden. Der Streamer erhält Echtzeitbenachrichtigungen über jede erhaltene Belohnung, was ihm hilft, seine Streams zu verbessern.                                                                                   | should    |
+| Zuschauer                        | Livestreams nach Kategorien filtern können                                                         | Um schnell Inhalte zu finden, die mich interessieren                              | Die Lyve-Plattform bietet eine Filteroption, mit der Zuschauer Live-Streams nach verschiedenen Kategorien wie Mode, Musik, Fitness usw. sortieren können. Die Filterfunktion ist benutzerfreundlich und ermöglicht eine schnelle Navigation durch die verfügbaren Inhalte.            | should    |
+| Zuschauer                        | Benachrichtigungen über gestartete Live-Streams erhalten können, deren Streamer ich abonniert habe | Um keine wichtigen Inhalte zu verpassen                                           | Zuschauer können Benachrichtigungen aktivieren, um über Live-Streams ihrer bevorzugten Streamer informiert zu werden. Die Benachrichtigungen werden rechtzeitig zum Start des Live-Streams gesendet.                                                                                  | could     |
+| Zuschauer                        | Während eines Live-Streams Fragen stellen können                                                   | Um mit dem Streamer interagieren zu können                                        | Ein Live-Chat-Fenster ist während des Live-Streams verfügbar, das es den Zuschauern ermöglicht, Fragen zu stellen und Kommentare zu hinterlassen.                                                                                                                                     | must      |
+| Böswilliger Benutzer (Zuschauer) | Den Live-Chat mit Spam-Nachrichten überfluten können                                               | Um die Kommunikation zwischen Streamer und Zuschauern zu stören                   | Spam-Nachrichten werden vom Live-Chat erkannt und blockiert.                                                                                                                                                                                                                          | should    |
+| Streamer                         | Achievements von der App erhalten                                                                  | Um als Streamer gefördert zu werden                                               | Streamer können Meilensteine wie z. B. eine bestimmte Anzahl von Zuschauern erreichen und werden von der App belohnt. Achievements sind für Zuschauer und Streamer einsehbar und tragen dazu bei, den Streamer zu fördern.                                                            | must      |
+| Zuschauer                        | Streamer abonnieren können                                                                         | Um über Aktivitäten und Live-Streams des Streamers auf dem Laufenden zu bleiben   | Zuschauer können Streamer abonnieren und erhalten Benachrichtigungen über neue Live-Streams ihrer abonnierten Streamer. Die Abonnementverwaltung ermöglicht es den Zuschauern, ihre Abonnements zu verwalten.                                                                         | must      |
+| Böswilliger Benutzer (Streamer)  | Unangemessene Inhalte in Live-Streams zeigen                                                       | Um die Richtlinien der Lyve-Plattform zu brechen                                  | Zuschauer können unangemessene Streams melden, sodass das System Maßnahmen gegen den Streamer und den Stream treffen kann.                                                                                                                                                            | could     |
+| Böswilliger Benutzer (Zuschauer) | Streams melden, die nicht gegen die Plattformrichtlinien verstoßen                                 | Um Unterbrechungen von Live-Streams oder die Sperrung von Streamern zu verhindern | Die Moderation von gemeldeten Streams sollte feststellen können, ob ein Stream tatsächlich unangemessen ist. Eine Gruppe von Zuschauern, die einen Stream wiederholt als unangemessen melden, sollte nicht dazu führen, dass ein Stream unterbrochen oder der Streamer gesperrt wird. | could     |
+| Böswilliger Benutzer             | Viele Fake-Accounts erstellen                                                                      | Um Livestreams oder die Plattform mit Fakenutzern zu fluten                       | Erstellte Benutzerkonten sollten per E-Mail oder SMS verifiziert werden. Nur verifizierte Konten sollten auf die Plattform zugreifen können.                                                                                                                                          | should    |
+| Frontend-Entwickler              | Benutzerfreundliche Oberfläche                                                                     | Um eine angenehme und intuitive Benutzererfahrung zu bieten                       | Die Benutzeroberfläche sollte klare Navigation, konsistente Designelemente und eine ansprechende visuelle Darstellung aufweisen.                                                                                                                                                      | must      |
+| Frontend-Entwickler              | Optimiertes App-Design für verschiedene Bildschirmgrößen                                           | Um eine konsistente Erfahrung auf allen Geräten zu gewährleisten                  | Die UI-Elemente sollten dynamisch skalierbar sein und sich automatisch anpassen, um eine optimale Darstellung auf allen Geräten sicherzustellen.                                                                                                                                      | must      |
+| Benutzer                         | Nach Profilen suchen können                                                                        | Um Profile anderer erkunden und abonnieren zu können                              | Die App verfügt über eine Suchfunktion, mit der Benutzer nach Profilen suchen können.                                                                                                                                                                                                 | should    |
 
 ## Feature Zusammenfassung
 
@@ -178,6 +184,10 @@ Akteure: User (Viewer/Streamer), Keycloak, API, Mediaserver
 ![Untitled](../assets/system_architecture.png)
 
 ## 3.2 Softwarearchitektur
+
+API Software Architektur
+
+![API Software Architektur](../assets/api_software_architecture.png)
 
 ## 3.2.1 Technologieauswahl
 
