@@ -251,6 +251,20 @@ API Software Architektur
 - MySQL
 - Redis (Cache)
 
+**Blob Storage**
+
+- Minio
+
+**DevOps**
+
+- CI/CD
+    - GitHub Actions
+        - Automatische generierung der Docker Images
+        - Code scanning
+        - Dependabot
+- Docker
+- Docker Compose
+
 ## 3.3 Schnittstellen
 
 Siehe [API Dokumentation](https://github.com/Louis3797/Lyve/blob/main/documentation/api.md)
@@ -276,8 +290,14 @@ Siehe [API Dokumentation](https://github.com/Louis3797/Lyve/blob/main/documentat
 
 ## 3.5 Abläufe
 
-- [ ] Todo Sequenzdiagram Verbindung zum Livestream
-- [ ] Todo Sequenzdiagram Erstellung vom Livestream
+Erstellung vom Livestream
+
+![Untitled](../assets/start_stream.png)
+
+Verbindung zum Livestream
+
+![Untitled](../assets/join_stream.png)
+
 - [ ] Todo Sequenzdiagram Authentifizierung
 - [ ] Todo Sequenzdiagram Account erstellen
 - [ ] Todo Sequenzdiagram Reward geben
@@ -286,6 +306,8 @@ Siehe [API Dokumentation](https://github.com/Louis3797/Lyve/blob/main/documentat
 ## 3.6 Entwurf
 
 ## 3.7 Fehlerbehandlung
+
+Responses: Siehe [API Dokumentation](https://github.com/Louis3797/Lyve/blob/main/documentation/api.md)
 
 ## 3.8 Validierung
 
@@ -315,30 +337,62 @@ Siehe [API Dokumentation](https://github.com/Louis3797/Lyve/blob/main/documentat
 | Name           | Rolle                                                                        |
 | -------------- | ---------------------------------------------------------------------------- |
 | Louis-Kaan Ay  | Softwarearchitekt <br/> Frontend- & Backend Entwickler <br/> DevOps Engineer |
-| Jan-Niklas Rau | Frontend- & Backend Entwickler <br/>UI/UX Designer                           |
+| Jan-Niklas Rau | Frontend- & Backend Entwickler <br/>UI/UX Designer <br/>Dokumanager                    |
 
 ## 4.3 Grober Projektplan
 
 ### Meilensteine
 
-- [ ] Spezifikation abgeben 03.05
-- [ ] MVP App Gui
-- [ ] Authentifizierung
-- [ ] Livestreams implementieren
-- [ ] LiveChat implementation
-- [ ] Achievement System
-- [ ] MVP Fertig stellen
-- [ ] MVP vorstellung ~Ende Mai
+- [ ]  Spezifikation abgeben 03.05
 
-fertiges Produkt
+**MVP**
 
-fertige Praesentation
+- [ ]  MVP App Gui
+    - [ ]  Routing zwischen Pages
+    - [ ]  HomePage
+        - [ ]  Stream Recommendations
+        - [ ]  Streams der gefolgten User
+    - [ ]  StreamPage
+        - [ ]  Video des Streams wird angezeigt
+        - [ ]  Audio des Streams wird ausgegeben
+        - [ ]  Chat wird angezeigt
+        - [ ]  Nachrichten können gesendet werden
+    - [ ]  ProfilPage
+        - [ ]  User Info wird auf der Seite angezeigt
+            - [ ]  Name
+            - [ ]  Follower und FollowingCount
+            - [ ]  Bild
+            - [ ]  Achievements
+            - [ ]  Most Streamed Genre Statistik
+- [ ]  Authentifizierung mit AuthSession und Keycloak
+    - [ ]  User wird in Datenbank erstellt
+    - [ ]  Keycloak erstellt User
+    - [ ]  Keycloak authentifiziert User → Middleware im Backend
+- [ ]  Livestreams implementieren
+    - [ ]  WebRTC Verbidnung zwischen Client und Media-Server erstellen
+    - [ ]  Streame Media (audio,video) zwischen zwei Clients
+    - [ ]  Streams können mehrere Viewer beiwohnen
+- [ ]  LiveChat implementation
+    - [ ]  Mit [Socket.io](http://Socket.io) Room verbinden
+    - [ ]  Sende Nachrichten zwischen Clients die im selben Stream sind
+    - [ ]  Anzeigen der Nachrichten im Stream
+- [ ]  Achievement System
+    - [ ]  Erster Stream Achievement wird nach einen gestarteten Stream vergeben
+    - [ ]  Achievement wird in Profil angezeigt
+- [ ]  MVP vorstellung ~Ende Mai
+
 
 # 5 Anhänge
 
 ### 5.1 Glossar
 
 **Mediasoup**
+
+mediasoup und seine client-seitigen Bibliotheken bieten eine super low level API. Sie sind dazu gedacht, verschiedene Anwendungsfälle und Szenarien zu ermöglichen, ohne irgendwelche Einschränkungen oder Annahmen. Einige dieser Anwendungsfälle sind:
+
+- Group video chat applications.
+- One-to-many (or few-to-many) broadcasting applications in real-time.
+- RTP streaming.
 
 **RTP**
 
@@ -412,5 +466,6 @@ Ein Viewer ist ein User der Livestreams konsumiert
 - [https://socket.io/](https://socket.io/)
 - [https://webrtc.org/?hl=de](https://webrtc.org/?hl=de)
 - [https://reactnative.dev/](https://reactnative.dev/)
+- [https://min.io/](https://min.io/)
 
 ### 5.3 Index
