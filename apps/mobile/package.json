@@ -11,6 +11,7 @@
     "expo": "*",
     "react-native-svg": "*",
     "react-native-web": "*",
+    "react-native-safe-area-context": "*",
     "react": "18.2.0"
   },
   "scripts": {
