@@ -1,4 +1,4 @@
-# Lyve
+![Logo](../assets/lyve_logo.svg)
 
 (ausgesprochen Live)
 
@@ -258,10 +258,10 @@ API Software Architektur
 **DevOps**
 
 - CI/CD
-    - GitHub Actions
-        - Automatische generierung der Docker Images
-        - Code scanning
-        - Dependabot
+  - GitHub Actions
+    - Automatische generierung der Docker Images
+    - Code scanning
+    - Dependabot
 - Docker
 - Docker Compose
 
@@ -337,50 +337,49 @@ Responses: Siehe [API Dokumentation](https://github.com/Louis3797/Lyve/blob/main
 | Name           | Rolle                                                                        |
 | -------------- | ---------------------------------------------------------------------------- |
 | Louis-Kaan Ay  | Softwarearchitekt <br/> Frontend- & Backend Entwickler <br/> DevOps Engineer |
-| Jan-Niklas Rau | Frontend- & Backend Entwickler <br/>UI/UX Designer <br/>Dokumanager                    |
+| Jan-Niklas Rau | Frontend- & Backend Entwickler <br/>UI/UX Designer <br/>Dokumanager          |
 
 ## 4.3 Grober Projektplan
 
 ### Meilensteine
 
-- [ ]  Spezifikation abgeben 03.05
+- [ ] Spezifikation abgeben 03.05
 
 **MVP**
 
-- [ ]  MVP App Gui
-    - [ ]  Routing zwischen Pages
-    - [ ]  HomePage
-        - [ ]  Stream Recommendations
-        - [ ]  Streams der gefolgten User
-    - [ ]  StreamPage
-        - [ ]  Video des Streams wird angezeigt
-        - [ ]  Audio des Streams wird ausgegeben
-        - [ ]  Chat wird angezeigt
-        - [ ]  Nachrichten können gesendet werden
-    - [ ]  ProfilPage
-        - [ ]  User Info wird auf der Seite angezeigt
-            - [ ]  Name
-            - [ ]  Follower und FollowingCount
-            - [ ]  Bild
-            - [ ]  Achievements
-            - [ ]  Most Streamed Genre Statistik
-- [ ]  Authentifizierung mit AuthSession und Keycloak
-    - [ ]  User wird in Datenbank erstellt
-    - [ ]  Keycloak erstellt User
-    - [ ]  Keycloak authentifiziert User → Middleware im Backend
-- [ ]  Livestreams implementieren
-    - [ ]  WebRTC Verbidnung zwischen Client und Media-Server erstellen
-    - [ ]  Streame Media (audio,video) zwischen zwei Clients
-    - [ ]  Streams können mehrere Viewer beiwohnen
-- [ ]  LiveChat implementation
-    - [ ]  Mit [Socket.io](http://Socket.io) Room verbinden
-    - [ ]  Sende Nachrichten zwischen Clients die im selben Stream sind
-    - [ ]  Anzeigen der Nachrichten im Stream
-- [ ]  Achievement System
-    - [ ]  Erster Stream Achievement wird nach einen gestarteten Stream vergeben
-    - [ ]  Achievement wird in Profil angezeigt
-- [ ]  MVP vorstellung ~Ende Mai
-
+- [ ] MVP App Gui
+  - [ ] Routing zwischen Pages
+  - [ ] HomePage
+    - [ ] Stream Recommendations
+    - [ ] Streams der gefolgten User
+  - [ ] StreamPage
+    - [ ] Video des Streams wird angezeigt
+    - [ ] Audio des Streams wird ausgegeben
+    - [ ] Chat wird angezeigt
+    - [ ] Nachrichten können gesendet werden
+  - [ ] ProfilPage
+    - [ ] User Info wird auf der Seite angezeigt
+      - [ ] Name
+      - [ ] Follower und FollowingCount
+      - [ ] Bild
+      - [ ] Achievements
+      - [ ] Most Streamed Genre Statistik
+- [ ] Authentifizierung mit AuthSession und Keycloak
+  - [ ] User wird in Datenbank erstellt
+  - [ ] Keycloak erstellt User
+  - [ ] Keycloak authentifiziert User → Middleware im Backend
+- [ ] Livestreams implementieren
+  - [ ] WebRTC Verbidnung zwischen Client und Media-Server erstellen
+  - [ ] Streame Media (audio,video) zwischen zwei Clients
+  - [ ] Streams können mehrere Viewer beiwohnen
+- [ ] LiveChat implementation
+  - [ ] Mit [Socket.io](http://Socket.io) Room verbinden
+  - [ ] Sende Nachrichten zwischen Clients die im selben Stream sind
+  - [ ] Anzeigen der Nachrichten im Stream
+- [ ] Achievement System
+  - [ ] Erster Stream Achievement wird nach einen gestarteten Stream vergeben
+  - [ ] Achievement wird in Profil angezeigt
+- [ ] MVP vorstellung ~Ende Mai
 
 # 5 Anhänge
 
