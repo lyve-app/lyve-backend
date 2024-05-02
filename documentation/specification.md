@@ -251,6 +251,20 @@ API Software Architektur
 - MySQL
 - Redis (Cache)
 
+**Blob Storage**
+
+- Minio
+
+**DevOps**
+
+- CI/CD
+    - GitHub Actions
+        - Automatische generierung der Docker Images
+        - Code scanning
+        - Dependabot
+- Docker
+- Docker Compose
+
 ## 3.3 Schnittstellen
 
 Siehe [API Dokumentation](https://github.com/Louis3797/Lyve/blob/main/documentation/api.md)
@@ -444,5 +458,6 @@ Ein Viewer ist ein User der Livestreams konsumiert
 - [https://socket.io/](https://socket.io/)
 - [https://webrtc.org/?hl=de](https://webrtc.org/?hl=de)
 - [https://reactnative.dev/](https://reactnative.dev/)
+- [https://min.io/](https://min.io/)
 
 ### 5.3 Index
