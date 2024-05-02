@@ -12,7 +12,7 @@ Louis-Kaan Ay
 
 # 1 Einführung
 
-Lyve ist eine Livestreaming-Plattform in der User livestreamen oder Livestreams schauen können. Viewer können mit den Streamer per Chat interagieren und sogennante Rewards an diesen senden. Das erreichen bestimmter Meilensteine (Achievments) führt dazu das Streamer mehr auf der Plattform promoted werden und so an Sichtbarkeit und ansehen gewinnen.
+Lyve ist eine Livestreaming-Plattform in der User livestreamen oder Livestreams schauen können. Viewer können mit den Streamer per Chat interagieren und sogennante Rewards an diesen senden. Das erreichen bestimmter Meilensteine (Achievements) führt dazu, dass Streamer mehr auf der Plattform promoted werden und so an Sichtbarkeit und Ansehen gewinnen.
 
 ---
 
