@@ -301,6 +301,8 @@ Siehe [API Dokumentation](https://github.com/Louis3797/Lyve/blob/main/documentat
 
 ## 3.7 Fehlerbehandlung
 
+Responses: Siehe [API Dokumentation](https://github.com/Louis3797/Lyve/blob/main/documentation/api.md)
+
 ## 3.8 Validierung
 
 - Integration Tests für die API sind geplant
