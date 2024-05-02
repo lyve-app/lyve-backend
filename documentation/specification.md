@@ -100,27 +100,39 @@ Akteure: User (Viewer/Streamer), Keycloak, API, Mediaserver
 ### Mobile
 
 - **Login**
+
   ![Untitled](../assets/1%20-%20Login.png)
 - **Register**
+
   ![Untitled](../assets/2%20-%20Registration.png)
 - **Home Page**
+
   ![Untitled](../assets/9%20-%20Frontpage.png)
   ![Untitled](../assets/mockup_homepage.png)
 - **Search Page**
+
   ![Untitled](../assets/10%20-%20Search.png)
 - **Stream**
+
   - **Sicht Viewer**
+  
+    ![Untitled](../assets/7%20-%20Viewer%20View.png)
     ![Untitled](../assets/mockup_stream.png)
   - **Sicht Streamer**
+
     ![Untitled](../assets/8%20-%20Streamer%20View.png)
 - **Profile**
+
   - **Eigenes Profil**
+
     ![Untitled](../assets/4%20-%20Own%20Profile%20-%20Statistics.png)
     ![Untitled](../assets/6%20-%20Own%20Profile%20-%20Achievements.png)
   - **Anderes Profil**
+
     ![Untitled](../assets/3%20-%20Streamer%20Profile%20-%20Statistics.png)
     ![Untitled](../assets/5%20-%20Streamer%20Profile%20-%20Achievements.png)
 - **Einstellungen**
+
     ![Untitled](../assets/11%20-%20Settings.png)
 
 
