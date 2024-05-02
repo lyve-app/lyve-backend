@@ -315,7 +315,7 @@ Siehe [API Dokumentation](https://github.com/Louis3797/Lyve/blob/main/documentat
 | Name           | Rolle                                                                        |
 | -------------- | ---------------------------------------------------------------------------- |
 | Louis-Kaan Ay  | Softwarearchitekt <br/> Frontend- & Backend Entwickler <br/> DevOps Engineer |
-| Jan-Niklas Rau | Frontend- & Backend Entwickler <br/>UI/UX Designer                           |
+| Jan-Niklas Rau | Frontend- & Backend Entwickler <br/>UI/UX Designer <br/>Dokumanager                    |
 
 ## 4.3 Grober Projektplan
 
@@ -365,6 +365,12 @@ Siehe [API Dokumentation](https://github.com/Louis3797/Lyve/blob/main/documentat
 ### 5.1 Glossar
 
 **Mediasoup**
+
+mediasoup und seine client-seitigen Bibliotheken bieten eine super low level API. Sie sind dazu gedacht, verschiedene Anwendungsfälle und Szenarien zu ermöglichen, ohne irgendwelche Einschränkungen oder Annahmen. Einige dieser Anwendungsfälle sind:
+
+- Group video chat applications.
+- One-to-many (or few-to-many) broadcasting applications in real-time.
+- RTP streaming.
 
 **RTP**
 
