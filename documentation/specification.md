@@ -298,8 +298,6 @@ Verbindung zum Livestream
 
 ![Untitled](../assets/join_stream.png)
 
-- [ ] Todo Sequenzdiagram Verbindung zum Livestream
-- [ ] Todo Sequenzdiagram Erstellung vom Livestream
 - [ ] Todo Sequenzdiagram Authentifizierung
 - [ ] Todo Sequenzdiagram Account erstellen
 - [ ] Todo Sequenzdiagram Reward geben
