@@ -290,6 +290,14 @@ Siehe [API Dokumentation](https://github.com/Louis3797/Lyve/blob/main/documentat
 
 ## 3.5 Abläufe
 
+Erstellung vom Livestream
+
+![Untitled](../assets/start_stream.png)
+
+Verbindung zum Livestream
+
+![Untitled](../assets/join_stream.png)
+
 - [ ] Todo Sequenzdiagram Verbindung zum Livestream
 - [ ] Todo Sequenzdiagram Erstellung vom Livestream
 - [ ] Todo Sequenzdiagram Authentifizierung
