@@ -115,7 +115,8 @@ Akteure: User (Viewer/Streamer), Keycloak, API, Mediaserver
 - **Stream**
 
   - **Sicht Viewer**
-
+  
+    ![Untitled](../assets/7%20-%20Viewer%20View.png)
     ![Untitled](../assets/mockup_stream.png)
   - **Sicht Streamer**
 
