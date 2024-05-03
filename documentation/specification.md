@@ -326,7 +326,7 @@ Responses: Siehe [API Dokumentation](https://github.com/Louis3797/Lyve/blob/main
     - REST → HTTP
     - WebRTC
     - Websocket
-- Monorepo Projektaufbau (yarn Workspaces)
+- Monorepo Projektaufbau (nx)
 - IOS und Android App
 - Alle Server und oder Services haben ein Docker Image
 - Docker Compose wird genutzt als Entwicklungsumgebung
