@@ -57,9 +57,13 @@ Akteure: User (Viewer/Streamer), Keycloak, API, Mediaserver
 
 ### 2.3.1 Rahmenbedingungen
 
-1. **Protokolle und Schnittstellen:** Die App sollte gängige Protokolle und Schnittstellen für die Kommunikation mit anderen Systemen verwenden, z. B. HTTP/HTTPS für die Kommunikation mit Servern, JSON für den Datenaustausch und OAuth für die Authentifizierung.
-
-**Hardware-Anforderungen:** Die App sollte auf einer breiten Palette von mobilen Geräten und Betriebssystemversionen laufen
+- Es sollten gängige Authentifizierungs Protokolle genutzt werden damit keiner leicht auf anderer Accounts zugreifen kann
+- Eine Internetverbindung ist erforderlich
+- Die App sollte auf einer breiten Palette von mobilen Geräten und Betriebssystemversionen laufen
+- Es ist wichtig, dass die App ressourcenschonend ist, um den Akkuverbrauch und den Datenverbrauch der Benutzer zu minimieren.
+- Es ist wichtig, dass die App barrierefrei gestaltet ist, um auch Menschen mit verschiedenen Einschränkungen den Zugang zu ermöglichen.
+- Die App sollte eine intuitive Benutzeroberfläche haben, die auch für technisch weniger versierte Benutzer leicht verständlich ist.
+- Es ist wichtig, dass die App die geltenden rechtlichen Vorschriften und Standards einhält, um rechtliche Risiken zu minimieren und das Vertrauen der Benutzer zu stärken.
 
 ### 2.3.2 Betriebsbedingungen
 
@@ -67,7 +71,7 @@ Akteure: User (Viewer/Streamer), Keycloak, API, Mediaserver
 - Livestreams sollten flüssig übertragen werden
 - Das App Design sollte eine Vielzahl an Bildschirmgrößen unterstützen
 - Das Benutzen der App sollte schnell sein.
-  - Keine langen Ladezeiten
+    - Keine langen Ladezeiten
 - Die App sollte die Datenschutzbestimmungen einhalten und sicherstellen
 - Die Sicherheit der Benutzerdaten und der Plattform als Ganzes sollte oberste Priorität haben. Es sollten angemessene Sicherheitsmaßnahmen implementiert werden, um Datenlecks, Hacking-Versuche und andere Sicherheitsbedrohungen zu verhindern.
 - Die App sollte eine hohe Verfügbarkeit aufweisen
@@ -274,15 +278,13 @@ Siehe [API Dokumentation](https://github.com/Louis3797/Lyve/blob/main/documentat
 **RabbitMQ (erstmal nur gedanklich)**
 
 - API → Media-Server
-  - get-capabilities →
-  - create-stream → Erstellt Stream Router
-  - destroy-stream → Entfernt den mediasoup Router
-  - join-as-viewer → Viewer zum Stream hinzufügen + Anfrage nach WebRTC Infos
-  - remove-viewer → Viewer vom Stream entfernen
-  - join-as-streamer → Streamer zum Stream hinzufügen + Anfrage nach WebRTC Infos
-  - remove-streamer → Streamer von Stream entfernen + Stream beenden
+    - create-stream → Erstellt Stream Router
+    - destroy-stream → Entfernt den mediasoup Router + beendet stream
+    - join-as-viewer → Viewer zum Stream hinzufügen + Anfrage nach WebRTC Infos
+    - remove-viewer → Viewer vom Stream entfernen
 - Media-Server → API
-  - you-joined-as-viewer → Sendet WebRTC Info
+    - you-joined-as-viewer → Sendet WebRTC Info
+    - stream-created → Sendet WebRTC Info und Success
 
 ## 3.4 Datenmodell
 
