@@ -41,7 +41,7 @@ services:
     ports:
       - "3306:3306"
     volumes:
-      - mysql_data:/var/lib/mysql
+      - ./.docker/mysql_data:/var/lib/mysql
 
   rabbitmq:
     image: rabbitmq:latest
@@ -75,7 +75,7 @@ services:
       - MINIO_ACCESS_KEY=minio_access_key
       - MINIO_SECRET_KEY=minio_secret_key
     volumes:
-      - blob_storage_data:/data
+      - ./.docker/blob_storage_data:/data
 
   redis:
     image: redis:latest
