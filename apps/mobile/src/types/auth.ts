@@ -6,25 +6,20 @@ export type AuthContextData = {
   isLoggedIn: boolean;
   signIn(): Promise<void>;
   signOut(): void;
-  authData: AuthData;
-};
-
-export type AuthData = {
   user: {
     id: string;
-    name: string;
+    emailVerified: boolean;
+    fullName: string;
+    username: string;
+    first_name: string;
+    last_name: string;
     email: string;
   };
-  token: any;
 };
 
 export interface KeycloakConfiguration extends Partial<AuthRequestConfig> {
   clientId: string;
-  disableAutoRefresh?: boolean;
-  nativeRedirectPath?: string;
-  realm: string;
-  refreshTimeBuffer?: number;
+  realmUrl: string;
   scheme: string;
-  tokenStorageKey?: string;
-  url: string;
+  scopes: string[];
 }

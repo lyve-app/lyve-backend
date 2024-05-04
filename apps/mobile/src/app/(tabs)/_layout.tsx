@@ -6,7 +6,13 @@ import AuthProvider from "../../components/providers/AuthProvider";
 
 export default function TabLayout() {
   return (
-    <AuthProvider>
+    <AuthProvider
+      config={{
+        clientId: process.env.EXPO_PUBLIC_KEYCLOAK_CLIENT_ID as string,
+        realmUrl: process.env.EXPO_PUBLIC_KEYCLOAK_REALM_URL as string,
+        scheme: "lyve-mobile"
+      }}
+    >
       <Tabs
         screenOptions={{
           tabBarActiveTintColor: "white",
