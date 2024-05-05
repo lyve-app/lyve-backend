@@ -1,7 +1,7 @@
-import { useContext, useEffect } from "react";
-import { Button, Text, View } from "react-native";
-import { AuthContext } from "../../context/AuthContext";
+import { useEffect } from "react";
 import useAuth from "../../hooks/useAuth";
+import { Text, View } from "react-native";
+import { Button, YStack, SizableText } from "tamagui";
 
 const HomePage = () => {
   const { isLoggedIn, signIn, signOut, user } = useAuth();
@@ -11,11 +11,11 @@ const HomePage = () => {
   }, [user, isLoggedIn]);
 
   return (
-    <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
-      <Button title="Login!" onPress={() => signIn()} />
-      <Button title="logout!" onPress={() => signOut()} />
-      {isLoggedIn && <Text>{JSON.stringify(user)}</Text>}
-    </View>
+    <YStack padding="$3" backgroundColor="$color.background" flex={1}>
+      <Button>Login</Button>
+      <Button>Logout</Button>
+      <View>{isLoggedIn && <Text>{JSON.stringify(user)}</Text>}</View>
+    </YStack>
   );
 };
 
