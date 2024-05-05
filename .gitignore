@@ -57,3 +57,5 @@ cache/
 
 .env
 .env
+
+.docker/
