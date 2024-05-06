@@ -47347,6 +47347,13 @@
           "name": "color-15",
           "val": "#151718",
           "variable": ""
+        },
+        "orange": {
+          "isVar": true,
+          "key": "$orange",
+          "name": "color-16",
+          "val": "#F36E1D",
+          "variable": ""
         }
       },
       "space": {
@@ -48295,6 +48302,13 @@
         "key": "$background",
         "name": "color-15",
         "val": "#151718",
+        "variable": ""
+      },
+      "$color.orange": {
+        "isVar": true,
+        "key": "$orange",
+        "name": "color-16",
+        "val": "#F36E1D",
         "variable": ""
       },
       "$space.0": {

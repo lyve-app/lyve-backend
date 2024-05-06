@@ -1,25 +1,12 @@
-import { useEffect } from "react";
-import useAuth from "../../hooks/useAuth";
-import { Text } from "react-native";
-import { Button, YStack } from "tamagui";
 import { SafeAreaView } from "react-native-safe-area-context";
+import HomePage from "../../screens/HomePage";
 
-const HomePage = () => {
-  const { isLoggedIn, signIn, signOut, user } = useAuth();
-
-  useEffect(() => {
-    return;
-  }, [user, isLoggedIn]);
-
+const Home = () => {
   return (
-    <SafeAreaView style={{ backgroundColor: "red" }}>
-      <YStack padding="$3" backgroundColor="$color.background" height="100%">
-        <Button>Login</Button>
-        <Button>Logout</Button>
-        {isLoggedIn && <Text>{JSON.stringify(user)}</Text>}
-      </YStack>
+    <SafeAreaView style={{ backgroundColor: "#151718" }}>
+      <HomePage />
     </SafeAreaView>
   );
 };
 
-export default HomePage;
+export default Home;
