@@ -1,7 +1,8 @@
 import { useEffect } from "react";
 import useAuth from "../../hooks/useAuth";
-import { Text, View } from "react-native";
-import { Button, YStack, SizableText } from "tamagui";
+import { Text } from "react-native";
+import { Button, YStack } from "tamagui";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 const HomePage = () => {
   const { isLoggedIn, signIn, signOut, user } = useAuth();
@@ -11,11 +12,13 @@ const HomePage = () => {
   }, [user, isLoggedIn]);
 
   return (
-    <YStack padding="$3" backgroundColor="$color.background" flex={1}>
-      <Button>Login</Button>
-      <Button>Logout</Button>
-      <View>{isLoggedIn && <Text>{JSON.stringify(user)}</Text>}</View>
-    </YStack>
+    <SafeAreaView style={{ backgroundColor: "red" }}>
+      <YStack padding="$3" backgroundColor="$color.background" height="100%">
+        <Button>Login</Button>
+        <Button>Logout</Button>
+        {isLoggedIn && <Text>{JSON.stringify(user)}</Text>}
+      </YStack>
+    </SafeAreaView>
   );
 };
 

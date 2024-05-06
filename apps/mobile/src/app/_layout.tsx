@@ -7,14 +7,32 @@ import { Stack } from "expo-router/stack";
 import * as WebBrowser from "expo-web-browser";
 import { useColorScheme } from "react-native";
 import { TamaguiProvider } from "tamagui";
+import { useFonts } from "expo-font";
 
 import config from "../../tamagui.config";
 import AuthProvider from "../components/providers/AuthProvider";
+import { SafeAreaProvider } from "react-native-safe-area-context";
+import { useEffect } from "react";
 
 WebBrowser.maybeCompleteAuthSession();
 
 export default function AppRootLayout() {
   const colorScheme = useColorScheme();
+
+  const [loaded] = useFonts({
+    Inter: require("@tamagui/font-inter/otf/Inter-Medium.otf"),
+    InterBold: require("@tamagui/font-inter/otf/Inter-Bold.otf")
+  });
+
+  useEffect(() => {
+    if (loaded) {
+      // can hide splash screen here
+    }
+  }, [loaded]);
+
+  if (!loaded) {
+    return null;
+  }
 
   return (
     <TamaguiProvider config={config} defaultTheme="dark">
@@ -26,9 +44,11 @@ export default function AppRootLayout() {
             scheme: "lyve-mobile"
           }}
         > */}
-        <Stack>
-          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        </Stack>
+        <SafeAreaProvider>
+          <Stack>
+            <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+          </Stack>
+        </SafeAreaProvider>
         {/* </AuthProvider> */}
       </ThemeProvider>
     </TamaguiProvider>

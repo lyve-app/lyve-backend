@@ -1,7 +1,8 @@
 import React from "react";
 import { Feather } from "@expo/vector-icons";
 import { Tabs } from "expo-router";
-import { StyleSheet } from "react-native";
+import { YStack, SizableText } from "tamagui";
+import FloatingButton from "../../components/FloatingButton";
 
 export default function TabLayout() {
   return (
@@ -11,8 +12,15 @@ export default function TabLayout() {
         tabBarInactiveTintColor: "#676D75",
         headerShown: false,
         tabBarStyle: {
+          justifyContent: "center",
+          alignItems: "center",
+          position: "absolute",
+          bottom: 0,
+          right: 0,
+          left: 0,
+          elevation: 0,
           height: 110,
-          borderWidth: 1,
+          borderWidth: 0,
           borderColor: "#151718",
           borderTopColor: "#151718",
           backgroundColor: "#151718",
@@ -47,16 +55,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="stream"
         options={{
-          title: "",
-          tabBarIconStyle: {
-            backgroundColor: "#8A4BF9",
-            borderRadius: 100,
-            padding: 30,
-            marginBottom: 10
-          },
-          tabBarIcon: ({ color }) => (
-            <Feather size={28} name="video" color={color} />
-          )
+          tabBarButton: ({ onPress }) => <FloatingButton onPress={onPress} />
         }}
       />
       <Tabs.Screen
@@ -80,13 +79,3 @@ export default function TabLayout() {
     </Tabs>
   );
 }
-
-const style = StyleSheet.create({
-  streamIcon: {
-    color: "white",
-    backgroundColor: "#8A4BF9",
-    borderRadius: 50,
-    padding: 18,
-    marginBottom: 35
-  }
-});
