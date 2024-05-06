@@ -1,7 +1,7 @@
 import React from "react";
 import { Feather } from "@expo/vector-icons";
 import { Tabs } from "expo-router";
-import FloatingButton from "../../components/FloatingButton";
+import FloatingButton from "../../../components/FloatingButton";
 
 export default function TabLayout() {
   return (
