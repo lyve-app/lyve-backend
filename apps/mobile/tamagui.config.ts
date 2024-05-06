@@ -43,7 +43,8 @@ const tokens = createTokens({
     buttonActive: "#F8FBFC",
     buttonInactive: "#1D1F20",
     buttonBorder: "#212627",
-    background: "#151718"
+    background: "#151718",
+    orange: "#F36E1D"
   },
   space: space,
   size: size,

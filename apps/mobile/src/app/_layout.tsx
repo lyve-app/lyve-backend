@@ -8,7 +8,6 @@ import * as WebBrowser from "expo-web-browser";
 import { useColorScheme } from "react-native";
 import { TamaguiProvider } from "tamagui";
 import { useFonts } from "expo-font";
-
 import config from "../../tamagui.config";
 import AuthProvider from "../components/providers/AuthProvider";
 import { SafeAreaProvider } from "react-native-safe-area-context";
