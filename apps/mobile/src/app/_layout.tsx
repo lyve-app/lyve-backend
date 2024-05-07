@@ -36,19 +36,19 @@ export default function AppRootLayout() {
   return (
     <TamaguiProvider config={config} defaultTheme="dark">
       <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
-        {/* <AuthProvider
+        <AuthProvider
           config={{
             clientId: process.env.EXPO_PUBLIC_KEYCLOAK_CLIENT_ID as string,
             realmUrl: process.env.EXPO_PUBLIC_KEYCLOAK_REALM_URL as string,
             scheme: "lyve-mobile"
           }}
-        > */}
-        <SafeAreaProvider>
-          <Stack>
-            <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-          </Stack>
-        </SafeAreaProvider>
-        {/* </AuthProvider> */}
+        >
+          <SafeAreaProvider>
+            <Stack>
+              <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+            </Stack>
+          </SafeAreaProvider>
+        </AuthProvider>
       </ThemeProvider>
     </TamaguiProvider>
   );
