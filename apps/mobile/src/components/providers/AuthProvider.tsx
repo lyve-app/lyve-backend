@@ -26,7 +26,7 @@ const AuthProvider: React.FC<AuthProviderProps> = ({ children, config }) => {
   const [user, setUser] = useState<AuthContextData["user"]>(
     {} as AuthContextData["user"]
   );
-  const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
+  const [session, setsession] = useState<boolean>(false);
 
   const discovery = useAutoDiscovery(config.realmUrl);
 
@@ -70,7 +70,7 @@ const AuthProvider: React.FC<AuthProviderProps> = ({ children, config }) => {
         if (revokeResponse) {
           setUser({} as AuthContextData["user"]); // remove userData
           await AsyncStorage.multiRemove(["accessToken", "tokenConfig"]);
-          setIsLoggedIn(false);
+          setsession(false);
         }
       }
     }
@@ -132,7 +132,7 @@ const AuthProvider: React.FC<AuthProviderProps> = ({ children, config }) => {
           email: userData.email
         });
 
-        setIsLoggedIn(true);
+        setsession(true);
       }
     }
   };
@@ -140,7 +140,7 @@ const AuthProvider: React.FC<AuthProviderProps> = ({ children, config }) => {
   const handleRefresh = useCallback(async () => {
     const tokenConfigString = await AsyncStorage.getItem("tokenConfig");
 
-    if (tokenConfigString && isLoggedIn) {
+    if (tokenConfigString && session) {
       const tokenConfig: TokenResponseConfig = JSON.parse(tokenConfigString);
       if (tokenConfig && tokenConfig.refreshToken && discovery?.tokenEndpoint) {
         // instantiate a new token response object which will allow us to refresh
@@ -167,20 +167,20 @@ const AuthProvider: React.FC<AuthProviderProps> = ({ children, config }) => {
   }, [handleTokenExchange, result]);
 
   useEffect(() => {
-    if (isLoggedIn) {
+    if (session) {
       const refreshInterval = setInterval(() => {
         handleRefresh();
       }, 2 * 60 * 1000); // Refresh every 2 min
 
       return () => clearInterval(refreshInterval);
     }
-  }, [handleRefresh, isLoggedIn]);
+  }, [handleRefresh, session]);
 
   return (
     <AuthContext.Provider
       value={{
-        discoveryResult: !result,
-        isLoggedIn,
+        isLoading: !result,
+        session,
         signIn,
         signOut,
         user
