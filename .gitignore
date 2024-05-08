@@ -56,4 +56,7 @@ web-build/
 cache/
 
 .env
-.env
+
+
+.docker/*
+.docker/
