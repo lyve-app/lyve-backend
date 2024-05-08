@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import * as AuthSession from "expo-auth-session";
 import {
   makeRedirectUri,
@@ -16,6 +16,7 @@ import { AuthContextData, KeycloakConfiguration } from "../../types/auth";
 
 // This is needed for ios
 import { decode } from "base-64";
+import { router } from "expo-router";
 global.atob = decode;
 interface AuthProviderProps {
   children: React.ReactNode;
@@ -26,7 +27,7 @@ const AuthProvider: React.FC<AuthProviderProps> = ({ children, config }) => {
   const [user, setUser] = useState<AuthContextData["user"]>(
     {} as AuthContextData["user"]
   );
-  const [session, setsession] = useState<boolean>(false);
+  const [session, setSession] = useState<boolean>(false);
 
   const discovery = useAutoDiscovery(config.realmUrl);
 
@@ -49,11 +50,11 @@ const AuthProvider: React.FC<AuthProviderProps> = ({ children, config }) => {
     discovery
   );
 
-  const signIn = async () => {
+  const signIn = useCallback(async () => {
     await promptAsync();
-  };
+  }, [promptAsync]);
 
-  const signOut = async (): Promise<void> => {
+  const signOut = useCallback(async (): Promise<void> => {
     if (discovery?.revocationEndpoint) {
       const accessToken = await AsyncStorage.getItem("accessToken");
 
@@ -70,11 +71,11 @@ const AuthProvider: React.FC<AuthProviderProps> = ({ children, config }) => {
         if (revokeResponse) {
           setUser({} as AuthContextData["user"]); // remove userData
           await AsyncStorage.multiRemove(["accessToken", "tokenConfig"]);
-          setsession(false);
+          setSession(false);
         }
       }
     }
-  };
+  }, [config.clientId, discovery]);
 
   const handleTokenExchange = useCallback(async (): Promise<{
     tokens: TokenResponse;
@@ -132,7 +133,8 @@ const AuthProvider: React.FC<AuthProviderProps> = ({ children, config }) => {
           email: userData.email
         });
 
-        setsession(true);
+        setSession(true);
+        router.replace("/");
       }
     }
   };
@@ -142,7 +144,7 @@ const AuthProvider: React.FC<AuthProviderProps> = ({ children, config }) => {
 
     if (tokenConfigString && session) {
       const tokenConfig: TokenResponseConfig = JSON.parse(tokenConfigString);
-      if (tokenConfig && tokenConfig.refreshToken && discovery?.tokenEndpoint) {
+      if (tokenConfig?.refreshToken && discovery?.tokenEndpoint) {
         // instantiate a new token response object which will allow us to refresh
         let tokenResponse = new TokenResponse(tokenConfig);
         // shouldRefresh checks the expiration and makes sure there is a refresh token
@@ -160,7 +162,7 @@ const AuthProvider: React.FC<AuthProviderProps> = ({ children, config }) => {
         updateState({ tokens: tokenResponse });
       }
     }
-  }, [config.clientId, discovery]);
+  }, [config.clientId, discovery, session]);
 
   useEffect(() => {
     handleTokenExchange().then(updateState);
@@ -176,16 +178,19 @@ const AuthProvider: React.FC<AuthProviderProps> = ({ children, config }) => {
     }
   }, [handleRefresh, session]);
 
+  const authContextValue = useMemo(
+    () => ({
+      isLoading: discovery !== null && !request,
+      session,
+      signIn,
+      signOut,
+      user
+    }),
+    [discovery, request, session, signIn, signOut, user]
+  );
+
   return (
-    <AuthContext.Provider
-      value={{
-        isLoading: !result,
-        session,
-        signIn,
-        signOut,
-        user
-      }}
-    >
+    <AuthContext.Provider value={authContextValue}>
       {children}
     </AuthContext.Provider>
   );
