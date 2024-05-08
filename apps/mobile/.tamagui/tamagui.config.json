@@ -22460,7 +22460,7 @@
           "true": 14
         }
       },
-      "headingFont": {
+      "heading": {
         "family": "Inter",
         "lineHeight": {
           "1": 21,
