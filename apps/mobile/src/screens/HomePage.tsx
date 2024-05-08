@@ -2,7 +2,6 @@ import React from "react";
 import { YStack, XStack, Avatar, H1 } from "tamagui";
 import StreamPreviewCard from "../components/StreamPreviewCard";
 import { ScrollView } from "react-native";
-import { space } from "@tamagui/themes";
 import StreamCard from "../components/StreamCard";
 
 const HomePage = () => {
@@ -50,8 +49,8 @@ const HomePage = () => {
         </H1>
         <ScrollView horizontal={true}>
           <XStack gap="$2.5">
-            {fakeFollowingStreamData.map((d) => {
-              return <StreamPreviewCard {...d} />;
+            {fakeFollowingStreamData.map((d, idx) => {
+              return <StreamPreviewCard key={idx} {...d} />;
             })}
           </XStack>
         </ScrollView>

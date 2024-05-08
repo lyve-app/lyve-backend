@@ -54,10 +54,6 @@ const tokens = createTokens({
 const headingFont = createInterFont();
 const bodyFont = createInterFont();
 
-export const Container = styled(YStack, {
-  flex: 1
-});
-
 const config = createTamagui({
   animations,
   defaultTheme: "dark",
@@ -68,7 +64,7 @@ const config = createTamagui({
   tokens,
   fonts: {
     body: bodyFont as any,
-    headingFont: headingFont as any
+    heading: headingFont as any
   },
   media: createMedia({
     xs: { maxWidth: 660 },
