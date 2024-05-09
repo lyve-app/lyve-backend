@@ -61,6 +61,5 @@ export const createUser = async (
     username: username,
     dispname: username,
     email: email
-    //id, username, email, dispname, avatar url
   });
 };
