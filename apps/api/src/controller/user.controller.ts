@@ -38,7 +38,8 @@ export const createUser = async (
   const user = await prismaClient.user.findMany({
     where: { OR: [{ id: id }, { email: email }] },
     select: {
-      id: true
+      id: true,
+      email: true
     }
   });
 
