@@ -39,7 +39,7 @@ services:
       echo 'CREATE DATABASE IF NOT EXISTS lyve_db; CREATE DATABASE IF NOT EXISTS lyve_db_keycloak;' > /docker-entrypoint-initdb.d/init.sql;
       /usr/local/bin/docker-entrypoint.sh --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci"
     ports:
-      - "3306:3306"
+      - "3307:3307"
     volumes:
       - ./.docker/mysql_data:/var/lib/mysql
 
