@@ -1,3 +1,4 @@
+import type { User } from "@prisma/client";
 import prismaClient from "../config/prisma";
 
 export const createUser = async (
@@ -5,7 +6,7 @@ export const createUser = async (
   username: string,
   dispname: string,
   email: string
-) => {
+): Promise<User> => {
   return await prismaClient.user.create({
     data: {
       id,
