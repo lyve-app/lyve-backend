@@ -11,7 +11,12 @@ export const getUserInfo = async (
     where: { id: req.params.id },
     select: {
       id: true,
-      username: true
+      username: true,
+      bio: true,
+      avatar_url: true,
+      followingCount: true,
+      followerCount: true,
+      level: true
     }
   });
 
