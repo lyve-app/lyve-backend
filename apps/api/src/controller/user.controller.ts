@@ -56,6 +56,10 @@ export const createUser = async (
   });
 
   return res.status(httpStatus.CREATED).json({
+    id: id,
+    username: username,
+    dispname: username,
+    email: email
     //id, username, email, dispname, avatar url
   });
 };
