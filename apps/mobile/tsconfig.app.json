@@ -20,7 +20,7 @@
 
     "jest.config.ts",
     "metro.config.js",
-    "postcss.config.js",
+    "tamagui.config.ts",
     "index.js"
   ]
 }

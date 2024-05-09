@@ -1,8 +1,8 @@
 import { AuthRequestConfig } from "expo-auth-session";
 
 export type AuthContextData = {
-  discoveryResult: boolean; // did discovery finish ?
-  isLoggedIn: boolean;
+  isLoading: boolean; // did discovery finish ?
+  session: boolean;
   signIn(): Promise<void>;
   signOut(): void;
   user: {
