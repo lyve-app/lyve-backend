@@ -11,8 +11,8 @@ export const getStreamInfo = async (
   req: Request<{ id: string }>,
   res: Response
 ) => {
-  req.params.id;
-  res.status;
+  console.log(req);
+  console.log(res);
   return 0;
 };
 
