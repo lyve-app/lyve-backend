@@ -1,10 +1,19 @@
-import type { Response } from "express";
+import type { Request, Response } from "express";
 import httpStatus from "http-status";
 import prismaClient from "../config/prisma";
 import { TypedRequest, createStreamCredentials } from "../types/types";
 
 export const dummyfunc = () => {
   return "0";
+};
+
+export const getStreamInfo = async (
+  req: Request<{ id: string }>,
+  res: Response
+) => {
+  req.params.id;
+  res.status;
+  return 0;
 };
 
 export const createStream = async (
