@@ -11,9 +11,9 @@ export const createStream = async (
   req: TypedRequest<createStreamCredentials>,
   res: Response
 ) => {
-  const { serverId, streamerId, previewImgUrl, genre } = req.body;
+  const { streamerId, previewImgUrl, genre } = req.body;
 
-  if (!serverId || !streamerId || !previewImgUrl || !genre) {
+  if (!streamerId || !previewImgUrl || !genre) {
     return res.status(httpStatus.BAD_REQUEST).json({
       message: "id, image and genre must be defined"
     });
@@ -21,12 +21,32 @@ export const createStream = async (
 
   await prismaClient.stream.create({
     data: {
-      serverId: serverId,
       streamerId: streamerId,
       previewImgUrl: previewImgUrl,
       genre: genre
     }
   });
 
-  return res.sendStatus(httpStatus.CREATED);
+  return res.status(httpStatus.CREATED).json({
+    success: true,
+    data: {
+      id: "",
+      serverId: "",
+      active: true,
+      streamer: {
+        id: streamerId,
+        username: "",
+        promotionPoints: "",
+        level: "",
+        avatar_url: "",
+        followerCount: "",
+        followed: "false"
+      },
+      previewImgUrl: previewImgUrl,
+      viewerCount: "",
+      genre: "",
+      created_at: ""
+    },
+    error: []
+  });
 };

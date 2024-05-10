@@ -52,7 +52,6 @@ export type CreateUserCredentials = {
 };
 
 export type createStreamCredentials = {
-  serverId: string;
   streamerId: string;
   previewImgUrl: string;
   genre: string;
