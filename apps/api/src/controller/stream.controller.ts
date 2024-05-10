@@ -15,7 +15,15 @@ export const createStream = async (
 
   if (!streamerId || !previewImgUrl || !genre) {
     return res.status(httpStatus.BAD_REQUEST).json({
-      message: "id, image and genre must be defined"
+      success: false,
+      data: null,
+      error: [
+        {
+          name: "BAD_REQUEST",
+          code: "400",
+          msg: "id, image and genre must be defined"
+        }
+      ]
     });
   }
 
