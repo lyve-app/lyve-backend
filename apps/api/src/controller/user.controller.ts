@@ -7,7 +7,7 @@ export const getUserInfo = async (
   req: Request<{ id: string }>,
   res: Response
 ) => {
-  const userInfo = await prismaClient.user.findUnique({
+  const user = await prismaClient.user.findUnique({
     where: { id: req.params.id },
     select: {
       id: true,
@@ -21,7 +21,7 @@ export const getUserInfo = async (
   });
 
   // User not found
-  if (!userInfo) {
+  if (!user) {
     return res.status(httpStatus.NOT_FOUND).json({
       success: false,
       data: null,
@@ -38,7 +38,7 @@ export const getUserInfo = async (
   return res.status(httpStatus.OK).json({
     success: true,
     data: {
-      userInfo
+      user
     },
     error: "[]"
   });
