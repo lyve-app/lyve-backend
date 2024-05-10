@@ -3,7 +3,7 @@ import { streamController } from "../controller";
 
 const streamRouter = Router();
 
-streamRouter.post("/create", streamController.dummyfunc);
+streamRouter.post("/create", streamController.createStream);
 
 streamRouter.get("/:id", streamController.dummyfunc);
 
