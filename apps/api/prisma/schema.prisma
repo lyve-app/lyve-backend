@@ -54,7 +54,7 @@ model Follows {
 
 model Stream {
   id            String  @default(cuid())
-  serverId      String
+  serverId      String?
   active        Boolean @default(true)
   streamer      User    @relation(fields: [streamerId], references: [id])
   streamerId    String  @unique
