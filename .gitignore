@@ -56,3 +56,4 @@ web-build/
 cache/
 .env
 .docker/
+.apps/api/prisma/migration/
