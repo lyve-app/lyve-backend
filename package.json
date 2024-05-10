@@ -74,6 +74,9 @@
     "nx": "18.3.4",
     "prettier": "^2.6.2",
     "prisma": "^5.13.0",
+    "react-test-renderer": "18.2.0",
+    "supertest": "^7.0.0",
+    "tailwindcss": "3.2.7",
     "ts-jest": "^29.1.0",
     "ts-node": "10.9.1",
     "typescript": "~5.4.2"
@@ -82,5 +85,8 @@
     "commitizen": {
       "path": "./node_modules/cz-conventional-changelog"
     }
+  },
+  "prisma": {
+    "schema": "./apps/api/prisma/schema.prisma"
   }
 }

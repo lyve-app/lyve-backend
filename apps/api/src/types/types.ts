@@ -44,3 +44,9 @@ export type Sanitized<T> = T extends (...args: unknown[]) => unknown
 export type SanitizeOptions = IFilterXSSOptions & {
   whiteList?: IFilterXSSOptions["whiteList"];
 };
+
+export type CreateUserCredentials = {
+  id: string;
+  username: string;
+  email: string;
+};
