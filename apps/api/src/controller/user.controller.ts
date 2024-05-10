@@ -22,10 +22,26 @@ export const getUserInfo = async (
 
   // User not found
   if (!userInfo) {
-    return res.status(httpStatus.NOT_FOUND).json({ message: "User not found" });
+    return res.status(httpStatus.NOT_FOUND).json({
+      success: false,
+      data: null,
+      error: [
+        {
+          name: "not found",
+          code: 404,
+          message: "user not found"
+        }
+      ]
+    });
   }
 
-  return res.status(httpStatus.OK).json(userInfo);
+  return res.status(httpStatus.OK).json({
+    success: true,
+    data: {
+      userInfo
+    },
+    error: "[]"
+  });
 };
 
 export const createUser = async (
@@ -44,12 +60,23 @@ export const createUser = async (
     where: { OR: [{ id: id }, { email: email }] },
     select: {
       id: true,
+      username: true,
       email: true
     }
   });
 
   if (user.length > 0) {
-    return res.sendStatus(httpStatus.CONFLICT);
+    return res.status(httpStatus.CONFLICT).json({
+      success: false,
+      data: null,
+      error: [
+        {
+          name: "Conflict",
+          code: "409",
+          msg: ""
+        }
+      ]
+    });
   }
 
   await prismaClient.user.create({
@@ -62,9 +89,14 @@ export const createUser = async (
   });
 
   return res.status(httpStatus.CREATED).json({
-    id: id,
-    username: username,
-    dispname: username,
-    email: email
+    success: true,
+    data: {
+      user: {
+        id: id,
+        username: username,
+        email: email
+      }
+    },
+    error: []
   });
 };
