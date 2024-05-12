@@ -27,7 +27,7 @@ export const getUserInfo = async (
       data: null,
       error: [
         {
-          name: "not found",
+          name: "Not_found",
           code: 404,
           message: "user not found"
         }
