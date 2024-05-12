@@ -27,7 +27,7 @@ export const getStreamInfo = async (
       data: null,
       error: [
         {
-          name: "not found",
+          name: "Not_found",
           code: "404",
           message: "stream not found"
         }
@@ -56,7 +56,7 @@ export const createStream = async (
       data: null,
       error: [
         {
-          name: "BAD_REQUEST",
+          name: "Bad_Request",
           code: "400",
           msg: "id, image and genre must be defined"
         }
@@ -118,7 +118,15 @@ export const deleteStream = async (
     });
   } catch {
     return res.status(httpStatus.CONFLICT).json({
-      success: false
+      success: false,
+      data: null,
+      error: [
+        {
+          name: "Conflict",
+          code: "409",
+          message: ""
+        }
+      ]
     });
   }
 };
