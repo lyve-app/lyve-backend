@@ -7,6 +7,6 @@ streamRouter.post("/create", streamController.createStream);
 
 streamRouter.get("/:id", streamController.getStreamInfo);
 
-streamRouter.delete("/:id/delete", streamController.dummyfunc);
+streamRouter.delete("/:id/delete", streamController.deleteStream);
 
 export default streamRouter;
