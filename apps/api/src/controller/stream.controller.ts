@@ -3,10 +3,6 @@ import httpStatus from "http-status";
 import prismaClient from "../config/prisma";
 import { TypedRequest, createStreamCredentials } from "../types/types";
 
-export const dummyfunc = () => {
-  return "0";
-};
-
 export const getStreamInfo = async (
   req: Request<{ id: string }>,
   res: Response
@@ -98,4 +94,31 @@ export const createStream = async (
     },
     error: []
   });
+};
+
+export const deleteStream = async (
+  req: Request<{ id: string }>,
+  res: Response
+) => {
+  const { id } = req.params;
+
+  try {
+    const deletedStream = await prismaClient.stream.delete({
+      where: {
+        streamerId: id
+      }
+    });
+
+    return res.status(httpStatus.OK).json({
+      success: true,
+      data: {
+        deletedStream
+      },
+      error: "[]"
+    });
+  } catch {
+    return res.status(httpStatus.CONFLICT).json({
+      success: false
+    });
+  }
 };
