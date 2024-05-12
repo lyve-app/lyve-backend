@@ -52,7 +52,15 @@ export const createUser = async (
 
   if (!id || !username || !email) {
     return res.status(httpStatus.BAD_REQUEST).json({
-      message: "id, username and email must be defined"
+      success: false,
+      data: null,
+      error: [
+        {
+          name: "Bad_Request",
+          code: "400",
+          message: "id, username and email must be defined"
+        }
+      ]
     });
   }
 
