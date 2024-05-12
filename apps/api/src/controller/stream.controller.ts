@@ -81,7 +81,7 @@ export const createStream = async (
     data: {
       id: "",
       serverId: "",
-      active: true,
+      active: false,
       streamer: {
         id: streamerId,
         username: "",
