@@ -11,9 +11,41 @@ export const getStreamInfo = async (
   req: Request<{ id: string }>,
   res: Response
 ) => {
-  console.log(req);
-  console.log(res);
-  return 0;
+  const stream = await prismaClient.stream.findFirst({
+    where: { id: req.params.id },
+    select: {
+      id: true,
+      serverId: true,
+      active: true,
+      streamer: true,
+      previewImgUrl: true,
+      viewerCount: true,
+      genre: true,
+      created_at: true
+    }
+  });
+
+  if (!stream) {
+    return res.status(httpStatus.NOT_FOUND).json({
+      success: false,
+      data: null,
+      error: [
+        {
+          name: "not found",
+          code: "404",
+          message: "stream not found"
+        }
+      ]
+    });
+  }
+
+  return res.status(httpStatus.OK).json({
+    success: true,
+    data: {
+      stream
+    },
+    error: "[]"
+  });
 };
 
 export const createStream = async (
