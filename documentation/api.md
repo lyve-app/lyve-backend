@@ -36,6 +36,7 @@ Authorization: Bearer <access-token>
 
 ```json
 {
+  "id": "id"
   "username": "username",
   "email": "email"
 }
@@ -52,7 +53,6 @@ Success:
       "id": "id",
       "username": "username",
       "email": "email",
-      "created_at": "YYYY-MM-DD hh:mm:ss"
     }
   },
   "error": []
@@ -67,9 +67,9 @@ Error:
   "data": null,
   "error": [
     {
-      "name": "Forbidden",
-      "code": 403,
-      "msg": "reason" // can also be empty later, bc off safety issues
+      "name": "Conflict",
+      "code": 409,
+      "msg": ""
     }
   ]
 }
@@ -110,6 +110,7 @@ Success:
       "followingCount": 0,
       "followerCount": 0,
       "level": 0,
+      "created_at": "date"
       "achievements": [
         {
           "id": "achievement id",
