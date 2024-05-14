@@ -63,7 +63,7 @@ export const createStream = async (
       ]
     });
   }
-
+  //TODO add try-catch
   await prismaClient.stream.create({
     data: {
       streamerId: streamerId,
