@@ -3,8 +3,9 @@
   "version": "0.0.0",
   "license": "MIT",
   "scripts": {
-    "dev": "tsc --project './tsconfig.app.json' --watch & NODE_ENV=development nodemon --trace-warnings ./dist/index.js --verbose",
-    "build": "tsc --project './tsconfig.app.json'",
+    "dev": "tsc --project ./tsconfig.app.json --watch & nodemon --trace-warnings ./dist/index.js --verbose",
+    "dev2": "ts-node src",
+    "build": "tsc --project ./tsconfig.app.json",
     "start": "yarn run build && NODE_ENV=production node --trace-warnings ./dist/index.js",
     "watch": "tsc --project './tsconfig.app.json' --watch",
     "test": "jest --coverage=false --passWithNoTests",
