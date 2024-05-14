@@ -28,7 +28,7 @@ jobs:
           # npx nx run api:test
 
       - name: Zip artifact for deployment
-        run: zip release.zip ./dist/apps/api/* -r
+        run: zip release.zip . -r
 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v3
