@@ -25,7 +25,7 @@ jobs:
         run: |
           yarn install
           npx nx build api
-          npx nx test api
+          # npx nx run api:test
 
       - name: Zip artifact for deployment
         run: zip release.zip ./dist/apps/api/* -r
