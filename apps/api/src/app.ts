@@ -8,7 +8,7 @@ import { errorHandler } from "./middleware/errorHandler";
 import config from "./config/config";
 import { xssMiddleware } from "./middleware/xssMiddleware";
 import { createServer } from "http";
-import { userRouter } from "./routes";
+import { streamRouter, userRouter } from "./routes";
 
 const app: Express = express();
 const server = createServer(app);
@@ -42,6 +42,8 @@ app.get("/", (_req, res) => {
 });
 
 app.use("/api/user", userRouter);
+
+app.use("/api/stream", streamRouter);
 
 app.all("*", (_req, res) => {
   res.status(404).json({ error: "404 Not Found" });

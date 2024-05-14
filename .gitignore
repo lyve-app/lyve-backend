@@ -55,4 +55,7 @@ web-build/
 cache/
 .env
 .docker/
-.apps/api/prisma/migration/
+.apps/api/prisma/migrations/
+
+yarn.lock
+migrations

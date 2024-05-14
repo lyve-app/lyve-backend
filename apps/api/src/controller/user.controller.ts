@@ -27,7 +27,7 @@ export const getUserInfo = async (
       data: null,
       error: [
         {
-          name: "not found",
+          name: "Not_found",
           code: 404,
           message: "user not found"
         }
@@ -52,7 +52,15 @@ export const createUser = async (
 
   if (!id || !username || !email) {
     return res.status(httpStatus.BAD_REQUEST).json({
-      message: "id, username and email must be defined"
+      success: false,
+      data: null,
+      error: [
+        {
+          name: "Bad_Request",
+          code: "400",
+          message: "id, username and email must be defined"
+        }
+      ]
     });
   }
 

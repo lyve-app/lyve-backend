@@ -50,3 +50,9 @@ export type CreateUserCredentials = {
   username: string;
   email: string;
 };
+
+export type createStreamCredentials = {
+  streamerId: string;
+  previewImgUrl: string;
+  genre: string;
+};
