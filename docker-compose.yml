@@ -30,18 +30,19 @@ services:
     deploy:
       replicas: 1 # Adjust the number of replicas as needed
 
-  mysql:
-    image: mysql:latest
+  postgres:
+    image: postgres:latest
     environment:
-      - MYSQL_ROOT_PASSWORD=root
-      - MYSQL_DATABASE=lyve_db
+      - POSTGRES_PASSWORD=root
+      - POSTGRES_USER=root
+      - POSTGRES_DB=lyve_db
     entrypoint: sh -c "
       echo 'CREATE DATABASE IF NOT EXISTS lyve_db; CREATE DATABASE IF NOT EXISTS lyve_db_keycloak;' > /docker-entrypoint-initdb.d/init.sql;
       /usr/local/bin/docker-entrypoint.sh --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci"
     ports:
-      - "3306:3306"
+      - "5432:5432"
     volumes:
-      - ./.docker/mysql_data:/var/lib/mysql
+      - ./.docker/postgresql_data:/var/lib/postgresql/data
 
   rabbitmq:
     image: rabbitmq:latest
@@ -85,6 +86,6 @@ services:
       - "6379:6379"
 
 volumes:
-  mysql_data:
+  postgresql_data:
   keycloak_data:
   blob_storage_data:
