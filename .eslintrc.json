@@ -1,46 +1,81 @@
 {
   "root": true,
-  "ignorePatterns": ["**/*"],
-  "plugins": ["@nx"],
+  "plugins": ["@typescript-eslint", "promise", "import"],
   "extends": [
- 
+    "eslint:recommended",
+    "plugin:@typescript-eslint/recommended",
+    "prettier",
+    "plugin:node/recommended"
   ],
+  "parserOptions": {
+    "ecmaVersion": 2022,
+    "sourceType": "module",
+    "project": "./tsconfig.base.json"
+  },
   "overrides": [
     {
-      "files": ["*.ts", "*.tsx", "*.js", "*.jsx"],
-      "rules": {
-
-        "@nx/enforce-module-boundaries": [
-          "error",
-          {
-            "enforceBuildableLibDependency": true,
-            "allow": [],
-            "depConstraints": [
-              {
-                "sourceTag": "*",
-                "onlyDependOnLibsWithTags": ["*"]
-              }
-            ]
-          }
-        ]
-      }
-    },
-    {
-      "files": ["*.ts", "*.tsx"],
-      "extends": ["plugin:@nx/typescript"],
-      "rules": {}
-    },
-    {
-      "files": ["*.js", "*.jsx"],
-      "extends": ["plugin:@nx/javascript"],
-      "rules": {}
-    },
-    {
-      "files": ["*.spec.ts", "*.spec.tsx", "*.spec.js", "*.spec.jsx"],
+      "files": ["tests/**/*"],
+      "plugins": ["jest"],
       "env": {
-        "jest": true
-      },
-      "rules": {}
+        "jest/globals": true
+      }
     }
-  ]
+  ],
+  "rules": {
+    "indent": "off",
+    "linebreak-style": ["error", "unix"],
+    "quotes": ["error", "double"],
+    "semi": "off",
+
+    "space-before-function-paren": "off",
+    "@typescript-eslint/space-before-function-paren": "off",
+
+    "@typescript-eslint/indent": "off",
+    "@typescript-eslint/semi": "off",
+    "@typescript-eslint/member-delimiter-style": "off",
+    "@typescript-eslint/strict-boolean-expressions": "off",
+    "@typescript-eslint/explicit-function-return-type": "off",
+    "@typescript-eslint/restrict-plus-operands": "off",
+    "@typescript-eslint/restrict-template-expressions": "off",
+    "@typescript-eslint/prefer-optional-chain": "off",
+    "@typescript-eslint/no-misused-promises": "off",
+    "@typescript-eslint/consistent-type-assertions": "off",
+
+    // plugin: node/recommended
+    "node/exports-style": ["error", "module.exports"],
+    "node/file-extension-in-import": "off",
+    "node/no-missing-import": "off",
+    "node/prefer-global/buffer": ["error", "always"],
+    "node/prefer-global/console": ["error", "always"],
+    "node/prefer-global/process": ["error", "always"],
+    "node/prefer-global/url-search-params": ["error", "always"],
+    "node/prefer-global/url": ["error", "always"],
+    "node/prefer-promises/dns": "error",
+    "node/prefer-promises/fs": "error",
+    "node/no-unsupported-features/es-syntax": "off",
+    "node/no-extraneous-import": "off",
+    "node/no-unsupported-features/es-builtins": "off",
+
+    // plugin promise
+    "promise/always-return": "error",
+    "promise/no-return-wrap": "error",
+    "promise/param-names": "error",
+    "promise/catch-or-return": "error",
+    "promise/no-native": "off",
+    "promise/no-nesting": "warn",
+    "promise/no-promise-in-callback": "off",
+    "promise/no-callback-in-promise": "warn",
+    "promise/avoid-new": "warn",
+    "promise/no-new-statics": "error",
+    "promise/no-return-in-finally": "warn",
+    "promise/valid-params": "warn",
+
+    "n/no-callback-literal": "off",
+    "security/detect-object-injection": "off",
+
+    "sort-imports": [
+      "error",
+      { "ignoreDeclarationSort": true, "ignoreCase": true }
+    ]
+  }
 }

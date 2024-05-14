@@ -2,16 +2,15 @@
   "extends": "../../tsconfig.base.json",
   "files": [],
   "include": [],
-  "references": [
-    {
-      "path": "./tsconfig.app.json"
-    },
-    {
-      "path": "./tsconfig.spec.json"
-    }
-  ],
   "compilerOptions": {
+    "rootDir": ".",
+    "baseUrl": ".",
+    "target": "es2022",
+    "module": "Node16",
+    "lib": ["es2023", "es2020", "dom", "es6", "ESNext.AsyncIterable"],
+
+    "moduleResolution": "node16",
     "esModuleInterop": true,
-    "module": "node16",
+    "outDir": "dist"
   }
 }

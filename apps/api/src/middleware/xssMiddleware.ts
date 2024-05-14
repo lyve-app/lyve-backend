@@ -1,7 +1,7 @@
-import type { ParamsDictionary } from 'express-serve-static-core';
-import type { ParsedQs } from 'qs';
-import { sanitize } from '../utils/sanitize.util';
-import type { ExpressMiddleware, SanitizeOptions } from '../types/types';
+import type { ParamsDictionary } from "express-serve-static-core";
+import type { ParsedQs } from "qs";
+import { sanitize } from "../utils/sanitize.util";
+import type { ExpressMiddleware, SanitizeOptions } from "../types/types";
 
 export const xssMiddleware = (options?: SanitizeOptions): ExpressMiddleware => {
   return (req, _res, next) => {

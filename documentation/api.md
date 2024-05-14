@@ -52,7 +52,7 @@ Success:
     "user": {
       "id": "id",
       "username": "username",
-      "email": "email",
+      "email": "email"
     }
   },
   "error": []

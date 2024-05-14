@@ -71,7 +71,7 @@ Akteure: User (Viewer/Streamer), Keycloak, API, Mediaserver
 - Livestreams sollten flüssig übertragen werden
 - Das App Design sollte eine Vielzahl an Bildschirmgrößen unterstützen
 - Das Benutzen der App sollte schnell sein.
-    - Keine langen Ladezeiten
+  - Keine langen Ladezeiten
 - Die App sollte die Datenschutzbestimmungen einhalten und sicherstellen
 - Die Sicherheit der Benutzerdaten und der Plattform als Ganzes sollte oberste Priorität haben. Es sollten angemessene Sicherheitsmaßnahmen implementiert werden, um Datenlecks, Hacking-Versuche und andere Sicherheitsbedrohungen zu verhindern.
 - Die App sollte eine hohe Verfügbarkeit aufweisen
@@ -278,13 +278,13 @@ Siehe [API Dokumentation](https://github.com/Louis3797/Lyve/blob/main/documentat
 **RabbitMQ (erstmal nur gedanklich)**
 
 - API → Media-Server
-    - create-stream → Erstellt Stream Router
-    - destroy-stream → Entfernt den mediasoup Router + beendet stream
-    - join-as-viewer → Viewer zum Stream hinzufügen + Anfrage nach WebRTC Infos
-    - remove-viewer → Viewer vom Stream entfernen
+  - create-stream → Erstellt Stream Router
+  - destroy-stream → Entfernt den mediasoup Router + beendet stream
+  - join-as-viewer → Viewer zum Stream hinzufügen + Anfrage nach WebRTC Infos
+  - remove-viewer → Viewer vom Stream entfernen
 - Media-Server → API
-    - you-joined-as-viewer → Sendet WebRTC Info
-    - stream-created → Sendet WebRTC Info und Success
+  - you-joined-as-viewer → Sendet WebRTC Info
+  - stream-created → Sendet WebRTC Info und Success
 
 ## 3.4 Datenmodell
 
@@ -326,7 +326,7 @@ Responses: Siehe [API Dokumentation](https://github.com/Louis3797/Lyve/blob/main
     - REST → HTTP
     - WebRTC
     - Websocket
-- Monorepo Projektaufbau (nx)
+- Monorepo Projektaufbau (yarn Workspaces)
 - IOS und Android App
 - Alle Server und oder Services haben ein Docker Image
 - Docker Compose wird genutzt als Entwicklungsumgebung

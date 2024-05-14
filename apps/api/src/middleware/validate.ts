@@ -1,10 +1,10 @@
-import type { NextFunction, Request, Response } from 'express';
-import httpStatus from 'http-status';
-import Joi, { type ObjectSchema } from 'joi';
-import type { RequireAtLeastOne } from '../types/types';
+import type { NextFunction, Request, Response } from "express";
+import httpStatus from "http-status";
+import Joi, { type ObjectSchema } from "joi";
+import type { RequireAtLeastOne } from "../types/types";
 
 type RequestValidationSchema = RequireAtLeastOne<
-  Record<'body' | 'query' | 'params', ObjectSchema>
+  Record<"body" | "query" | "params", ObjectSchema>
 >;
 
 /**
@@ -30,7 +30,7 @@ const validate =
       next();
     } else {
       const errors = error?.details.map((err) => ({
-        field: err.path.join(', '),
+        field: err.path.join(", "),
         message: err.message
       }));
 

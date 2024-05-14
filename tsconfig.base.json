@@ -1,22 +1,14 @@
 {
   "compileOnSave": false,
   "compilerOptions": {
-    "rootDir": ".",
     "sourceMap": true,
     "declaration": false,
-    "moduleResolution": "node16",
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
     "importHelpers": true,
-    "target": "es2022",
-    "module": "esnext",
-    "lib": ["es2020", "dom", "es6", "ESNext.AsyncIterable"],
+
     "skipLibCheck": true,
     "skipDefaultLibCheck": true,
-    "baseUrl": ".",
-    "paths": {
-      "@lyve/types": ["libs/shared/types/src/index.ts"]
-    },
     "strict": true,
     "strictNullChecks": true,
     "allowUnusedLabels": false,
