@@ -9,12 +9,12 @@
     "lint:fix": "eslint --fix --ext ./apps/api/src/**/*.ts ./apps/media-server/src/**/*.ts",
     "api:lint:fix": "eslint --fix --ext ./apps/api/src/**/*.ts",
     "ms:lint:fix": "eslint --fix --ext ./apps/media-server/src/**/*.ts",
-    "format": "prettier --write ./**/*.{ts,js}",
-    "api:format": "prettier --write ./apps/api/**/*",
-    "ms:format": "prettier --write ./apps/media-server/**/*",
-    "check:all": "prettier --check ./**/*.{ts,js}",
-    "api:check": "prettier --check ./apps/api/**/*",
-    "ms:check": "prettier --check ./apps/media-server/**/*",
+    "format": "prettier --write ./**/*.{ts,js} --ignore-unknown",
+    "api:format": "prettier --write ./apps/api/**/* --ignore-unknown",
+    "ms:format": "prettier --write ./apps/media-server/**/* --ignore-unknown",
+    "check:all": "prettier --check ./**/*.{ts,js} --ignore-unknown",
+    "api:check": "prettier --check ./apps/api/**/* --ignore-unknown",
+    "ms:check": "prettier --check ./apps/media-server/**/ --ignore-unknown*",
     "docker:run": "docker-compose -f docker-compose.yml up",
     "prepare": "husky install"
   },
@@ -48,5 +48,13 @@
     "commitizen": {
       "path": "./node_modules/cz-conventional-changelog"
     }
+  },
+  "lint-staged": {
+    "*.{js,jsx,ts,tsx}": [
+      "eslint --quiet --fix"
+    ],
+    "*.{json,js,ts,jsx,tsx,html}": [
+      "prettier --write --ignore-unknown"
+    ]
   }
 }
