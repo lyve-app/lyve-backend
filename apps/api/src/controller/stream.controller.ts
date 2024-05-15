@@ -130,8 +130,28 @@ export const deleteStream = async (
   }
 };
 
-export const activateStream = async () => {
-  return 0;
+export const activateStream = async (
+  req: Request<{ id: string }>,
+  res: Response
+) => {
+  const { id } = req.params;
+
+  const stream = await prismaClient.stream.update({
+    where: {
+      streamerId: id
+    },
+    data: {
+      active: true
+    }
+  });
+
+  return res.status(httpStatus.OK).json({
+    success: true,
+    data: {
+      stream
+    },
+    error: "[]"
+  });
 };
 
 export const endStream = async () => {
