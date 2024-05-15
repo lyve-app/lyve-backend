@@ -4,8 +4,8 @@ FROM node:20-alpine AS build
 # Set the working directory to /app
 WORKDIR /app
 
-# Copy package.json and yarn.lock to the container
-COPY package.json yarn.lock  ./
+# Copy package.json and to the container
+COPY package.json  ./
 
 # Install development dependencies
 RUN apk add --no-cache --virtual .build-deps \
@@ -33,7 +33,7 @@ FROM node:20-alpine AS run
 WORKDIR /app
 
 # Copy package.json and yarn.lock to the container
-COPY package.json yarn.lock ./
+COPY package.json ./
 
 # Install dumb-init
 RUN apk add --no-cache dumb-init
