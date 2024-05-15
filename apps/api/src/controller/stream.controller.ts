@@ -135,23 +135,36 @@ export const activateStream = async (
   res: Response
 ) => {
   const { id } = req.params;
+  try {
+    const stream = await prismaClient.stream.update({
+      where: {
+        streamerId: id
+      },
+      data: {
+        active: true
+      }
+    });
 
-  const stream = await prismaClient.stream.update({
-    where: {
-      streamerId: id
-    },
-    data: {
-      active: true
-    }
-  });
-
-  return res.status(httpStatus.OK).json({
-    success: true,
-    data: {
-      stream
-    },
-    error: "[]"
-  });
+    return res.status(httpStatus.OK).json({
+      success: true,
+      data: {
+        stream
+      },
+      error: "[]"
+    });
+  } catch {
+    return res.status(httpStatus.BAD_REQUEST).json({
+      success: false,
+      data: null,
+      error: [
+        {
+          name: "Bad_request",
+          code: "400",
+          message: "Stream couldn't be activated"
+        }
+      ]
+    });
+  }
 };
 
 export const endStream = async () => {
