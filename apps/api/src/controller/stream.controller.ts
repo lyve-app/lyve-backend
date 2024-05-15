@@ -63,38 +63,52 @@ export const createStream = async (
       ]
     });
   }
-  //TODO add try-catch
-  await prismaClient.stream.create({
-    data: {
-      streamerId: streamerId,
-      previewImgUrl: previewImgUrl,
-      genre: genre
-    }
-  });
 
-  //TODO select created stream and return in json prob with a service
-  return res.status(httpStatus.CREATED).json({
-    success: true,
-    data: {
-      id: "",
-      serverId: "",
-      active: false,
-      streamer: {
-        id: streamerId,
-        username: "",
-        promotionPoints: "",
-        level: "",
-        avatar_url: "",
-        followerCount: "",
-        followed: "false"
+  try {
+    await prismaClient.stream.create({
+      data: {
+        streamerId: streamerId,
+        previewImgUrl: previewImgUrl,
+        genre: genre
+      }
+    });
+
+    //TODO: select created stream and return in JSON, probably with a service
+    return res.status(httpStatus.CREATED).json({
+      success: true,
+      data: {
+        id: "",
+        serverId: "",
+        active: false,
+        streamer: {
+          id: streamerId,
+          username: "",
+          promotionPoints: "",
+          level: "",
+          avatar_url: "",
+          followerCount: "",
+          followed: "false"
+        },
+        previewImgUrl: previewImgUrl,
+        viewerCount: "",
+        genre: "",
+        created_at: ""
       },
-      previewImgUrl: previewImgUrl,
-      viewerCount: "",
-      genre: "",
-      created_at: ""
-    },
-    error: []
-  });
+      error: []
+    });
+  } catch {
+    return res.status(httpStatus.BAD_REQUEST).json({
+      success: false,
+      data: null,
+      error: [
+        {
+          name: "bad_request",
+          code: "400",
+          msg: "stream couldn't be created"
+        }
+      ]
+    });
+  }
 };
 
 export const deleteStream = async (
