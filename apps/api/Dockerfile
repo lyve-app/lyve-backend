@@ -5,7 +5,7 @@ FROM node:20-alpine AS build
 WORKDIR /app
 
 # Copy package.json and to the container
-COPY package.json  ./
+COPY ./apps/api/package.json  ./
 
 RUN cat ./package.json
 
@@ -19,7 +19,7 @@ RUN apk add --no-cache --virtual .build-deps \
     && yarn cache clean
 
 # Copy the rest of the application code to the container
-COPY . .
+COPY ./apps/api/ .
 
 
 # Generate prisma client
@@ -35,7 +35,7 @@ FROM node:20-alpine AS run
 WORKDIR /app
 
 # Copy package.json and yarn.lock to the container
-COPY package.json ./
+COPY ./apps/api/package.json ./
 
 RUN cat ./package.json
 
