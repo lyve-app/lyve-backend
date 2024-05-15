@@ -8,6 +8,7 @@ WORKDIR /app
 COPY ./apps/api/package.json  ./
 
 RUN cat ./package.json
+RUN pwd && ls
 
 # Install development dependencies
 RUN apk add --no-cache --virtual .build-deps \
@@ -38,6 +39,7 @@ WORKDIR /app
 COPY ./apps/api/package.json ./
 
 RUN cat ./package.json
+RUN pwd && ls
 
 # Install dumb-init
 RUN apk add --no-cache dumb-init
@@ -65,6 +67,8 @@ ENV HOST=0.0.0.0
 
 # Generate prisma client
 RUN yarn prisma generate
+
+RUN pwd && ls
 
 # Expose port for the application to listen on
 EXPOSE 4040
