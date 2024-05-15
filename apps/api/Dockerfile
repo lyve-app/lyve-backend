@@ -5,7 +5,7 @@ FROM node:20-alpine AS build
 WORKDIR /app
 
 # Copy package.json and to the container
-COPY ./apps/api/package.json  ./
+COPY package.json  ./
 
 RUN cat ./package.json
 
@@ -19,7 +19,7 @@ RUN apk add --no-cache --virtual .build-deps \
     && yarn cache clean
 
 # Copy the rest of the application code to the container
-COPY ./apps/api/ .
+COPY . .
 
 
 # Generate prisma client
@@ -35,7 +35,7 @@ FROM node:20-alpine AS run
 WORKDIR /app
 
 # Copy package.json and yarn.lock to the container
-COPY ./apps/api/package.json ./
+COPY package.json ./
 
 RUN cat ./package.json
 
@@ -70,4 +70,4 @@ RUN yarn prisma generate
 EXPOSE 4040
 
 # Start the application with dumb-init
-CMD ["dumb-init", "node", "app/dist/index.js"]
+CMD ["dumb-init", "node", "index.js"]
