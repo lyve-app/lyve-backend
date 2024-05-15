@@ -73,7 +73,6 @@ export const createStream = async (
       }
     });
 
-    //TODO: select created stream and return in JSON, probably with a service
     return res.status(httpStatus.CREATED).json({
       success: true,
       data: {
@@ -87,7 +86,7 @@ export const createStream = async (
       data: null,
       error: [
         {
-          name: "bad_request",
+          name: "Bad_request",
           code: "400",
           msg: "stream couldn't be created"
         }
@@ -129,4 +128,16 @@ export const deleteStream = async (
       ]
     });
   }
+};
+
+export const activateStream = async () => {
+  return 0;
+};
+
+export const endStream = async () => {
+  return 0;
+};
+
+export const getRecommended = async () => {
+  return 0;
 };
