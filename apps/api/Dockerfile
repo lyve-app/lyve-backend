@@ -70,4 +70,4 @@ RUN yarn prisma generate
 EXPOSE 4040
 
 # Start the application with dumb-init
-CMD ["dumb-init", "node", "dist/index.js"]
+CMD ["dumb-init", "node", "app/dist/index.js"]
