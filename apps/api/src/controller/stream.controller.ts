@@ -167,10 +167,69 @@ export const activateStream = async (
   }
 };
 
-export const endStream = async () => {
-  return 0;
+export const endStream = async (
+  req: Request<{ id: string }>,
+  res: Response
+) => {
+  const { id } = req.params;
+  try {
+    const stream = await prismaClient.stream.update({
+      where: {
+        streamerId: id
+      },
+      data: {
+        active: false
+      }
+    });
+
+    return res.status(httpStatus.OK).json({
+      success: true,
+      data: {
+        stream
+      },
+      error: "[]"
+    });
+  } catch {
+    return res.status(httpStatus.BAD_REQUEST).json({
+      success: false,
+      data: null,
+      error: [
+        {
+          name: "Bad_request",
+          code: "400",
+          message: "Stream couldn't be deactivated"
+        }
+      ]
+    });
+  }
 };
 
-export const getRecommended = async () => {
-  return 0;
+export const getRecommended = async (_: Request, res: Response) => {
+  try {
+    const recommendedStreams = await prismaClient.stream.findMany({
+      where: {
+        active: true
+      }
+    });
+
+    return res.status(httpStatus.OK).json({
+      success: true,
+      data: {
+        recommendedStreams
+      },
+      error: "[]"
+    });
+  } catch {
+    return res.status(httpStatus.BAD_REQUEST).json({
+      success: false,
+      data: null,
+      error: [
+        {
+          name: "Bad_request",
+          code: "400",
+          message: "no streams found"
+        }
+      ]
+    });
+  }
 };
