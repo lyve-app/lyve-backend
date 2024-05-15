@@ -53,7 +53,7 @@ model Follows {
 }
 
 model Stream {
-  id            String  @default(cuid())
+  id            String  @id @default(cuid())
   serverId      String?
   active        Boolean @default(false)
   streamer      User    @relation(fields: [streamerId], references: [id])
