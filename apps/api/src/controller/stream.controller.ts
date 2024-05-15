@@ -206,36 +206,36 @@ export const endStream = async (
 };
 
 export const getRecommended = async (_: Request, res: Response) => {
-  try {
-    const recommendedStreams = await prismaClient.stream.findMany({
-      where: {
-        active: true
-      },
-      orderBy: {
-        streamer: {
-          promotionPoints: Prisma.SortOrder.desc
-        }
+  const recommendedStreams = await prismaClient.stream.findMany({
+    where: {
+      active: true
+    },
+    orderBy: {
+      streamer: {
+        promotionPoints: Prisma.SortOrder.desc
       }
-    });
+    }
+  });
 
-    return res.status(httpStatus.OK).json({
-      success: true,
-      data: {
-        recommendedStreams
-      },
-      error: "[]"
-    });
-  } catch {
-    return res.status(httpStatus.BAD_REQUEST).json({
+  if (recommendedStreams.length === 0) {
+    return res.status(httpStatus.NOT_FOUND).json({
       success: false,
       data: null,
       error: [
         {
-          name: "Bad_request",
-          code: "400",
+          name: "Not_found",
+          code: "404",
           message: "no streams found"
         }
       ]
     });
   }
+
+  return res.status(httpStatus.OK).json({
+    success: true,
+    data: {
+      recommendedStreams
+    },
+    error: "[]"
+  });
 };
