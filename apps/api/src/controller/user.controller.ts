@@ -16,7 +16,8 @@ export const getUserInfo = async (
       avatar_url: true,
       followingCount: true,
       followerCount: true,
-      level: true
+      level: true,
+      promotionPoints: true
     }
   });
 
