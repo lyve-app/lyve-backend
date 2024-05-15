@@ -31,7 +31,7 @@ jobs:
       with:
         push: true
         tags: ghcr.io/${{ secrets.AzureAppService_ContainerUsername_97aaefe12c734729aa1405c013101094 }}/lyve-app/lyve-backend/lyve-api:${{ github.sha }}
-        file: .apps/api/Dockerfile
+        file: ./apps/api/Dockerfile
 
   deploy:
     runs-on: ubuntu-latest
