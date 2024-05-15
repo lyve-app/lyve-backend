@@ -5,7 +5,7 @@ FROM node:20-alpine AS build
 WORKDIR /app
 
 # Copy package.json and to the container
-COPY ./apps/api/package.json  ./
+COPY ./package.json  ./
 
 RUN cat ./package.json
 
@@ -35,7 +35,7 @@ FROM node:20-alpine AS run
 WORKDIR /app
 
 # Copy package.json and yarn.lock to the container
-COPY ./apps/api/package.json ./
+COPY ./package.json ./
 
 RUN cat ./package.json
 
