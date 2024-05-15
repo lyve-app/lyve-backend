@@ -1,6 +1,7 @@
 import type { Request, Response } from "express";
 import httpStatus from "http-status";
 import prismaClient from "../config/prisma";
+import { Prisma } from "@prisma/client";
 import { createStreamCredentials, TypedRequest } from "../types/types";
 
 export const getStreamInfo = async (
@@ -209,6 +210,11 @@ export const getRecommended = async (_: Request, res: Response) => {
     const recommendedStreams = await prismaClient.stream.findMany({
       where: {
         active: true
+      },
+      orderBy: {
+        streamer: {
+          promotionPoints: Prisma.SortOrder.desc
+        }
       }
     });
 
