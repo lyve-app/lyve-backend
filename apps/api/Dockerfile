@@ -68,7 +68,7 @@ ENV HOST=0.0.0.0
 # Generate prisma client
 RUN yarn prisma generate
 
-RUN pwd && ls -la
+RUN pwd && ls -la ./dist
 
 # Expose port for the application to listen on
 EXPOSE 4040
