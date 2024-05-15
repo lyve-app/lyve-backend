@@ -7,6 +7,8 @@ WORKDIR /app
 # Copy package.json and to the container
 COPY ./apps/api/package.json  ./
 
+RUN cat ./package.json
+
 # Install development dependencies
 RUN apk add --no-cache --virtual .build-deps \
     gcc \
@@ -34,6 +36,8 @@ WORKDIR /app
 
 # Copy package.json and yarn.lock to the container
 COPY ./apps/api/package.json ./
+
+RUN cat ./package.json
 
 # Install dumb-init
 RUN apk add --no-cache dumb-init
