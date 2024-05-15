@@ -65,7 +65,7 @@ export const createStream = async (
   }
 
   try {
-    await prismaClient.stream.create({
+    const stream = await prismaClient.stream.create({
       data: {
         streamerId: streamerId,
         previewImgUrl: previewImgUrl,
@@ -77,22 +77,7 @@ export const createStream = async (
     return res.status(httpStatus.CREATED).json({
       success: true,
       data: {
-        id: "",
-        serverId: "",
-        active: false,
-        streamer: {
-          id: streamerId,
-          username: "",
-          promotionPoints: "",
-          level: "",
-          avatar_url: "",
-          followerCount: "",
-          followed: "false"
-        },
-        previewImgUrl: previewImgUrl,
-        viewerCount: "",
-        genre: "",
-        created_at: ""
+        stream
       },
       error: []
     });
