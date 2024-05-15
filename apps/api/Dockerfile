@@ -74,4 +74,4 @@ RUN pwd && ls -la ./dist
 EXPOSE 4040
 
 # Start the application with dumb-init
-CMD ["dumb-init", "node", "index.js"]
+CMD ["dumb-init", "node", "dist/src/index.js"]
