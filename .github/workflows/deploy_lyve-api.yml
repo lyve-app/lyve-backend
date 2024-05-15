@@ -36,6 +36,8 @@ on:
 
 permissions:
   contents: read
+  packages: write
+
 
 jobs:
   build:
@@ -67,6 +69,7 @@ jobs:
   deploy:
     permissions:
       contents: none
+      packages: write
     runs-on: ubuntu-latest
     needs: build
     environment:
