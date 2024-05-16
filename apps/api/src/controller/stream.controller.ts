@@ -8,7 +8,7 @@ export const getStreamInfo = async (
   req: Request<{ id: string }>,
   res: Response
 ) => {
-  const stream = await prismaClient.stream.findFirst({
+  const stream = await prismaClient.stream.findUnique({
     where: { id: req.params.id },
     select: {
       id: true,
@@ -39,7 +39,7 @@ export const getStreamInfo = async (
   return res.status(httpStatus.OK).json({
     success: true,
     data: {
-      stream
+      ...stream
     },
     error: "[]"
   });
@@ -64,7 +64,33 @@ export const createStream = async (
       ]
     });
   }
-  //TODO add try-catch
+
+  const checkForActiveStreams = await prismaClient.stream.findFirst({
+    where: {
+      AND: [
+        { streamerId: { equals: streamerId } },
+        { active: { equals: true } }
+      ]
+    },
+    select: { streamerId: true }
+  });
+
+  console.log(checkForActiveStreams);
+
+  if (checkForActiveStreams) {
+    return res.status(httpStatus.CONFLICT).json({
+      success: false,
+      data: null,
+      error: [
+        {
+          name: "Conflict",
+          code: "409",
+          msg: "streamer already has an active stream"
+        }
+      ]
+    });
+  }
+
   const stream = await prismaClient.stream.create({
     data: {
       streamerId: streamerId,
