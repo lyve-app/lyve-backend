@@ -15,9 +15,9 @@ describe("POST /user/create", () => {
 
   it("should return 201 and create a user if all required fields are provided", async () => {
     const userData = {
-      id: "uniqueId",
+      id: "test1",
       username: "testUser",
-      email: "test@example.com"
+      email: "test1@example.com"
     };
 
     const response = await request.post("/user/create").send(userData);
@@ -38,9 +38,9 @@ describe("POST /user/create", () => {
 
   it("should return 409 if the user already exists", async () => {
     const userData = {
-      id: "uniqueId",
+      id: "test2",
       username: "testUser",
-      email: "test@example.com"
+      email: "test2@example.com"
     };
 
     await request.post("/user/create").send(userData);

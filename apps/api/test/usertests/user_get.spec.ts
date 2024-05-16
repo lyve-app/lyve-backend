@@ -16,13 +16,13 @@ describe("GET /user/:id", () => {
     await prismaClient.user.deleteMany({});
   });
 
-  const userData = {
-    id: userId,
-    username: "testUser",
-    email: "test@example.com"
-  };
-
   it("should return 200 and user info if user exists", async () => {
+    const userData = {
+      id: userId,
+      username: "testUser",
+      email: "test@example.com"
+    };
+
     await request.post("/user/create").send(userData);
     const response = await request.get(`/user/${userId}`);
 
