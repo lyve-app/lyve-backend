@@ -21,4 +21,28 @@ describe("POST /user/create", () => {
 
     expect(response.status).toBe(201);
   });
+
+  it("should return 400 if id, username, or email is missing", async () => {
+    const userData = {
+      id: "uniqueId",
+      username: "testUser"
+      // Missing email
+    };
+
+    const response = await request.post("/user/create").send(userData);
+
+    expect(response.status).toBe(400);
+  });
+
+  it("should return 409 if the user already exists", async () => {
+    const userData = {
+      id: "uniqueId",
+      username: "testUser",
+      email: "test@example.com"
+    };
+
+    const response = await request.post("/user/create").send(userData);
+
+    expect(response.status).toBe(409);
+  });
 });
