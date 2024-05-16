@@ -9,9 +9,23 @@ import config from "./config/config";
 import { xssMiddleware } from "./middleware/xssMiddleware";
 import { createServer } from "http";
 import { streamRouter, userRouter } from "./routes";
+import { Server } from "socket.io";
+import logger from "./middleware/logger";
 
 const app: Express = express();
 const server = createServer(app);
+const io = new Server(server, {
+  path: "/socket/",
+  cors: {
+    origin: String(config.cors.origin).split("|") ?? "*",
+    allowedHeaders: ["GET", "POST"]
+  },
+  connectionStateRecovery: {
+    // default values
+    maxDisconnectionDuration: 2 * 60 * 1000,
+    skipMiddlewares: false
+  }
+});
 
 // Helmet is used to secure this app by configuring the http-header
 app.use(helmet());
@@ -44,6 +58,18 @@ app.get("/", (_req, res) => {
 app.use("/api/user", userRouter);
 
 app.use("/api/stream", streamRouter);
+
+io.on("connection", (socket) => {
+  logger.info(`A new client with socket id: ${socket.id} connected`);
+
+  socket.on("disconnecting", () => {
+    logger.info(`${socket.id} is in disconnecting state`);
+  });
+
+  socket.on("disconnect", () => {
+    logger.info(`Client with socket id: ${socket.id} disconnected`);
+  });
+});
 
 app.all("*", (_req, res) => {
   res.status(404).json({ error: "404 Not Found" });
