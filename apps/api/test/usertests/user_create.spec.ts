@@ -1,12 +1,17 @@
 // eslint-disable-next-line node/no-unpublished-import
 import supertest from "supertest";
-import prismaClient from "../src/config/prisma";
+import prismaClient from "../../src/config/prisma";
 
 const request = supertest("http://localhost:4040/api");
 
 describe("POST /user/create", () => {
   beforeAll(async () => {
     // Delete all current users in the database
+    await prismaClient.user.deleteMany({});
+  });
+
+  afterAll(async () => {
+    // Delete all users in the database after all tests have been executed
     await prismaClient.user.deleteMany({});
   });
 
