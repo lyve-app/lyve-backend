@@ -1,17 +1,16 @@
 // eslint-disable-next-line node/no-unpublished-import
 import supertest from "supertest";
 import prismaClient from "../../src/config/prisma";
-import { after } from "node:test";
 
 const request = supertest("http://localhost:4040/api");
 
 describe("POST /user/create", () => {
-  beforeAll(async () => {
+  beforeEach(async () => {
     // Delete all current users in the database
     await prismaClient.user.deleteMany({});
   });
 
-  after(async () => {
+  afterEach(async () => {
     // Delete all users in the database after all tests have been executed
     await prismaClient.user.deleteMany({});
   });
@@ -47,6 +46,7 @@ describe("POST /user/create", () => {
       email: "test@example.com"
     };
 
+    await request.post("/user/create").send(userData);
     const response = await request.post("/user/create").send(userData);
 
     expect(response.status).toBe(409);
