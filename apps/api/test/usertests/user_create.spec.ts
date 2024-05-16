@@ -5,11 +5,7 @@ import prismaClient from "../../src/config/prisma";
 const request = supertest("http://localhost:4040/api");
 
 describe("POST /user/create", () => {
-  beforeEach(async () => {
-    await prismaClient.user.deleteMany({});
-  });
-
-  afterEach(async () => {
+  afterAll(async () => {
     await prismaClient.user.deleteMany({});
   });
 
@@ -38,12 +34,11 @@ describe("POST /user/create", () => {
 
   it("should return 409 if the user already exists", async () => {
     const userData = {
-      id: "test2",
+      id: "test1",
       username: "testUser",
-      email: "test2@example.com"
+      email: "test1@example.com"
     };
 
-    await request.post("/user/create").send(userData);
     const response = await request.post("/user/create").send(userData);
 
     expect(response.status).toBe(409);

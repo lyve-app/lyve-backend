@@ -11,7 +11,8 @@
     "test": "jest --coverage=false --passWithNoTests",
     "test:watch": "jest -i --watchAll --coverage=false --passWithNoTests",
     "coverage": "jest -i --coverage --passWithNoTests",
-    "prisma:gen": "prisma generate"
+    "prisma:gen": "prisma generate",
+    "test-multiple": "yarn test && yarn test && yarn test"
   },
   "private": true,
   "dependencies": {
