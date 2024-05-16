@@ -9,20 +9,21 @@ describe("GET /user/:id", () => {
   const nonExistingId = "nonExistingId";
 
   beforeEach(async () => {
-    const userData = {
-      id: userId,
-      username: "testUser",
-      email: "test@example.com"
-    };
-
-    await request.post("/user/create").send(userData);
+    await prismaClient.user.deleteMany({});
   });
 
   afterEach(async () => {
     await prismaClient.user.deleteMany({});
   });
 
+  const userData = {
+    id: userId,
+    username: "testUser",
+    email: "test@example.com"
+  };
+
   it("should return 200 and user info if user exists", async () => {
+    await request.post("/user/create").send(userData);
     const response = await request.get(`/user/${userId}`);
 
     expect(response.status).toBe(200);
