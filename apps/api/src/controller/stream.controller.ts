@@ -1,6 +1,7 @@
 import type { Request, Response } from "express";
 import httpStatus from "http-status";
 import prismaClient from "../config/prisma";
+import { Prisma } from "@prisma/client";
 import { createStreamCredentials, TypedRequest } from "../types/types";
 
 export const getStreamInfo = async (
@@ -134,4 +135,113 @@ export const deleteStream = async (
       ]
     });
   }
+};
+
+export const activateStream = async (
+  req: Request<{ id: string }>,
+  res: Response
+) => {
+  const { id } = req.params;
+  try {
+    const stream = await prismaClient.stream.update({
+      where: {
+        streamerId: id
+      },
+      data: {
+        active: true
+      }
+    });
+
+    return res.status(httpStatus.OK).json({
+      success: true,
+      data: {
+        stream
+      },
+      error: "[]"
+    });
+  } catch {
+    return res.status(httpStatus.BAD_REQUEST).json({
+      success: false,
+      data: null,
+      error: [
+        {
+          name: "Bad_request",
+          code: "400",
+          message: "Stream couldn't be activated"
+        }
+      ]
+    });
+  }
+};
+
+export const endStream = async (
+  req: Request<{ id: string }>,
+  res: Response
+) => {
+  const { id } = req.params;
+  try {
+    const stream = await prismaClient.stream.update({
+      where: {
+        streamerId: id
+      },
+      data: {
+        active: false
+      }
+    });
+
+    return res.status(httpStatus.OK).json({
+      success: true,
+      data: {
+        stream
+      },
+      error: "[]"
+    });
+  } catch {
+    return res.status(httpStatus.BAD_REQUEST).json({
+      success: false,
+      data: null,
+      error: [
+        {
+          name: "Bad_request",
+          code: "400",
+          message: "Stream couldn't be deactivated"
+        }
+      ]
+    });
+  }
+};
+
+export const getRecommended = async (_: Request, res: Response) => {
+  const recommendedStreams = await prismaClient.stream.findMany({
+    where: {
+      active: true
+    },
+    orderBy: {
+      streamer: {
+        promotionPoints: Prisma.SortOrder.desc
+      }
+    }
+  });
+
+  if (recommendedStreams.length === 0) {
+    return res.status(httpStatus.NOT_FOUND).json({
+      success: false,
+      data: null,
+      error: [
+        {
+          name: "Not_found",
+          code: "404",
+          message: "no streams found"
+        }
+      ]
+    });
+  }
+
+  return res.status(httpStatus.OK).json({
+    success: true,
+    data: {
+      recommendedStreams
+    },
+    error: "[]"
+  });
 };
