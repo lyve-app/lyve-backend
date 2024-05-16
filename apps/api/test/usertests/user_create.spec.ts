@@ -6,7 +6,9 @@ const request = supertest("http://localhost:4040/api");
 
 describe("POST /user/create", () => {
   afterAll(async () => {
-    await prismaClient.user.deleteMany({});
+    await prismaClient.user.delete({
+      where: { id: "test1" }
+    });
   });
 
   it("should return 201 and create a user if all required fields are provided", async () => {

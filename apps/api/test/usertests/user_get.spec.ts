@@ -6,7 +6,9 @@ const request = supertest("http://localhost:4040/api");
 
 describe("GET /user/:id", () => {
   afterAll(async () => {
-    await prismaClient.user.deleteMany({});
+    await prismaClient.user.delete({
+      where: { id: "uniqueId" }
+    });
   });
 
   it("should return 200 and user info", async () => {
