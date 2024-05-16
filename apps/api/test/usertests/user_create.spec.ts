@@ -6,12 +6,10 @@ const request = supertest("http://localhost:4040/api");
 
 describe("POST /user/create", () => {
   beforeEach(async () => {
-    // Delete all current users in the database
     await prismaClient.user.deleteMany({});
   });
 
   afterEach(async () => {
-    // Delete all users in the database after all tests have been executed
     await prismaClient.user.deleteMany({});
   });
 
@@ -31,7 +29,6 @@ describe("POST /user/create", () => {
     const userData = {
       id: "uniqueId",
       username: "testUser"
-      // Missing email
     };
 
     const response = await request.post("/user/create").send(userData);

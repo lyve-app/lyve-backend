@@ -9,7 +9,6 @@ describe("GET /user/:id", () => {
   const nonExistingId = "nonExistingId";
 
   beforeEach(async () => {
-    // Create a user before each test case
     const userData = {
       id: userId,
       username: "testUser",
@@ -20,7 +19,6 @@ describe("GET /user/:id", () => {
   });
 
   afterEach(async () => {
-    // Delete the user after each test case
     await prismaClient.user.deleteMany({});
   });
 
@@ -28,13 +26,11 @@ describe("GET /user/:id", () => {
     const response = await request.get(`/user/${userId}`);
 
     expect(response.status).toBe(200);
-    // Add more assertions as needed
   });
 
   it("should return 404 if user does not exist", async () => {
     const response = await request.get(`/user/${nonExistingId}`);
 
     expect(response.status).toBe(404);
-    // Add more assertions as needed
   });
 });
