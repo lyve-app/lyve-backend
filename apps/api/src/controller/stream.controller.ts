@@ -64,36 +64,42 @@ export const createStream = async (
       ]
     });
   }
-
-  try {
-    const stream = await prismaClient.stream.create({
-      data: {
-        streamerId: streamerId,
-        previewImgUrl: previewImgUrl,
-        genre: genre
-      }
-    });
-
-    return res.status(httpStatus.CREATED).json({
-      success: true,
-      data: {
-        stream
-      },
-      error: []
-    });
-  } catch {
-    return res.status(httpStatus.BAD_REQUEST).json({
-      success: false,
-      data: null,
-      error: [
-        {
-          name: "Bad_request",
-          code: "400",
-          msg: "stream couldn't be created"
+  //TODO add try-catch
+  const stream = await prismaClient.stream.create({
+    data: {
+      streamerId: streamerId,
+      previewImgUrl: previewImgUrl,
+      genre: genre
+    },
+    select: {
+      id: true,
+      serverId: true,
+      active: true,
+      streamer: {
+        select: {
+          id: true,
+          username: true,
+          promotionPoints: true,
+          level: true,
+          avatar_url: true,
+          followerCount: true
         }
-      ]
-    });
-  }
+      },
+      previewImgUrl: true,
+      viewerCount: true,
+      genre: true,
+      created_at: true
+    }
+  });
+
+  //TODO select created stream and return in json prob with a service
+  return res.status(httpStatus.CREATED).json({
+    success: true,
+    data: {
+      ...stream
+    },
+    error: []
+  });
 };
 
 export const deleteStream = async (

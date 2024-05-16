@@ -3,11 +3,6 @@ declare namespace NodeJS {
     readonly NODE_ENV: "production" | "development" | "test";
     readonly PORT: string;
     readonly CORS_ORIGIN: string;
-    readonly MYSQL_DATABASE: string;
-    readonly MYSQL_ROOT_PASSWORD: string;
-    readonly MYSQL_USER: string;
-    readonly MYSQL_PASSWORD: string;
-    readonly MYSQL_PORT: string;
     readonly DATABASE_URL: string;
   }
 }

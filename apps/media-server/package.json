@@ -23,7 +23,7 @@
     "helmet": "^7.1.0",
     "http-status": "^1.7.4",
     "joi": "^17.13.1",
-    "mediasoup": "^3.14.1",
+    "mediasoup": "^3.14.6",
     "tslib": "^2.3.0",
     "utility-types": "^3.11.0",
     "winston": "^3.13.0",
