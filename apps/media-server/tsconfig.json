@@ -1,9 +1,6 @@
 {
-  "extends": "../../tsconfig.base.json",
-  "files": [],
-  "include": [],
   "compilerOptions": {
-    "rootDir": "src",
+    "rootDir": ".",
     "baseUrl": ".",
     "target": "es2022",
     "module": "Node16",
@@ -33,7 +30,7 @@
     "noImplicitReturns": true,
     "noPropertyAccessFromIndexSignature": false,
     "noUncheckedIndexedAccess": true,
-    "noUnusedLocals": true,
+    "noUnusedLocals": false,
     "noUnusedParameters": true,
     "forceConsistentCasingInFileNames": true
   },

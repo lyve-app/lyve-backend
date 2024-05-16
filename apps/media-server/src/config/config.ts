@@ -1,6 +1,7 @@
 import dotenv from "dotenv";
 import path from "path";
 import Joi from "joi";
+import { RtpCodecCapability, WorkerLogTag } from "mediasoup/node/lib/types";
 
 dotenv.config({
   path: path.resolve(
@@ -36,6 +37,44 @@ const config = {
   },
   cors: {
     origin: validatedEnv.CORS_ORIGIN
+  },
+  mediasoup: {
+    worker: {
+      rtcMinPort: 40000,
+      rtcMaxPort: 49999,
+      logLevel: "debug",
+      logTags: [
+        "info",
+        "ice",
+        "dtls",
+        "rtp",
+        "srtp",
+        "rtcp"
+        // 'rtx',
+        // 'bwe',
+        // 'score',
+        // 'simulcast',
+        // 'svc'
+      ] as WorkerLogTag[]
+    },
+    router: {
+      mediaCodecs: [
+        {
+          kind: "audio",
+          mimeType: "audio/opus",
+          clockRate: 48000,
+          channels: 2
+        },
+        {
+          kind: "video",
+          mimeType: "video/VP9",
+          clockRate: 90000,
+          parameters: {
+            "x-google-start-bitrate": 1000
+          }
+        }
+      ] as RtpCodecCapability[]
+    }
   }
 } as const;
 

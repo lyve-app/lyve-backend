@@ -1,27 +1,45 @@
-import express, { type Express } from "express";
-import cors from "cors";
-import config from "./config/config";
-import { createServer } from "http";
+/* eslint-disable @typescript-eslint/no-unused-vars */
+import logger from "./middleware/logger";
+import { Router, Worker } from "mediasoup/node/lib/types";
+import { startMediasoup } from "./utils/startMediasoup";
+import { StreamRoom } from "./types/streamroom";
 
-const app: Express = express();
-const server = createServer(app);
+const streams: StreamRoom = {};
 
-// parse json request body
-app.use(express.json());
+export async function main() {
+  // start mediasoup
 
-// parse urlencoded request body
-app.use(express.urlencoded({ extended: true }));
+  logger.info("Starting Mediasoup");
+  let workers: {
+    worker: Worker;
+    router: Router;
+  }[];
+  try {
+    workers = await startMediasoup();
+  } catch (err) {
+    console.log(err);
+    throw err;
+  }
 
-app.use(
-  cors({
-    // origin is given a array if we want to have multiple origins later
-    origin: String(config.cors.origin).split("|"),
-    credentials: true
-  })
-);
+  let currentWorkerIdx = 0;
 
-app.all("*", (_req, res) => {
-  res.status(404).json({ error: "404 Not Found" });
-});
+  const getNextWorker = (): {
+    worker: Worker;
+    router: Router;
+  } => {
+    const w = workers[currentWorkerIdx];
+    currentWorkerIdx++;
+    currentWorkerIdx %= workers.length;
 
-export default server;
+    if (w === undefined) {
+      throw new Error();
+    }
+    return w;
+  };
+
+  const createStream = () => {
+    const { worker, router } = getNextWorker();
+
+    return { worker, router, state: {} };
+  };
+}

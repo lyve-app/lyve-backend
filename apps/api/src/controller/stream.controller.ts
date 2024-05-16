@@ -64,11 +64,30 @@ export const createStream = async (
     });
   }
   //TODO add try-catch
-  await prismaClient.stream.create({
+  const stream = await prismaClient.stream.create({
     data: {
       streamerId: streamerId,
       previewImgUrl: previewImgUrl,
       genre: genre
+    },
+    select: {
+      id: true,
+      serverId: true,
+      active: true,
+      streamer: {
+        select: {
+          id: true,
+          username: true,
+          promotionPoints: true,
+          level: true,
+          avatar_url: true,
+          followerCount: true
+        }
+      },
+      previewImgUrl: true,
+      viewerCount: true,
+      genre: true,
+      created_at: true
     }
   });
 
@@ -76,22 +95,7 @@ export const createStream = async (
   return res.status(httpStatus.CREATED).json({
     success: true,
     data: {
-      id: "",
-      serverId: "",
-      active: false,
-      streamer: {
-        id: streamerId,
-        username: "",
-        promotionPoints: "",
-        level: "",
-        avatar_url: "",
-        followerCount: "",
-        followed: "false"
-      },
-      previewImgUrl: previewImgUrl,
-      viewerCount: "",
-      genre: "",
-      created_at: ""
+      ...stream
     },
     error: []
   });
