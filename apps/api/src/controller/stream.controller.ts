@@ -8,7 +8,7 @@ export const getStreamInfo = async (
   req: Request<{ id: string }>,
   res: Response
 ) => {
-  const stream = await prismaClient.stream.findUnique({
+  const stream = await prismaClient.stream.findFirst({
     where: { id: req.params.id },
     select: {
       id: true,
@@ -118,7 +118,6 @@ export const createStream = async (
     }
   });
 
-  //TODO select created stream and return in json prob with a service
   return res.status(httpStatus.CREATED).json({
     success: true,
     data: {
