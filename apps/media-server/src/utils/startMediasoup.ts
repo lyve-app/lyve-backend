@@ -2,6 +2,7 @@ import * as mediasoup from "mediasoup";
 import os from "os";
 import config from "../config/config";
 import { Router, Worker } from "mediasoup/node/lib/types";
+import logger from "../middleware/logger";
 
 export async function startMediasoup() {
   const workers: Array<{
@@ -28,6 +29,8 @@ export async function startMediasoup() {
 
     workers.push({ worker, router });
   }
+
+  logger.info("Initialized worker and routers");
 
   return workers;
 }
