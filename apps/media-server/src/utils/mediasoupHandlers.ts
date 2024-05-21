@@ -4,11 +4,14 @@ import logger from "../middleware/logger";
 import {
   ConnectConsumerTransportMessage,
   ConnectProducerTransportMessage,
+  ConsumeMessage,
   CreateConsumerMessage,
   CreateProducerMessage,
   CreateStreamMessage,
   EndStreamMessage,
-  LeaveStreamMessage
+  LeaveStreamMessage,
+  ProduceMessage,
+  RtpCapabilitiesMessage
 } from "../types/rabbitmq";
 import { Router } from "mediasoup/node/lib/Router";
 import { StreamRoom } from "../types/streamroom";
@@ -16,13 +19,38 @@ import config from "../config/config";
 import { Channel } from "amqplib";
 import { createWebRtcTransport } from "./createWebRtcTransport";
 
+export async function handleGetRouterRtpCapabilities(
+  data: RtpCapabilitiesMessage,
+  channel: Channel,
+  streamRooms: StreamRoom
+) {
+  const { streamId, clientId } = data;
+  try {
+    const stream = streamRooms[streamId];
+    if (!stream) {
+      throw new Error("Stream not found");
+    }
+    const { router } = stream;
+    const rtpCapabilities = router.rtpCapabilities;
+    sendToQueue(channel, config.rabbitmq.queues.api_server_queue, {
+      type: "getRtpCapabilitiesResponse",
+      clientId,
+      rtpCapabilities
+    });
+    logger.info("RTP capabilities sent to client:", clientId);
+  } catch (error) {
+    logger.error("Error getting RTP capabilities:", error);
+  }
+}
+
 export async function createStream(
   data: CreateStreamMessage,
   worker: Worker,
   router: Router,
   streamRooms: StreamRoom
 ): Promise<void> {
-  const { streamId } = data;
+  const { streamId, clientId } = data;
+
   if (streamRooms[streamId]) {
     logger.error(`Stream with ID ${streamId} already exists`);
     return;
@@ -31,7 +59,14 @@ export async function createStream(
   streamRooms[streamId] = {
     worker,
     router,
-    state: {}
+    state: {
+      [clientId]: {
+        sendTransport: null,
+        recvTransport: null,
+        producer: null,
+        consumers: []
+      }
+    }
   };
   logger.info(`Created stream with ID: ${streamId}`);
 }
@@ -107,6 +142,39 @@ export async function connectProducerTransport(
     logger.info("Producer transport connected for client:", clientId);
   } catch (error) {
     logger.error("Error connecting producer transport:", error);
+  }
+}
+
+export async function handleProduce(
+  data: ProduceMessage,
+  channel: Channel,
+  streamRooms: StreamRoom
+) {
+  const { streamId, clientId, kind, rtpParameters } = data;
+  try {
+    const stream = streamRooms[streamId];
+
+    if (!stream) {
+      throw new Error("Stream not found");
+    }
+
+    const client = stream?.state[clientId];
+
+    if (!client || !client.sendTransport) {
+      throw new Error("Client not found");
+    }
+    const { sendTransport } = client;
+
+    const producer = await sendTransport.produce({ kind, rtpParameters });
+    client.producer = producer;
+    sendToQueue(channel, config.rabbitmq.queues.api_server_queue, {
+      type: "produceResponse",
+      clientId,
+      id: producer.id
+    });
+    logger.info("Producer created for client:", clientId);
+  } catch (error) {
+    logger.error("Error creating producer:", error);
   }
 }
 
@@ -198,6 +266,55 @@ export async function connectConsumerTransport(
     logger.info("Consumer transport connected for client:", clientId);
   } catch (error) {
     logger.error("Error connecting consumer transport:", error);
+  }
+}
+
+export async function handleConsume(
+  data: ConsumeMessage,
+  channel: Channel,
+  streamRooms: StreamRoom
+) {
+  const { streamId, clientId, rtpCapabilities } = data;
+  try {
+    const stream = streamRooms[streamId];
+
+    if (!stream) {
+      throw new Error("Stream not found");
+    }
+
+    const client = stream.state[clientId];
+
+    if (!client || !client.producer) {
+      throw new Error("Client not found");
+    }
+
+    const { router } = stream;
+    if (
+      !router.canConsume({ producerId: client.producer.id, rtpCapabilities })
+    ) {
+      throw new Error("Client cannot consume");
+    }
+    const transport = await createWebRtcTransport(router);
+    client.recvTransport = transport;
+    const consumer = await transport.consume({
+      producerId: client.producer.id,
+      rtpCapabilities,
+      paused: false
+    });
+    client.consumers.push(consumer);
+    sendToQueue(channel, config.rabbitmq.queues.api_server_queue, {
+      type: "consumeResponse",
+      clientId,
+      consumerParams: {
+        id: consumer.id,
+        producerId: consumer.producerId,
+        kind: consumer.kind,
+        rtpParameters: consumer.rtpParameters
+      }
+    });
+    logger.info("Consumer created for client:", clientId);
+  } catch (error) {
+    logger.error("Error creating consumer:", error);
   }
 }
 

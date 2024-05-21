@@ -9,11 +9,14 @@ import {
   createProducer,
   createStream,
   endStream,
+  handleConsume,
+  handleGetRouterRtpCapabilities,
+  handleProduce,
   leaveStream
 } from "./utils/mediasoupHandlers";
 import { StreamRoom } from "./types/streamroom";
 import { initRabbitMQ } from "./utils/initRabbitMQ";
-import { MediaServerEventType } from "./types/rabbitmq";
+import { MediaServerEventType, RabbitMQMessage } from "./types/rabbitmq";
 import { Channel } from "amqplib";
 import config from "./config/config";
 
@@ -58,6 +61,9 @@ export async function main() {
   // @ts-ignore
   await initRabbitMQ(config.rabbitmq.url, channel, async (data) => {
     switch (data.type) {
+      case MediaServerEventType.GET_ROUTER_RTP_CAPABILITIES:
+        await handleGetRouterRtpCapabilities(data, channel, streamRooms);
+        break;
       case MediaServerEventType.CREATE_STREAM: {
         const { worker, router } = getNextWorker();
         await createStream(data, worker, router, streamRooms);
@@ -69,11 +75,17 @@ export async function main() {
       case MediaServerEventType.CONNECT_PRODUCER_TRANSPORT:
         await connectProducerTransport(data, channel, streamRooms);
         break;
+      case MediaServerEventType.PRODUCE:
+        await handleProduce(data, channel, streamRooms);
+        break;
       case MediaServerEventType.CREATE_CONSUMER:
         await createConsumer(data, channel, streamRooms);
         break;
       case MediaServerEventType.CONNECT_CONSUMER_TRANSPORT:
         await connectConsumerTransport(data, channel, streamRooms);
+        break;
+      case MediaServerEventType.CONSUME:
+        await handleConsume(data, channel, streamRooms);
         break;
       case MediaServerEventType.END_STREAM:
         await endStream(data, streamRooms);
