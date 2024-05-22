@@ -17,7 +17,8 @@ const envSchema = Joi.object().keys({
   HOST: Joi.string().required(),
   CORS_ORIGIN: Joi.string().required().default("*"),
   RABBITMQ_URL: Joi.string().required(),
-  WEBRTC_LISTEN_IP: Joi.string().required()
+  WEBRTC_LISTEN_IP: Joi.string().required(),
+  A_IP: Joi.string().required()
 });
 
 const { value: validatedEnv, error } = envSchema
@@ -90,8 +91,8 @@ const config = {
       listenIps: [
         {
           protocol: "udp",
-          ip: validatedEnv.WEBRTC_LISTEN_IP || "192.168.1.165"
-          // announcedIp: validatedEnv.A_IP || undefined
+          ip: validatedEnv.WEBRTC_LISTEN_IP,
+          announcedIp: validatedEnv.A_IP || undefined
         }
       ] as TransportListenInfo[]
     }
