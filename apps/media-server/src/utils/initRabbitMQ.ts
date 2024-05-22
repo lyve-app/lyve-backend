@@ -71,13 +71,13 @@ export const initRabbitMQ = async (url: string, handler: HandlerMap) => {
           }
           // console.log(data.op);
           if (data && data.op && data.op in handler) {
-            const { data: handlerData, op: operation, userId } = data;
+            const { data: handlerData, op: operation, sid } = data;
             try {
               logger.debug(`Received ${operation} operation`);
               // eslint-disable-next-line @typescript-eslint/await-thenable
               await handler[operation as keyof HandlerMap](
                 handlerData,
-                userId,
+                sid,
                 send,
                 (name, msg) => {
                   logger.error(`Error on operation: ${operation}`);
@@ -89,7 +89,7 @@ export const initRabbitMQ = async (url: string, handler: HandlerMap) => {
                         msg ??
                         "The media-server is probably redeploying, it should reconnect in a few seconds. If not, try refreshing."
                     },
-                    userId
+                    sid
                   });
                 }
               );

@@ -1,102 +1,119 @@
 import {
+  AppData,
+  Consumer,
   DtlsParameters,
+  MediaKind,
   RtpCapabilities,
-  RtpParameters
+  RtpParameters,
+  WebRtcTransport
 } from "mediasoup/node/lib/types";
 
-export enum MediaServerEventType {
-  GET_ROUTER_RTP_CAPABILITIES = "getRouterRtpCapabilities",
-  CREATE_STREAM = "createStream",
-  CREATE_PRODUCER = "createProducer",
-  CONNECT_PRODUCER_TRANSPORT = "connectProducerTransport",
-  PRODUCE = "produce",
-  CREATE_CONSUMER = "createConsumer",
-  CONNECT_CONSUMER_TRANSPORT = "connectConsumerTransport",
-  CONSUME = "consume",
-  END_STREAM = "endStream",
-  LEAVE_STREAM = "leaveStream"
+export type StreamSendDirection = "recv" | "send";
+
+export type TransportOptions = Pick<
+  WebRtcTransport,
+  "id" | "iceParameters" | "iceCandidates" | "dtlsParameters"
+>;
+
+export interface HandlerDataMap {
+  "connect-as-streamer": {
+    streamId: string;
+    peerId: string;
+  };
+  "connect-as-viewer": {
+    streamId: string;
+    peerId: string;
+  };
+  "close-peer": {
+    streamId: string;
+    peerId: string;
+  };
+  "connect-transport": {
+    roomId: string;
+    dtlsParameters: DtlsParameters;
+    peerId: string;
+    direction: StreamSendDirection;
+  };
+  "send-track": {
+    roomId: string;
+    peerId: string;
+    transportId: string;
+    direction: StreamSendDirection;
+    paused: boolean;
+    kind: MediaKind;
+    rtpParameters: RtpParameters;
+    rtpCapabilities: RtpCapabilities;
+    appData: AppData;
+  };
+  "end-stream": {
+    streamId: string;
+  };
 }
 
-export type RabbitMQMessage =
-  | RtpCapabilitiesMessage
-  | CreateStreamMessage
-  | CreateProducerMessage
-  | ConnectProducerTransportMessage
-  | ProduceMessage
-  | CreateConsumerMessage
-  | ConnectConsumerTransportMessage
-  | ConsumeMessage
-  | EndStreamMessage
-  | LeaveStreamMessage;
+export type SendTrackDoneOperationName =
+  `send-track-${StreamSendDirection}-res`;
+export type ConnectTransportDoneOperationName =
+  `connect-transport-${StreamSendDirection}-res`;
 
-export interface BaseMessage {
-  type: MediaServerEventType;
+export type OutgoingMessageDataMap = {
+  "you-connected-as-streamer": {
+    streamId: string;
+    peerId: string;
+    routerRtpCapabilities: RtpCapabilities;
+    recvTransportOptions: TransportOptions;
+    sendTransportOptions: TransportOptions;
+  };
+  "you-connected-as-viewer": {
+    roomId: string;
+    peerId: string;
+    routerRtpCapabilities: RtpCapabilities;
+    recvTransportOptions: TransportOptions;
+  };
+  "media-server-error": {
+    name: string;
+    msg: string;
+  };
+  "get-recv-tracks-res": {
+    consumerParametersArr: Consumer[];
+    streamId: string;
+  };
+  "close-consumer": {
+    producerId: string;
+    streamId: string;
+  };
+  "you-left-stream": {
+    streamId: string;
+  };
+} & {
+  [Key in SendTrackDoneOperationName]: {
+    error?: string;
+    id?: string;
+    streamId: string;
+  };
+} & {
+  [Key in ConnectTransportDoneOperationName]: {
+    error?: string;
+    streamId: string;
+  };
+};
+
+export type OutgoingMessage<Key extends keyof OutgoingMessageDataMap> = {
+  op: Key;
+  data: OutgoingMessageDataMap[Key];
+} & ({ sid: string } | { streamId: string }); // sid is the socket.io socket.id
+export interface IncomingChannelMessageData<Key extends keyof HandlerMap> {
+  op: Key;
+  data: HandlerDataMap[Key];
+  sid: string;
 }
 
-export interface RtpCapabilitiesMessage extends BaseMessage {
-  type: MediaServerEventType.GET_ROUTER_RTP_CAPABILITIES;
-  streamId: string;
-  clientId: string;
-}
-
-export interface CreateStreamMessage extends BaseMessage {
-  type: MediaServerEventType.CREATE_STREAM;
-  clientId: string;
-  streamId: string;
-}
-
-export interface CreateProducerMessage extends BaseMessage {
-  type: MediaServerEventType.CREATE_PRODUCER;
-  streamId: string;
-  clientId: string;
-  rtpCapabilities: RtpCapabilities;
-}
-
-export interface ConnectProducerTransportMessage extends BaseMessage {
-  type: MediaServerEventType.CONNECT_PRODUCER_TRANSPORT;
-  dtlsParameters: DtlsParameters;
-  clientId: string;
-  streamId: string;
-  rtpParameters: RtpParameters;
-}
-
-export interface ProduceMessage extends BaseMessage {
-  type: MediaServerEventType.PRODUCE;
-  streamId: string;
-  clientId: string;
-  kind: "audio" | "video";
-  rtpParameters: RtpParameters;
-}
-
-export interface CreateConsumerMessage extends BaseMessage {
-  type: MediaServerEventType.CREATE_CONSUMER;
-  rtpCapabilities: RtpCapabilities;
-  clientId: string;
-  streamId: string;
-}
-
-export interface ConnectConsumerTransportMessage extends BaseMessage {
-  type: MediaServerEventType.CONNECT_CONSUMER_TRANSPORT;
-  dtlsParameters: DtlsParameters;
-  clientId: string;
-  streamId: string;
-  rtpCapabilities: RtpCapabilities;
-}
-
-export interface ConsumeMessage extends BaseMessage {
-  type: MediaServerEventType.CONSUME;
-  streamId: string;
-  clientId: string;
-  rtpCapabilities: RtpCapabilities;
-}
-
-export interface EndStreamMessage extends BaseMessage {
-  type: MediaServerEventType.END_STREAM;
-  streamId: string;
-}
-
-export interface LeaveStreamMessage extends BaseMessage {
-  type: MediaServerEventType.LEAVE_STREAM;
-  clientId: string;
-  streamId: string;
-}
+export type HandlerMap = {
+  [Key in keyof HandlerDataMap]: (
+    data: HandlerDataMap[Key],
+    sid: string,
+    send: <Key extends keyof OutgoingMessageDataMap>(
+      obj: OutgoingMessage<Key>
+    ) => void,
+    errBack: (name?: string, msg?: string) => void
+  ) => void;
+};
