@@ -1,17 +1,4 @@
 import { User } from "@prisma/client";
-import { RtpCapabilities } from "mediasoup/node/lib/types";
-import {
-  ConnectConsumerTransportMessage,
-  ConnectProducerTransportMessage,
-  ConsumeMessage,
-  ConsumerReady,
-  CreateConsumerMessage,
-  CreateConsumerResponse,
-  CreateProducerMessage,
-  CreateProducerResponse,
-  ProduceMessage,
-  RtpCapabilitiesResponse
-} from "./rabbitmq";
 
 export type SocketUser = Pick<
   User,
@@ -38,6 +25,7 @@ export interface SocketResponse<T> {
 // > = isSender extends true ? [Error, ...args] : args;
 
 export interface ServerToClientEvents {
+  "you-connected-as-streamer": (data: unknown) => void;
   user_joined: (data: { user: SocketUser }) => void;
   user_leaved: (data: { user: SocketUser }) => void;
   viewer_count: (data: { viewerCount: number }) => void;
@@ -59,53 +47,18 @@ export interface ServerToClientEvents {
     sender: SocketUser;
     receiver: SocketUser;
   }) => void;
-  create_producer_response: (
-    transportParams: Pick<CreateProducerResponse, "transportParams">
-  ) => void;
-  producer_ready: () => void;
-  create_consumer_response: (
-    transportParams: Pick<CreateConsumerResponse, "transportParams">
-  ) => void;
-  consumer_ready: (
-    consumerParams: Pick<ConsumerReady, "consumerParams">
-  ) => void;
 }
 
 export interface ClientToServerEvents {
-  connect_as_streamer: (data: { streamId: string; userId: string }) => void;
+  connect_as_streamer: () => void;
   join_stream: (data: { streamId: string }) => void;
   leave_stream: () => void;
   create_stream: (
     data: { streamId: string },
     callback: SocketCallback<{ streamId: string }>
   ) => void;
-  get_router_rtp_capabilities: (
-    data: Omit<RtpCapabilitiesResponse, "type">,
-    callback: SocketCallback<RtpCapabilities>
-  ) => void;
   start_stream: (
     data: { streamId: string },
-    callback: SocketCallback<null>
-  ) => void;
-  create_producer: (
-    data: Pick<CreateProducerMessage, "rtpCapabilities">
-  ) => void;
-  connect_producer_transport: (
-    data: Pick<
-      ConnectProducerTransportMessage,
-      "dtlsParameters" | "rtpParameters"
-    >
-  ) => void;
-  produce: (
-    data: Omit<ProduceMessage, "type">,
-    callback: SocketCallback<null>
-  ) => void;
-  create_consumer: (data: Omit<CreateConsumerMessage, "type">) => void;
-  connect_consumer_transport: (
-    data: Omit<ConnectConsumerTransportMessage, "type">
-  ) => void;
-  consume: (
-    data: Omit<ConsumeMessage, "type">,
     callback: SocketCallback<null>
   ) => void;
   end_stream: (callback: SocketCallback<null>) => void;

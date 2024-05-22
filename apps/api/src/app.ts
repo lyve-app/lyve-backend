@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import express, { type Express } from "express";
 import cors from "cors";
 import helmet from "helmet";
@@ -18,11 +19,10 @@ import {
   SocketData,
   SocketUser
 } from "./types/socket";
-import { Channel } from "amqplib";
-import { initRabbitMQ } from "./utils/initRabbitMQ";
-import { IncomingEventTypes } from "./types/rabbitmq";
+import amqp, { Channel, Connection } from "amqplib";
 import prismaClient from "./config/prisma";
 import { jwtDecode } from "jwt-decode";
+import { initRabbitMQ } from "./utils/initRabbitMQ";
 
 type Stream = {
   id: string;
@@ -35,9 +35,7 @@ type Stream = {
 // Holds state of active streams
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const streams: Map<string, Stream> = new Map(); // key is the id of the stream
-
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-let channel: Channel;
+// eslint-disable-next-line prefer-const
 
 const app: Express = express();
 const server = createServer(app);
@@ -58,6 +56,47 @@ const io = new Server<
     skipMiddlewares: false
   }
 });
+
+let channel: Channel;
+
+const connectRabbit = async () => {
+  logger.info("Trying to connect to RabbitMQ...");
+
+  let conn: Connection;
+
+  try {
+    conn = await amqp.connect(config.rabbitmq.url);
+  } catch (err) {
+    logger.error("Unable to connect to RabbitMQ: ", err);
+    setTimeout(
+      async () => await connectRabbit(),
+      config.rabbitmq.retryInterval
+    );
+    return;
+  }
+
+  logger.info("Successfully connected to RabbitMQ");
+
+  conn.on("close", async function (err: Error) {
+    console.error("Rabbit connection closed with error: ", err);
+    setTimeout(
+      async () => await connectRabbit(),
+      config.rabbitmq.retryInterval
+    );
+  });
+
+  channel = await conn.createChannel();
+
+  const sendQueue = config.rabbitmq.queues.media_server_queue;
+  const recvQueue = config.rabbitmq.queues.api_server_queue;
+
+  await Promise.all([
+    channel.assertQueue(recvQueue),
+    channel.assertQueue(sendQueue)
+  ]);
+
+  channel.purgeQueue(recvQueue);
+};
 
 // Helmet is used to secure this app by configuring the http-header
 app.use(helmet());
@@ -91,33 +130,6 @@ app.use("/api/user", userRouter);
 
 app.use("/api/stream", streamRouter);
 
-async () => {
-  await initRabbitMQ(config.rabbitmq.url, channel, (data) => {
-    switch (data.type) {
-      case IncomingEventTypes.CREATE_PRODUCER_RESPONSE:
-        io.to(data.clientId).emit("create_producer_response", {
-          transportParams: data.transportParams
-        });
-        break;
-      case IncomingEventTypes.PRODUCER_READY:
-        io.to(data.clientId).emit("producer_ready");
-        break;
-      case IncomingEventTypes.CREATE_CONSUMER_RESPONSE:
-        io.to(data.clientId).emit("create_consumer_response", {
-          transportParams: data.transportParams
-        });
-        break;
-      case IncomingEventTypes.CONSUMER_READY:
-        io.to(data.clientId).emit("consumer_ready", {
-          consumerParams: data.consumerParams
-        });
-        break;
-      default:
-        logger.error("Unknown message type:", data);
-    }
-  });
-};
-
 io.use(async (socket, next) => {
   const { token } = socket.handshake.auth;
 
@@ -145,10 +157,104 @@ io.use(async (socket, next) => {
   next();
 });
 
+(async () => {
+  await connectRabbit();
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  //@ts-ignore
+  await initRabbitMQ(channel, {
+    "you-connected-as-streamer": async (
+      {
+        streamId,
+        peerId,
+        routerRtpCapabilities,
+        recvTransportOptions,
+        sendTransportOptions
+      },
+      sid
+    ) => {
+      console.log({
+        streamId,
+        peerId,
+        routerRtpCapabilities,
+        recvTransportOptions,
+        sendTransportOptions
+      });
+      io.to(sid).emit("you-connected-as-streamer", {
+        streamId,
+        peerId,
+        routerRtpCapabilities,
+        recvTransportOptions,
+        sendTransportOptions
+      });
+    },
+    "you-connected-as-viewer": function () {
+      throw new Error("Function not implemented.");
+    },
+    "media-server-error": function (): void {
+      throw new Error("Function not implemented.");
+    },
+    "get-recv-tracks-res": function (): void {
+      throw new Error("Function not implemented.");
+    },
+    "close-consumer": function (): void {
+      throw new Error("Function not implemented.");
+    },
+    "you-left-stream": function (): void {
+      throw new Error("Function not implemented.");
+    },
+    "send-track-recv-res": function (): void {
+      throw new Error("Function not implemented.");
+    },
+    "send-track-send-res": function (): void {
+      throw new Error("Function not implemented.");
+    },
+    "connect-transport-recv-res": function (): void {
+      throw new Error("Function not implemented.");
+    },
+    "connect-transport-send-res": function (): void {
+      throw new Error("Function not implemented.");
+    }
+  });
+})();
+
 io.on("connection", (socket) => {
   logger.info(`A new client with socket id: ${socket.id} connected`);
 
-  // socket.on("connect_as_streamer", async (streamId, userId) => {});
+  socket.on("connect_as_streamer", async () => {
+    const { streamId } = socket.data;
+    if (!streamId) {
+      console.log("streamId undefined");
+      return;
+    }
+
+    const stream = streams.get(streamId);
+
+    if (!stream) {
+      return;
+    }
+
+    const { id: userId } = socket.data.user;
+
+    try {
+      console.log("send");
+      channel.sendToQueue(
+        config.rabbitmq.queues.media_server_queue,
+        Buffer.from(
+          JSON.stringify({
+            op: "connect-as-streamer",
+            data: {
+              streamId,
+              peerId: userId
+            },
+            sid: socket.id
+          })
+        )
+      );
+    } catch (error) {
+      logger.error("Error on connect_as_streamer");
+      throw error;
+    }
+  });
 
   /**
    * Listens to get_router_rtp_capabilities and will send a message via rabbitmq to request rtp capabilities from the mediaserver
@@ -218,7 +324,6 @@ io.on("connection", (socket) => {
    * Creates a stream
    */
   socket.on("create_stream", async ({ streamId }, callback) => {
-    console.log(streams);
     const stream = streams.get(streamId);
 
     logger.info("create_stream called");
@@ -255,8 +360,6 @@ io.on("connection", (socket) => {
       });
     }
 
-    console.log(checkStream);
-
     // check if socket is host of the stream
     if (checkStream.streamerId !== socket.data.user.id) {
       // no he is not
@@ -283,6 +386,8 @@ io.on("connection", (socket) => {
 
     socket.join(streamId);
     socket.data.streamId = streamId;
+
+    logger.info(`Created stream: ${streamId}`);
 
     callback({
       success: true,
