@@ -1,7 +1,7 @@
 import type { NextFunction, Request, Response } from "express";
 import httpStatus from "http-status";
 import Joi from "joi";
-import validate from "../../src/middleware/validate";
+import validate from "../../../src/middleware/validate";
 
 describe("validate middleware", () => {
   const req = {
