@@ -75,8 +75,6 @@ export const createStream = async (
     select: { streamerId: true }
   });
 
-  console.log(checkForActiveStreams);
-
   if (checkForActiveStreams) {
     return res.status(httpStatus.CONFLICT).json({
       success: false,
