@@ -1,4 +1,4 @@
-import prismaClient from "../../src/config/prisma";
+import prismaClient from "../../../src/config/prisma";
 // eslint-disable-next-line node/no-unpublished-import
 import supertest from "supertest";
 

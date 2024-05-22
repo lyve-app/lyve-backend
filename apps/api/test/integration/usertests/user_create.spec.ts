@@ -1,6 +1,6 @@
 // eslint-disable-next-line node/no-unpublished-import
 import supertest from "supertest";
-import prismaClient from "../../src/config/prisma";
+import prismaClient from "../../../src/config/prisma";
 
 const request = supertest("http://localhost:4040/api");
 
