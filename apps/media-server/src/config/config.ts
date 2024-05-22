@@ -45,9 +45,9 @@ const config = {
     url: validatedEnv.RABBITMQ_URL,
     queues: {
       api_server_queue: "api_server_queue",
-      media_server_queue: "media_server_queue",
-      api_server_reply_queue: "api_server_reply_queue"
-    }
+      media_server_queue: "media_server_queue"
+    },
+    retryInterval: 5000
   },
   mediasoup: {
     worker: {
