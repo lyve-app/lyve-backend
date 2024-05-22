@@ -1,12 +1,11 @@
-import amqp, { Channel } from "amqplib";
+import amqp, { Channel, ConsumeMessage } from "amqplib";
 import config from "../config/config";
 import logger from "../middleware/logger";
-import { RabbitMQMessage } from "../types/rabbitmq";
 
 export const initRabbitMQ = async (
   url: string,
   channel: Channel,
-  messageHandler: (data: RabbitMQMessage) => void
+  messageHandler: (data: ConsumeMessage) => void
 ): Promise<void> => {
   try {
     const connection = await amqp.connect(url);
@@ -15,9 +14,8 @@ export const initRabbitMQ = async (
     await channel.assertQueue(config.rabbitmq.queues.media_server_queue);
     channel.consume(config.rabbitmq.queues.media_server_queue, (msg) => {
       if (msg !== null) {
-        const data: RabbitMQMessage = JSON.parse(msg.content.toString());
         try {
-          messageHandler(data);
+          messageHandler(msg);
         } catch (error) {
           logger.error("Error handling message:", error);
         }

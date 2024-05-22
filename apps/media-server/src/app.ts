@@ -59,10 +59,17 @@ export async function main() {
 
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore
-  await initRabbitMQ(config.rabbitmq.url, channel, async (data) => {
+  await initRabbitMQ(config.rabbitmq.url, channel, async (msg) => {
+    const data: RabbitMQMessage = JSON.parse(msg.content.toString());
     switch (data.type) {
       case MediaServerEventType.GET_ROUTER_RTP_CAPABILITIES:
-        await handleGetRouterRtpCapabilities(data, channel, streamRooms);
+        await handleGetRouterRtpCapabilities(
+          data,
+          channel,
+          msg.properties.replyTo,
+          msg.properties.correlationId,
+          streamRooms
+        );
         break;
       case MediaServerEventType.CREATE_STREAM: {
         const { worker, router } = getNextWorker();

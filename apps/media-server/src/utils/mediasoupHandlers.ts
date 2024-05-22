@@ -22,6 +22,8 @@ import { createWebRtcTransport } from "./createWebRtcTransport";
 export async function handleGetRouterRtpCapabilities(
   data: RtpCapabilitiesMessage,
   channel: Channel,
+  replyTo: string,
+  correlationId: string,
   streamRooms: StreamRoom
 ) {
   const { streamId, clientId } = data;
@@ -32,11 +34,17 @@ export async function handleGetRouterRtpCapabilities(
     }
     const { router } = stream;
     const rtpCapabilities = router.rtpCapabilities;
-    sendToQueue(channel, config.rabbitmq.queues.api_server_queue, {
-      type: "getRtpCapabilitiesResponse",
-      clientId,
-      rtpCapabilities
-    });
+    channel.sendToQueue(
+      replyTo,
+      Buffer.from(
+        JSON.stringify({
+          type: "getRtpCapabilitiesResponse",
+          clientId,
+          rtpCapabilities
+        })
+      ),
+      { correlationId }
+    );
     logger.info("RTP capabilities sent to client:", clientId);
   } catch (error) {
     logger.error("Error getting RTP capabilities:", error);
@@ -69,6 +77,8 @@ export async function createStream(
     }
   };
   logger.info(`Created stream with ID: ${streamId}`);
+
+  // Todo maybe add a reply call later on to acknowledge the stream creation
 }
 
 export async function createProducer(
