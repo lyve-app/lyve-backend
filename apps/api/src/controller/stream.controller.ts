@@ -137,7 +137,7 @@ export const deleteStream = async (
   try {
     const deletedStream = await prismaClient.stream.delete({
       where: {
-        streamerId: id
+        id
       }
     });
 
@@ -171,7 +171,7 @@ export const activateStream = async (
   try {
     const stream = await prismaClient.stream.update({
       where: {
-        streamerId: id
+        id
       },
       data: {
         active: true
@@ -208,7 +208,7 @@ export const endStream = async (
   try {
     const stream = await prismaClient.stream.update({
       where: {
-        streamerId: id
+        id
       },
       data: {
         active: false
