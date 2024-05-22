@@ -1,35 +1,64 @@
-import amqp, { Channel } from "amqplib";
-import config from "../config/config";
+import { Channel } from "amqplib";
 import logger from "../middleware/logger";
-import { RabbitMQIncomingMessage } from "../types/rabbitmq";
+import {
+  HandlerMap,
+  IncomingChannelMessageData,
+  OutgoingMessage,
+  OutgoingMessageDataMap
+} from "../types/rabbitmq";
+import config from "../config/config";
 
-export const initRabbitMQ = async (
-  url: string,
-  channel: Channel,
-  messageHandler: (data: RabbitMQIncomingMessage) => void
-): Promise<void> => {
-  try {
-    const connection = await amqp.connect(url);
-    channel = await connection.createChannel();
-    await channel.assertQueue(config.rabbitmq.queues.api_server_queue);
-    await channel.assertQueue(config.rabbitmq.queues.api_server_reply_queue, {
-      exclusive: true
-    });
-    await channel.assertQueue(config.rabbitmq.queues.media_server_queue);
-    channel.consume(config.rabbitmq.queues.media_server_queue, (msg) => {
-      if (msg !== null) {
-        const data: RabbitMQIncomingMessage = JSON.parse(
-          msg.content.toString()
-        );
-        try {
-          messageHandler(data);
-        } catch (error) {
-          logger.error("Error handling message:", error);
-        }
-        channel.ack(msg);
-      }
-    });
-  } catch (error) {
-    logger.error("Error initializing RabbitMQ:", error);
+let send = <Key extends keyof OutgoingMessageDataMap>(
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  _obj: OutgoingMessage<Key>
+) => {};
+
+export const initRabbitMQ = async (channel: Channel, handler: HandlerMap) => {
+  const sendQueue = config.rabbitmq.queues.media_server_queue;
+  const recvQueue = config.rabbitmq.queues.api_server_queue;
+
+  if (!channel) {
+    return;
   }
+
+  send = <Key extends keyof OutgoingMessageDataMap>(
+    obj: OutgoingMessage<Key>
+  ) => {
+    channel.sendToQueue(sendQueue, Buffer.from(JSON.stringify(obj)));
+  };
+  await channel.purgeQueue(recvQueue);
+
+  await channel.consume(
+    recvQueue,
+    async (msg) => {
+      if (msg !== null) {
+        const m = msg.content.toString();
+        if (m) {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          let data: IncomingChannelMessageData<any> | undefined;
+          try {
+            data = JSON.parse(m);
+          } catch (err) {
+            logger.error("Error on JSON.parse: ", err);
+          }
+          // console.log(data.op);
+          if (data && data.op && data.op in handler) {
+            const { data: handlerData, op: operation, sid } = data;
+            try {
+              logger.debug(`Received ${operation} operation`);
+              // eslint-disable-next-line @typescript-eslint/await-thenable
+              await handler[operation as keyof HandlerMap](
+                handlerData,
+                sid,
+                send
+              );
+            } catch (err) {
+              logger.error(`Error on operation: ${operation}: `, err);
+            }
+          }
+        }
+      }
+    },
+    { noAck: true }
+  );
 };
