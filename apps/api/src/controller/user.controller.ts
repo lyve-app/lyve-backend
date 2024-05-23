@@ -16,7 +16,8 @@ export const getUserInfo = async (
       avatar_url: true,
       followingCount: true,
       followerCount: true,
-      level: true
+      level: true,
+      promotionPoints: true
     }
   });
 
@@ -107,4 +108,40 @@ export const createUser = async (
     },
     error: []
   });
+};
+
+export const followUser = async (
+  req: Request<{ ownId: string; otherId: string }>,
+  res: Response
+) => {
+  const { ownId, otherId } = req.body;
+
+  try {
+    const follow = await prismaClient.follows.create({
+      data: {
+        followedById: ownId,
+        followingId: otherId
+      }
+    });
+
+    return res.status(httpStatus.CREATED).json({
+      success: true,
+      data: {
+        follow
+      },
+      error: "[]"
+    });
+  } catch {
+    return res.status(httpStatus.CONFLICT).json({
+      success: false,
+      data: null,
+      error: [
+        {
+          name: "Conflict",
+          code: "409",
+          message: "already followed"
+        }
+      ]
+    });
+  }
 };
