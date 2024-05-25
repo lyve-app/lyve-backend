@@ -15,11 +15,13 @@ jobs:
 
       - name: Set up Node.js
         uses: actions/setup-node@v2
+        with:
+            node-version: '20'
 
       - name: Install dependencies
         run: yarn install
-        working-directory: Lyve/apps/api
+        working-directory: ./apps/api/**
 
       - name: Run unit tests
         run: yarn test-unit
-        working-directory: Lyve/apps/api
+        working-directory: ./apps/api/**
