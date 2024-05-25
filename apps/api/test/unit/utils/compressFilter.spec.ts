@@ -15,7 +15,7 @@ describe("compressFilter", () => {
   it("should return false if x-no-compression header is present", () => {
     mockRequest.headers = { "x-no-compression": "true" };
     const result = compressFilter(mockRequest, mockResponse);
-    expect(result).toBe(true);
+    expect(result).toBe(false);
     expect(compression.filter).not.toHaveBeenCalled();
   });
 
