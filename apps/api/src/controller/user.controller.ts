@@ -145,3 +145,67 @@ export const followUser = async (
     });
   }
 };
+
+export const following = async (
+  req: Request<{ id: string }>,
+  res: Response
+) => {
+  const user = await prismaClient.user.findUnique({
+    where: { id: req.params.id },
+    select: {
+      id: true,
+      username: true,
+
+      followedBy: {
+        select: {
+          following: {
+            select: {
+              username: true,
+              id: true
+            }
+          }
+        }
+      }
+    }
+  });
+
+  return res.status(httpStatus.OK).json({
+    success: true,
+    data: {
+      user
+    },
+    error: "[]"
+  });
+};
+
+export const followedBy = async (
+  req: Request<{ id: string }>,
+  res: Response
+) => {
+  const user = await prismaClient.user.findUnique({
+    where: { id: req.params.id },
+    select: {
+      id: true,
+      username: true,
+
+      following: {
+        select: {
+          followedBy: {
+            select: {
+              username: true,
+              id: true
+            }
+          }
+        }
+      }
+    }
+  });
+
+  return res.status(httpStatus.OK).json({
+    success: true,
+    data: {
+      user
+    },
+    error: "[]"
+  });
+};
