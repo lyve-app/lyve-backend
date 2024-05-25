@@ -162,57 +162,69 @@ io.use(async (socket, next) => {
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   //@ts-ignore
   await initRabbitMQ(channel, {
-    "you-connected-as-streamer": async (
+    "you-connected-as-streamer": (
       {
         streamId,
-        peerId,
         routerRtpCapabilities,
         recvTransportOptions,
         sendTransportOptions
       },
       sid
     ) => {
-      console.log({
+      io.to(sid).emit("you-joined-as-streamer", {
         streamId,
-        peerId,
-        routerRtpCapabilities,
-        recvTransportOptions,
-        sendTransportOptions
-      });
-      io.to(sid).emit("you-connected-as-streamer", {
-        streamId,
-        peerId,
         routerRtpCapabilities,
         recvTransportOptions,
         sendTransportOptions
       });
     },
-    "you-connected-as-viewer": function () {
+    "you-connected-as-viewer": (
+      { streamId, routerRtpCapabilities, recvTransportOptions },
+      sid
+    ) => {
+      io.to(sid).emit("you-joined-as-viewer", {
+        streamId,
+        routerRtpCapabilities,
+        recvTransportOptions
+      });
+    },
+    "media-server-error": (data) => {
+      // Todo forward error to client or handle on server
+      logger.warn(data);
+      console.error(data);
+    },
+    "get-recv-tracks-res": ({ consumerParametersArr }, sid) => {
+      io.to(sid).emit("get-recv-tracks-res", { consumerParametersArr });
+    },
+    "close-consumer": () => {
+      // Todo implement
       throw new Error("Function not implemented.");
     },
-    "media-server-error": function (): void {
+    "you-left-stream": () => {
+      // Todo implement
       throw new Error("Function not implemented.");
     },
-    "get-recv-tracks-res": function (): void {
-      throw new Error("Function not implemented.");
+    "send-track-recv-res": ({ id, error }, sid) => {
+      io.to(sid).emit("send-track-recv-res", {
+        id: id ?? "",
+        error: error ?? ""
+      });
     },
-    "close-consumer": function (): void {
-      throw new Error("Function not implemented.");
+    "send-track-send-res": ({ id, error }, sid) => {
+      io.to(sid).emit("send-track-send-res", {
+        id: id ?? "",
+        error: error ?? ""
+      });
     },
-    "you-left-stream": function (): void {
-      throw new Error("Function not implemented.");
+    "connect-transport-recv-res": ({ error }, sid) => {
+      io.to(sid).emit("connect-transport-recv-res", {
+        error: error ?? ""
+      });
     },
-    "send-track-recv-res": function (): void {
-      throw new Error("Function not implemented.");
-    },
-    "send-track-send-res": function (): void {
-      throw new Error("Function not implemented.");
-    },
-    "connect-transport-recv-res": function (): void {
-      throw new Error("Function not implemented.");
-    },
-    "connect-transport-send-res": function (): void {
-      throw new Error("Function not implemented.");
+    "connect-transport-send-res": ({ error }, sid) => {
+      io.to(sid).emit("connect-transport-send-res", {
+        error: error ?? ""
+      });
     }
   });
 })();
@@ -220,130 +232,14 @@ io.use(async (socket, next) => {
 io.on("connection", (socket) => {
   logger.info(`A new client with socket id: ${socket.id} connected`);
 
-  socket.on("connect_as_streamer", async () => {
-    const { streamId } = socket.data;
-    if (!streamId) {
-      console.log("streamId undefined");
-      return;
-    }
-
-    const stream = streams.get(streamId);
-
-    if (!stream) {
-      return;
-    }
-
-    const { id: userId } = socket.data.user;
-
-    try {
-      console.log("send");
-      channel.sendToQueue(
-        config.rabbitmq.queues.media_server_queue,
-        Buffer.from(
-          JSON.stringify({
-            op: "connect-as-streamer",
-            data: {
-              streamId,
-              peerId: userId
-            },
-            sid: socket.id
-          })
-        )
-      );
-    } catch (error) {
-      logger.error("Error on connect_as_streamer");
-      throw error;
-    }
-  });
-
-  /**
-   * Listens to get_router_rtp_capabilities and will send a message via rabbitmq to request rtp capabilities from the mediaserver
-   */
-  // socket.on("get_router_rtp_capabilities", async ({ streamId }, callback) => {
-  //   const correlationId = crypto.randomUUID();
-
-  //   channel.consume(
-  //     config.rabbitmq.queues.api_server_reply_queue,
-  //     (msg) => {
-  //       if (msg && msg.properties.correlationId === correlationId) {
-  //         const data: RabbitMQIncomingMessage = JSON.parse(
-  //           msg.content.toString()
-  //         );
-  //         if (
-  //           data.type === IncomingEventTypes.GET_RTP_CAPABILITIES_RESPONSE &&
-  //           data.clientId === socket.data.user.id
-  //         ) {
-  //           callback({
-  //             success: true,
-  //             data: data.rtpCapabilities,
-  //             error: []
-  //           });
-  //         }
-  //       }
-  //     },
-  //     { noAck: true }
-  //   );
-
-  //   try {
-  //     channel.sendToQueue(
-  //       config.rabbitmq.queues.media_server_queue,
-  //       Buffer.from(
-  //         JSON.stringify({
-  //           type: OutgoingEventType.GET_ROUTER_RTP_CAPABILITIES,
-  //           streamId,
-  //           clientId: socket.data.user.id
-  //         })
-  //       ),
-  //       {
-  //         replyTo: config.rabbitmq.queues.api_server_reply_queue,
-  //         correlationId
-  //       }
-  //     );
-  //   } catch (err) {
-  //     logger.error(
-  //       `Error by sending ${OutgoingEventType.GET_ROUTER_RTP_CAPABILITIES}: `,
-  //       err
-  //     );
-  //     if (err instanceof Error) {
-  //       callback({
-  //         success: false,
-  //         data: null,
-  //         error: [
-  //           {
-  //             name: err.name,
-  //             code: -1,
-  //             msg: err.message
-  //           }
-  //         ]
-  //       });
-  //     }
-  //   }
-  // });
-
-  /**
-   * Creates a stream
-   */
-  socket.on("create_stream", async ({ streamId }, callback) => {
-    const stream = streams.get(streamId);
-
-    logger.info("create_stream called");
-
-    if (stream) {
-      return callback({
-        success: false,
-        data: { streamId },
-        error: [
-          {
-            name: "Conflict",
-            code: -1,
-            msg: "Stream exists already"
-          }
-        ]
-      });
-    }
-
+  socket.on("join_stream", async ({ streamId }, callback) => {
     const checkStream = await prismaClient.stream.findUnique({
-      where: { id: streamId }
+      where: { id: streamId },
+      select: {
+        id: true,
+        streamerId: true,
+        created_at: true
+      }
     });
 
     if (!checkStream) {
@@ -360,71 +256,202 @@ io.on("connection", (socket) => {
       });
     }
 
-    // check if socket is host of the stream
-    if (checkStream.streamerId !== socket.data.user.id) {
-      // no he is not
+    if (!streams.get(streamId)) {
+      // create stream
+      streams.set(streamId, {
+        id: checkStream.id,
+        created_at: checkStream.created_at.toString(),
+        streamer: socket.data.user,
+        viewerCount: 0,
+        viewers: []
+      });
+
+      logger.info(`Created stream: ${streamId}`);
+    }
+
+    const stream = streams.get(streamId)!;
+
+    const checkIfAlreadyJoined = stream.viewers.find(
+      (v) => v === socket.data.user.id
+    );
+
+    if (checkIfAlreadyJoined) {
       return callback({
         success: false,
         data: null,
         error: [
           {
-            name: "Forbidden",
-            code: 403,
-            msg: "You are not the host of this stream"
+            name: "Conflict",
+            code: -1,
+            msg: "You already joined the stream"
           }
         ]
       });
     }
 
-    streams.set(streamId, {
-      id: streamId,
-      created_at: Date.now().toString(),
-      streamer: socket.data.user,
-      viewerCount: 0,
-      viewers: []
-    });
+    // is host ?
+    if (stream.streamer.id === socket.data.user.id) {
+      try {
+        channel.sendToQueue(
+          config.rabbitmq.queues.media_server_queue,
+          Buffer.from(
+            JSON.stringify({
+              op: "connect-as-streamer",
+              data: {
+                streamId,
+                peerId: socket.data.user.id
+              },
+              sid: socket.id
+            })
+          )
+        );
+      } catch (error) {
+        logger.error("Error on connect_as_streamer");
 
-    socket.join(streamId);
+        return callback({
+          success: false,
+          data: null,
+          error: [
+            {
+              name: "Internal Server Error",
+              code: -1,
+              msg: "Their was an internal error, please try again"
+            }
+          ]
+        });
+      }
+    } else {
+      // is viewer
+
+      try {
+        channel.sendToQueue(
+          config.rabbitmq.queues.media_server_queue,
+          Buffer.from(
+            JSON.stringify({
+              op: "connect-as-viewer",
+              data: {
+                streamId,
+                peerId: socket.data.user.id
+              },
+              sid: socket.id
+            })
+          )
+        );
+      } catch (error) {
+        logger.error("Error on connect_as_viewer");
+
+        return callback({
+          success: false,
+          data: null,
+          error: [
+            {
+              name: "Internal Server Error",
+              code: -1,
+              msg: "Their was an internal error, please try again"
+            }
+          ]
+        });
+      }
+
+      stream.viewerCount++;
+      stream.viewers.push(socket.data.user.id);
+
+      socket.to(streamId).emit("user_joined", {
+        user: socket.data.user
+      });
+
+      socket
+        .to(streamId)
+        .emit("viewer_count", { viewerCount: stream.viewerCount });
+    }
+
     socket.data.streamId = streamId;
+    socket.join(streamId);
 
-    logger.info(`Created stream: ${streamId}`);
+    logger.info(`User ${socket.data.user.username} joined stream: ${streamId}`);
 
     callback({
       success: true,
-      data: { streamId },
+      data: null,
       error: []
     });
   });
 
-  // socket.on("join_stream", async ({ streamId }) => {
-  //   const stream = streams.get(streamId);
+  socket.on("connect-transport", ({ dtlsParameters, direction }) => {
+    const { streamId, user } = socket.data;
 
-  //   if (!stream) return;
+    if (streamId && user) {
+      try {
+        channel.sendToQueue(
+          config.rabbitmq.queues.media_server_queue,
+          Buffer.from(
+            JSON.stringify({
+              op: "connect-transport",
+              data: {
+                streamId,
+                peerId: user.id,
+                dtlsParameters,
+                direction
+              },
+              sid: socket.id
+            })
+          )
+        );
+      } catch (error) {
+        logger.error("Error connect-transport");
+      }
+    }
+  });
 
-  //   const checkIfAlreadyJoined = stream.viewers.find(
-  //     (v) => v === socket.data.user.id
-  //   );
+  socket.on("send-track", (data) => {
+    const { streamId, user } = socket.data;
 
-  //   if (checkIfAlreadyJoined || stream.streamer.id === socket.data.user.id) {
-  //     return;
-  //   }
+    if (streamId && user) {
+      try {
+        channel.sendToQueue(
+          config.rabbitmq.queues.media_server_queue,
+          Buffer.from(
+            JSON.stringify({
+              op: "send-track",
+              data: {
+                streamId,
+                peerId: user.id,
+                ...data
+              },
+              sid: socket.id
+            })
+          )
+        );
+      } catch (error) {
+        logger.error("Error connect-transport");
+      }
+    }
+  });
 
-  //   socket.join(streamId);
+  socket.on("get-recv-tracks", ({ rtpCapabilities }) => {
+    const { streamId, user } = socket.data;
 
-  //   logger.info(`User ${socket.data.user.username} joined stream: ${streamId}`);
-
-  //   stream.viewerCount++;
-  //   stream.viewers.push(socket.data.user.id);
-  //   socket.data.streamId = streamId;
-
-  //   socket.to(streamId).emit("user_joined", {
-  //     user: socket.data.user
-  //   });
-
-  //   socket
-  //     .to(streamId)
-  //     .emit("viewer_count", { viewerCount: stream.viewerCount });
-  // });
+    if (streamId && user) {
+      try {
+        channel.sendToQueue(
+          config.rabbitmq.queues.media_server_queue,
+          Buffer.from(
+            JSON.stringify({
+              op: "get-recv-tracks",
+              data: {
+                streamId,
+                peerId: user.id,
+                rtpCapabilities
+              },
+              sid: socket.id
+            })
+          )
+        );
+      } catch (error) {
+        logger.error("Error connect-transport");
+      }
+    }
+  });
 
   // socket.on("leave_stream", () => {
   //   const { streamId } = socket.data;
