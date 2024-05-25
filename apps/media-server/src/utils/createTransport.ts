@@ -4,7 +4,7 @@ import { StreamSendDirection } from "src/types/rabbitmq";
 
 export const createTransport = async (
   router: Router,
-  sid: string,
+  peerId: string,
   direction: StreamSendDirection
 ): Promise<WebRtcTransport> => {
   const transport = await router.createWebRtcTransport({
@@ -12,7 +12,7 @@ export const createTransport = async (
     enableUdp: true,
     enableTcp: true,
     preferUdp: true,
-    appData: { sid, clientDirection: direction }
+    appData: { peerId, clientDirection: direction }
   });
   return transport;
 };

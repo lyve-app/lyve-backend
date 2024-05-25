@@ -1,12 +1,11 @@
 import {
-  ConsumerType,
   Producer,
   Router,
   RtpCapabilities,
-  RtpParameters,
   Transport
 } from "mediasoup/node/lib/types";
 import { StreamPeer } from "../types/streamroom";
+import { Consumer } from "../types/rabbitmq";
 
 export const createConsumer = async (
   router: Router,
@@ -41,15 +40,3 @@ export const createConsumer = async (
     }
   };
 };
-
-export interface Consumer {
-  peerId: string;
-  consumerParameters: {
-    producerId: string;
-    id: string;
-    kind: string;
-    rtpParameters: RtpParameters;
-    type: ConsumerType;
-    producerPaused: boolean;
-  };
-}

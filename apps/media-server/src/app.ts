@@ -70,8 +70,8 @@ export async function main() {
       }
 
       const [recvTransport, sendTransport] = await Promise.all([
-        createTransport(router, sid, "recv"),
-        createTransport(router, sid, "send")
+        createTransport(router, peerId, "recv"),
+        createTransport(router, peerId, "send")
       ]);
 
       stream.state[peerId] = {
@@ -97,6 +97,7 @@ export async function main() {
     "close-peer": () => {},
     "connect-transport": () => {},
     "send-track": () => {},
+    "get-recv-tracks": () => {},
     "end-stream": () => {}
   });
 }
