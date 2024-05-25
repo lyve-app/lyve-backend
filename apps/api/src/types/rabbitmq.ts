@@ -1,12 +1,24 @@
 import {
   AppData,
-  Consumer,
+  ConsumerType,
   DtlsParameters,
   MediaKind,
   RtpCapabilities,
   RtpParameters,
   WebRtcTransport
 } from "mediasoup/node/lib/types";
+
+export interface Consumer {
+  peerId: string;
+  consumerParameters: {
+    producerId: string;
+    id: string;
+    kind: MediaKind;
+    rtpParameters: RtpParameters;
+    type: ConsumerType;
+    producerPaused: boolean;
+  };
+}
 
 export type StreamSendDirection = "recv" | "send";
 
@@ -29,13 +41,13 @@ export interface OutgoingMessageDataMap {
     peerId: string;
   };
   "connect-transport": {
-    roomId: string;
+    streamId: string;
     dtlsParameters: DtlsParameters;
     peerId: string;
     direction: StreamSendDirection;
   };
   "send-track": {
-    roomId: string;
+    streamId: string;
     peerId: string;
     transportId: string;
     direction: StreamSendDirection;
@@ -44,6 +56,11 @@ export interface OutgoingMessageDataMap {
     rtpParameters: RtpParameters;
     rtpCapabilities: RtpCapabilities;
     appData: AppData;
+  };
+  "get-recv-tracks": {
+    streamId: string;
+    peerId: string;
+    rtpCapabilities: RtpCapabilities;
   };
   "end-stream": {
     streamId: string;
@@ -64,7 +81,7 @@ export type HandlerDataMap = {
     sendTransportOptions: TransportOptions;
   };
   "you-connected-as-viewer": {
-    roomId: string;
+    streamId: string;
     peerId: string;
     routerRtpCapabilities: RtpCapabilities;
     recvTransportOptions: TransportOptions;

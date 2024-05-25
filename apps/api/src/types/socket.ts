@@ -1,4 +1,12 @@
 import { User } from "@prisma/client";
+import {
+  AppData,
+  DtlsParameters,
+  MediaKind,
+  RtpCapabilities,
+  RtpParameters
+} from "mediasoup/node/lib/types";
+import { Consumer, StreamSendDirection, TransportOptions } from "./rabbitmq";
 
 export type SocketUser = Pick<
   User,
@@ -25,7 +33,23 @@ export interface SocketResponse<T> {
 // > = isSender extends true ? [Error, ...args] : args;
 
 export interface ServerToClientEvents {
-  "you-connected-as-streamer": (data: unknown) => void;
+  "you-joined-as-streamer": (data: {
+    streamId: string;
+    routerRtpCapabilities: RtpCapabilities;
+    recvTransportOptions: TransportOptions;
+    sendTransportOptions: TransportOptions;
+  }) => void;
+  "you-joined-as-viewer": (data: {
+    streamId: string;
+    routerRtpCapabilities: RtpCapabilities;
+    recvTransportOptions: TransportOptions;
+  }) => void;
+  "get-recv-tracks-res": (data: { consumerParametersArr: Consumer[] }) => void;
+  "send-track-send-res": (data: { id: string; error: string }) => void;
+  "send-track-recv-res": (data: { id: string; error: string }) => void;
+  "connect-transport-send-res": (data: { error: string }) => void;
+  "connect-transport-recv-res": (data: { error?: string }) => void;
+  "you-left-stream": () => void;
   user_joined: (data: { user: SocketUser }) => void;
   user_leaved: (data: { user: SocketUser }) => void;
   viewer_count: (data: { viewerCount: number }) => void;
@@ -50,13 +74,26 @@ export interface ServerToClientEvents {
 }
 
 export interface ClientToServerEvents {
-  connect_as_streamer: () => void;
-  join_stream: (data: { streamId: string }) => void;
-  leave_stream: () => void;
-  create_stream: (
+  "connect-transport": (data: {
+    transportId: string;
+    dtlsParameters: DtlsParameters;
+    direction: StreamSendDirection;
+  }) => void;
+  "send-track": (data: {
+    transportId: string;
+    direction: StreamSendDirection;
+    paused: boolean;
+    kind: MediaKind;
+    rtpParameters: RtpParameters;
+    rtpCapabilities: RtpCapabilities;
+    appData: AppData;
+  }) => void;
+  "get-recv-tracks": (data: { rtpCapabilities: RtpCapabilities }) => void;
+  join_stream: (
     data: { streamId: string },
-    callback: SocketCallback<{ streamId: string }>
+    callback: SocketCallback<null>
   ) => void;
+  leave_stream: () => void;
   start_stream: (
     data: { streamId: string },
     callback: SocketCallback<null>
