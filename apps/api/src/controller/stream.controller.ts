@@ -14,7 +14,16 @@ export const getStreamInfo = async (
       id: true,
       serverId: true,
       active: true,
-      streamer: true,
+      streamer: {
+        select: {
+          id: true,
+          username: true,
+          avatar_url: true,
+          followerCount: true,
+          promotionPoints: true,
+          level: true
+        }
+      },
       previewImgUrl: true,
       viewerCount: true,
       genre: true,
