@@ -4,9 +4,9 @@ import {
   DtlsParameters,
   MediaKind,
   RtpCapabilities,
-  RtpParameters,
-  WebRtcTransport
+  RtpParameters
 } from "mediasoup/node/lib/types";
+import { TransportOptions } from "../utils/createTransport";
 
 export interface Consumer {
   peerId: string;
@@ -21,11 +21,6 @@ export interface Consumer {
 }
 
 export type StreamSendDirection = "recv" | "send";
-
-export type TransportOptions = Pick<
-  WebRtcTransport,
-  "id" | "iceParameters" | "iceCandidates" | "dtlsParameters"
->;
 
 export interface HandlerDataMap {
   "connect-as-streamer": {

@@ -171,6 +171,7 @@ io.use(async (socket, next) => {
       },
       sid
     ) => {
+      console.log("you-joined-as-streamer");
       io.to(sid).emit("you-joined-as-streamer", {
         streamId,
         routerRtpCapabilities,
@@ -211,6 +212,7 @@ io.use(async (socket, next) => {
       });
     },
     "send-track-send-res": ({ id, error }, sid) => {
+      console.log(id, error);
       io.to(sid).emit("send-track-send-res", {
         id: id ?? "",
         error: error ?? ""

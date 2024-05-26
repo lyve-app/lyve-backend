@@ -2,10 +2,11 @@ import {
   AppData,
   ConsumerType,
   DtlsParameters,
+  IceCandidate,
+  IceParameters,
   MediaKind,
   RtpCapabilities,
-  RtpParameters,
-  WebRtcTransport
+  RtpParameters
 } from "mediasoup/node/lib/types";
 
 export interface Consumer {
@@ -22,10 +23,12 @@ export interface Consumer {
 
 export type StreamSendDirection = "recv" | "send";
 
-export type TransportOptions = Pick<
-  WebRtcTransport,
-  "id" | "iceParameters" | "iceCandidates" | "dtlsParameters"
->;
+export type TransportOptions = {
+  id: string;
+  iceParameters: IceParameters;
+  iceCandidates: IceCandidate[];
+  dtlsParameters: DtlsParameters;
+};
 
 export interface OutgoingMessageDataMap {
   "connect-as-streamer": {
