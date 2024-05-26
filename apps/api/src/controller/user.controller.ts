@@ -156,12 +156,12 @@ export const following = async (
       id: true,
       username: true,
 
-      followedBy: {
-        select: {
+      following: {
+        include: {
           following: {
             select: {
-              username: true,
-              id: true
+              id: true,
+              username: true
             }
           }
         }
@@ -188,12 +188,12 @@ export const followedBy = async (
       id: true,
       username: true,
 
-      following: {
-        select: {
+      followedBy: {
+        include: {
           followedBy: {
             select: {
-              username: true,
-              id: true
+              id: true,
+              username: true
             }
           }
         }
