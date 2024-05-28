@@ -17,8 +17,14 @@ const envSchema = Joi.object().keys({
   HOST: Joi.string().required(),
   CORS_ORIGIN: Joi.string().required().default("*"),
   RABBITMQ_URL: Joi.string().required(),
-  WEBRTC_LISTEN_IP: Joi.string().required(),
-  A_IP: Joi.string().required()
+  WEBRTC_LISTEN_IP: Joi.string().ip({
+    version: ["ipv4", "ipv6"]
+  }),
+  A_IP: Joi.string()
+    .ip({
+      version: ["ipv4", "ipv6"]
+    })
+    .empty("")
 });
 
 const { value: validatedEnv, error } = envSchema
@@ -32,6 +38,8 @@ if (error) {
       .join("\n")}`
   );
 }
+
+console.log(validatedEnv.A_IP, validatedEnv.WEBRTC_LISTEN_IP);
 
 const config = {
   node_env: validatedEnv.NODE_ENV,
@@ -87,14 +95,15 @@ const config = {
         }
       ] as RtpCodecCapability[]
     },
-    webRtcTransport: {
-      listenIps: [
+    webRtcTransportOptions: {
+      listenInfos: [
         {
           protocol: "udp",
           ip: validatedEnv.WEBRTC_LISTEN_IP,
-          announcedIp: validatedEnv.A_IP || undefined
+          announcedAddress: validatedEnv.A_IP || undefined
         }
-      ] as TransportListenInfo[]
+      ] as TransportListenInfo[],
+      initialAvailableOutgoingBitrate: 800000
     }
   }
 } as const;
