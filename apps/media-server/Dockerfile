@@ -58,15 +58,10 @@ COPY --chown=nodejs:nodejs --from=build /app/dist ./dist
 COPY --chown=nodejs:nodejs --from=build /app/prisma ./prisma
 
 ENV NODE_ENV=production
-ENV PORT=4040
-ENV HOST=0.0.0.0
-
-
 
 RUN pwd && ls -laR ./dist
 
 # Expose port for the application to listen on
-EXPOSE 4040
 
 # Start the application with dumb-init
 CMD ["dumb-init", "node", "dist/src/index.js"]

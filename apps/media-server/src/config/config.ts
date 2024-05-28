@@ -13,8 +13,6 @@ dotenv.config({
 
 const envSchema = Joi.object().keys({
   NODE_ENV: Joi.string().valid("production", "development", "test").required(),
-  PORT: Joi.number().port().required().default(4041),
-  HOST: Joi.string().required(),
   CORS_ORIGIN: Joi.string().required().default("*"),
   RABBITMQ_URL: Joi.string().required(),
   WEBRTC_LISTEN_IP: Joi.string().ip({
@@ -43,10 +41,6 @@ console.log(validatedEnv.A_IP, validatedEnv.WEBRTC_LISTEN_IP);
 
 const config = {
   node_env: validatedEnv.NODE_ENV,
-  app: {
-    port: validatedEnv.PORT,
-    host: validatedEnv.HOST
-  },
   cors: {
     origin: validatedEnv.CORS_ORIGIN
   },
