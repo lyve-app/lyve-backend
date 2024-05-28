@@ -94,11 +94,6 @@ export interface ClientToServerEvents {
     callback: SocketCallback<null>
   ) => void;
   leave_stream: () => void;
-  start_stream: (
-    data: { streamId: string },
-    callback: SocketCallback<null>
-  ) => void;
-  end_stream: (callback: SocketCallback<null>) => void;
   send_msg: (data: { msg: string }) => void;
   send_reward: (data: {
     msg: string;
