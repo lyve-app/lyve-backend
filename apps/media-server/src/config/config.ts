@@ -58,8 +58,6 @@ if (error) {
   );
 }
 
-console.log(validatedEnv.A_IP, validatedEnv.WEBRTC_LISTEN_IP);
-
 const config = {
   node_env: validatedEnv.NODE_ENV,
   app: {
