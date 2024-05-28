@@ -19,11 +19,18 @@ export const createTransport = async (
 ): Promise<WebRtcTransport> => {
   logger.info(`Creating ${direction} transport for peer ${peerId}`);
   const transport = await router.createWebRtcTransport({
-    listenIps: config.mediasoup.webRtcTransport.listenIps,
+    listenInfos: config.mediasoup.webRtcTransportOptions.listenInfos,
     enableUdp: true,
     enableTcp: true,
     preferUdp: true,
-    appData: { peerId, clientDirection: direction }
+    appData: { peerId, clientDirection: direction },
+    initialAvailableOutgoingBitrate:
+      config.mediasoup.webRtcTransportOptions.initialAvailableOutgoingBitrate
   });
+
+  logger.info(
+    `Created transport for ${peerId}, direction; ${direction} \n`,
+    transport
+  );
   return transport;
 };

@@ -6,6 +6,7 @@ import {
 } from "mediasoup/node/lib/types";
 import { StreamPeer } from "../types/streamroom";
 import { Consumer } from "../types/rabbitmq";
+import logger from "../middleware/logger";
 
 export const createConsumer = async (
   router: Router,
@@ -16,17 +17,24 @@ export const createConsumer = async (
   peerConsuming: StreamPeer
 ): Promise<Consumer> => {
   if (!router.canConsume({ producerId: producer.id, rtpCapabilities })) {
+    logger.error(`Client cannot consume ${producer.appData.peerId}`);
     throw new Error(`Client cannot consume ${producer.appData.peerId}`);
   }
+
+  logger.info(`Creating  consumer for peer ${peerId}`);
 
   const consumer = await transport.consume({
     producerId: producer.id,
     rtpCapabilities,
-    paused: false,
+    paused: producer.kind === "video",
     appData: { peerId, mediaPeerId: producer.appData.peerId }
   });
 
   peerConsuming.consumers.push(consumer);
+
+  logger.info(
+    `peer ${peerId} has: ${peerConsuming.consumers.length} consumers`
+  );
 
   return {
     peerId: producer.appData.peerId as string,
