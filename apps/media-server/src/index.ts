@@ -20,7 +20,7 @@ app.get("/", (_req, res) => {
   res.status(200).json({ msg: "Up" });
 });
 
-const port: number = Number(config.app.port) || 4040;
+const port: number = Number(config.app.port) || 4041;
 
 server.listen(port, config.app.host, () => {
   logger.log("info", `Server is running on Port: ${port}`);
