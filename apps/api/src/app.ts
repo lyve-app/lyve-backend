@@ -190,7 +190,6 @@ io.use(async (socket, next) => {
       });
     },
     "media-server-error": (data) => {
-      // Todo forward error to client or handle on server
       logger.warn(data);
       console.error(data);
     },
@@ -212,7 +211,7 @@ io.use(async (socket, next) => {
       });
     },
     "send-track-send-res": ({ id, error }, sid) => {
-      console.log(id, error);
+      console.log(error);
       io.to(sid).emit("send-track-send-res", {
         id: id ?? "",
         error: error ?? ""
@@ -224,6 +223,7 @@ io.use(async (socket, next) => {
       });
     },
     "connect-transport-send-res": ({ error }, sid) => {
+      console.log(error);
       io.to(sid).emit("connect-transport-send-res", {
         error: error ?? ""
       });
@@ -502,131 +502,6 @@ io.on("connection", (socket) => {
   //     .to(streamId)
   //     .emit("viewer_count", { viewerCount: stream.viewerCount });
   // });
-
-  // socket.on("start_stream", async ({ streamId }, cb) => {
-  //   const checkStream = await prismaClient.stream.findUnique({
-  //     where: {
-  //       id: streamId
-  //     },
-  //     select: {
-  //       streamerId: true,
-  //       streamer: {
-  //         select: {
-  //           id: true
-  //         }
-  //       }
-  //     }
-  //   });
-
-  //   if (!checkStream) {
-  //     return cb({
-  //       success: false,
-  //       data: null,
-  //       error: [
-  //         {
-  //           name: "Not Found",
-  //           code: -1,
-  //           msg: `No stream with id: ${streamId} found`
-  //         }
-  //       ]
-  //     });
-  //   }
-
-  //   if (checkStream?.streamerId !== socket.data.user.id) {
-  //     return cb({
-  //       success: false,
-  //       data: null,
-  //       error: [
-  //         {
-  //           name: "Forbidden",
-  //           code: -1,
-  //           msg: "You are not the host of this stream"
-  //         }
-  //       ]
-  //     });
-  //   }
-
-  //   await prismaClient.stream.update({
-  //     where: { id: streamId },
-  //     data: { active: true }
-  //   });
-
-  //   cb({
-  //     success: true,
-  //     data: null,
-  //     error: []
-  //   });
-
-  //   socket.to(streamId).emit("viewer_count", {
-  //     viewerCount: streams.get(streamId)?.viewerCount || 0
-  //   });
-  // });
-
-  // socket.on("create_producer", ({ rtpCapabilities }) => {
-  //   const { streamId } = socket.data;
-  //   // check if socket is in stream
-  //   if (!streamId) {
-  //     return;
-  //   }
-
-  //   if (!streams.get(streamId)) {
-  //     return;
-  //   }
-
-  //   try {
-  //     channel.sendToQueue(
-  //       config.rabbitmq.queues.media_server_queue,
-  //       Buffer.from(
-  //         JSON.stringify({
-  //           type: OutgoingEventType.CREATE_PRODUCER,
-  //           streamId: streamId,
-  //           clientId: socket.data.user.id,
-  //           rtpCapabilities
-  //         })
-  //       )
-  //     );
-  //     logger.info(
-  //       `Client ${socket.data.user.id} requested to create a producer`
-  //     );
-  //   } catch (err) {
-  //     logger.error("Error on create_producer: ", err);
-  //   }
-  // });
-
-  // socket.on(
-  //   "connect_producer_transport",
-  //   ({ dtlsParameters, rtpParameters }) => {
-  //     const { streamId } = socket.data;
-  //     // check if socket is in stream
-  //     if (!streamId) {
-  //       return;
-  //     }
-
-  //     if (!streams.get(streamId)) {
-  //       return;
-  //     }
-
-  //     try {
-  //       channel.sendToQueue(
-  //         config.rabbitmq.queues.media_server_queue,
-  //         Buffer.from(
-  //           JSON.stringify({
-  //             type: OutgoingEventType.CONNECT_PRODUCER_TRANSPORT,
-  //             streamId: streamId,
-  //             clientId: socket.data.user.id,
-  //             rtpParameters,
-  //             dtlsParameters
-  //           })
-  //         )
-  //       );
-  //       logger.info(
-  //         `Client ${socket.data.user.id} requested to connect producer transport`
-  //       );
-  //     } catch (err) {
-  //       logger.error("Error on connect_producer_transport: ", err);
-  //     }
-  //   }
-  // );
 
   // socket.on("end_stream", async () => {
   //   const { streamId } = socket.data;
