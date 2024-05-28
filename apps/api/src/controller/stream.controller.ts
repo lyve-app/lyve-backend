@@ -19,6 +19,7 @@ export const getStreamInfo = async (
           id: true,
           username: true,
           avatar_url: true,
+          dispname: true,
           followerCount: true,
           promotionPoints: true,
           level: true
