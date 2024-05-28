@@ -5,7 +5,7 @@ FROM node:20-alpine AS build
 WORKDIR /app
 
 # Copy package.json and to the container
-COPY ./package.json  ./
+COPY ./apps/media-server/package.json  ./
 
 RUN apk add --update && apk add \
     gcc \
@@ -17,7 +17,7 @@ RUN apk add --update && apk add \
     dumb-init
 
 
-COPY . .
+COPY ./apps/media-server/ .
 
 RUN yarn install --frozen-lockfile && yarn cache clean && npm install -g typescript
 
