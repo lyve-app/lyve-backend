@@ -37,7 +37,7 @@ ENV PORT=4041
 ENV HOST=0.0.0.0
 
 # Expose port for the application to listen on
-EXPOSE 4040
+EXPOSE 4041
 
 # Start the application with dumb-init
 CMD ["dumb-init", "node", "dist/src/index.js"]
