@@ -3,9 +3,9 @@
   "version": "0.0.0",
   "license": "MIT",
   "scripts": {
-    "dev": "tsc --project './tsconfig.app.json' --watch & cross-env NODE_ENV=development nodemon --trace-warnings ./dist/index.js --verbose",
+    "dev": "tsc --project './tsconfig.app.json' --watch & cross-env NODE_ENV=development nodemon --trace-warnings ./dist/src/index.js --verbose",
     "build": "tsc --project './tsconfig.app.json'",
-    "start": "yarn run build && cross-env NODE_ENV=production node --trace-warnings ./dist/index.js",
+    "start": "yarn run build && cross-env NODE_ENV=production node --trace-warnings ./dist/src/index.js",
     "watch": "tsc --project './tsconfig.app.json' --watch",
     "test": "jest --coverage=false --passWithNoTests",
     "test:watch": "jest -i --watchAll --coverage=false --passWithNoTests",

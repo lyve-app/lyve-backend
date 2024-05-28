@@ -1,20 +1,28 @@
 import dotenv from "dotenv";
 import path from "path";
 import Joi from "joi";
-import { RtpCodecCapability, WorkerLogTag } from "mediasoup/node/lib/types";
+import {
+  RtpCodecCapability,
+  TransportListenInfo,
+  WorkerLogTag
+} from "mediasoup/node/lib/types";
 
 dotenv.config({
-  path: path.resolve(
-    __dirname,
-    "../../.env" + (process.env.NODE_ENV !== "production" ? ".local" : "")
-  )
+  path: path.resolve(__dirname, "../../../.env")
 });
 
 const envSchema = Joi.object().keys({
   NODE_ENV: Joi.string().valid("production", "development", "test").required(),
-  PORT: Joi.number().port().required().default(4041),
-  HOST: Joi.string().required(),
-  CORS_ORIGIN: Joi.string().required().default("*")
+  CORS_ORIGIN: Joi.string().required().default("*"),
+  RABBITMQ_URL: Joi.string().required(),
+  WEBRTC_LISTEN_IP: Joi.string().ip({
+    version: ["ipv4", "ipv6"]
+  }),
+  A_IP: Joi.string()
+    .ip({
+      version: ["ipv4", "ipv6"]
+    })
+    .empty("")
 });
 
 const { value: validatedEnv, error } = envSchema
@@ -29,14 +37,20 @@ if (error) {
   );
 }
 
+console.log(validatedEnv.A_IP, validatedEnv.WEBRTC_LISTEN_IP);
+
 const config = {
   node_env: validatedEnv.NODE_ENV,
-  app: {
-    port: validatedEnv.PORT,
-    host: validatedEnv.HOST
-  },
   cors: {
     origin: validatedEnv.CORS_ORIGIN
+  },
+  rabbitmq: {
+    url: validatedEnv.RABBITMQ_URL,
+    queues: {
+      api_server_queue: "api_server_queue",
+      media_server_queue: "media_server_queue"
+    },
+    retryInterval: 5000
   },
   mediasoup: {
     worker: {
@@ -67,13 +81,23 @@ const config = {
         },
         {
           kind: "video",
-          mimeType: "video/VP9",
+          mimeType: "video/VP8",
           clockRate: 90000,
           parameters: {
             "x-google-start-bitrate": 1000
           }
         }
       ] as RtpCodecCapability[]
+    },
+    webRtcTransportOptions: {
+      listenInfos: [
+        {
+          protocol: "udp",
+          ip: validatedEnv.WEBRTC_LISTEN_IP,
+          announcedAddress: validatedEnv.A_IP || undefined
+        }
+      ] as TransportListenInfo[],
+      initialAvailableOutgoingBitrate: 800000
     }
   }
 } as const;
