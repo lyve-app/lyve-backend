@@ -5,7 +5,7 @@ import { startMediasoup } from "./utils/startMediasoup";
 
 import { StreamRoom } from "./types/streamroom";
 import { initRabbitMQ } from "./utils/initRabbitMQ";
-import { Channel } from "amqplib";
+
 import config from "./config/config";
 import { createTransport, transportToOptions } from "./utils/createTransport";
 import { closePeer } from "./utils/closePeer";

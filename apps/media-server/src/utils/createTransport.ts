@@ -1,6 +1,6 @@
 import { Router, WebRtcTransport } from "mediasoup/node/lib/types";
 import config from "../config/config";
-import { StreamSendDirection } from "src/types/rabbitmq";
+import { StreamSendDirection } from "../types/rabbitmq";
 import logger from "../middleware/logger";
 
 export const transportToOptions = ({

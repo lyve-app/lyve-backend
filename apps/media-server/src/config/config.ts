@@ -1,4 +1,5 @@
 import dotenv from "dotenv";
+// import os from "os";
 import path from "path";
 import Joi from "joi";
 import {
@@ -10,6 +11,24 @@ import {
 dotenv.config({
   path: path.resolve(__dirname, "../../../.env")
 });
+
+// function getIPv4() {
+//   const ifaces = os.networkInterfaces();
+//   for (const interfaceName in ifaces) {
+//     const iface = ifaces[interfaceName];
+//     if (!iface) {
+//       continue;
+//     }
+//     for (const { address, family, internal } of iface) {
+//       if (family === "IPv4" && !internal) {
+//         return address;
+//       }
+//     }
+//   }
+//   return "0.0.0.0";
+// }
+
+// const IPv4 = getIPv4();
 
 const envSchema = Joi.object().keys({
   NODE_ENV: Joi.string().valid("production", "development", "test").required(),
@@ -99,6 +118,11 @@ const config = {
       listenInfos: [
         {
           protocol: "udp",
+          ip: validatedEnv.WEBRTC_LISTEN_IP,
+          announcedAddress: validatedEnv.A_IP || undefined
+        },
+        {
+          protocol: "tcp",
           ip: validatedEnv.WEBRTC_LISTEN_IP,
           announcedAddress: validatedEnv.A_IP || undefined
         }

@@ -1,4 +1,4 @@
-import { StreamPeer } from "src/types/streamroom";
+import { StreamPeer } from "../types/streamroom";
 
 export const closePeer = (state: StreamPeer) => {
   state.producer?.close();
