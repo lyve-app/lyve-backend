@@ -196,14 +196,8 @@ io.use(async (socket, next) => {
     "get-recv-tracks-res": ({ consumerParametersArr }, sid) => {
       io.to(sid).emit("get-recv-tracks-res", { consumerParametersArr });
     },
-    "close-consumer": () => {
-      // Todo implement
-      throw new Error("Function not implemented.");
-    },
-    "you-left-stream": () => {
-      // Todo implement
-      throw new Error("Function not implemented.");
-    },
+    "close-consumer": () => {},
+    "you-left-stream": () => {},
     "send-track-recv-res": ({ id, error }, sid) => {
       io.to(sid).emit("send-track-recv-res", {
         id: id ?? "",
@@ -455,121 +449,133 @@ io.on("connection", (socket) => {
     }
   });
 
-  // socket.on("leave_stream", () => {
-  //   const { streamId } = socket.data;
+  socket.on("leave_stream", async () => {
+    const { streamId, user } = socket.data;
 
-  //   if (!streamId) return;
+    if (!streamId || !user) {
+      logger.warn("leave_stream: streamId or user is undefined");
+      return;
+    }
 
-  //   const stream = streams.get(streamId);
+    const checkStream = await prismaClient.stream.findUnique({
+      where: {
+        id: streamId
+      },
+      select: {
+        id: true,
+        created_at: true,
+        streamerId: true,
+        streamer: {
+          select: {
+            id: true
+          }
+        }
+      }
+    });
 
-  //   if (!stream) return;
+    // stream found ??
+    if (!checkStream) {
+      logger.warn("leave_stream: stream not found");
+      return;
+    }
 
-  //   const checkIfPresent = stream.viewers.find(
-  //     (v) => v === socket.data.user.id
-  //   );
+    const stream = streams.get(streamId);
 
-  //   if (!checkIfPresent) {
-  //     return;
-  //   }
+    if (!stream) return;
 
-  //   try {
-  //     channel.sendToQueue(
-  //       config.rabbitmq.queues.media_server_queue,
-  //       Buffer.from(
-  //         JSON.stringify({
-  //           type: OutgoingEventType.LEAVE_STREAM,
-  //           clientId: socket.data.user.id,
-  //           streamId
-  //         })
-  //       )
-  //     );
-  //   } catch (error) {
-  //     logger.error("Error on sending leave_stream message: ", error);
-  //   }
+    const checkIfPresent = stream.viewers.find(
+      (v) => v === socket.data.user.id
+    );
 
-  //   socket.leave(streamId);
+    if (!checkIfPresent) {
+      logger.warn("leave_stream:  user is present in stream");
+      return;
+    }
 
-  //   stream.viewerCount--;
-  //   stream.viewers = stream.viewers.filter((id) => id !== socket.data.user.id);
+    // is streamer stream host ?
+    if (stream.streamer.id === user.id) {
+      try {
+        channel.sendToQueue(
+          config.rabbitmq.queues.media_server_queue,
+          Buffer.from(
+            JSON.stringify({
+              op: "end-stream",
+              data: {
+                streamId
+              },
+              sid: socket.id
+            })
+          )
+        );
+      } catch (error) {
+        logger.error("Error on sending leave_stream message: ", error);
+      }
 
-  //   logger.info(`User ${socket.data.user.username} leaved stream: ${streamId}`);
+      const ended_at = new Date();
+      const duration =
+        (ended_at.getTime() - checkStream.created_at.getTime()) / 1000;
 
-  //   socket.to(streamId).emit("user_leaved", {
-  //     user: socket.data.user
-  //   });
+      prismaClient.stream.update({
+        where: { id: streamId },
+        data: {
+          ended_at,
+          duration,
+          active: false
+        }
+      });
 
-  //   socket
-  //     .to(streamId)
-  //     .emit("viewer_count", { viewerCount: stream.viewerCount });
-  // });
+      socket
+        .to(streamId)
+        .emit("stream_ended", { duration, ended_at: ended_at.toString() });
 
-  // socket.on("end_stream", async () => {
-  //   const { streamId } = socket.data;
+      socket.emit("you-left-stream");
 
-  //   if (!streamId) {
-  //     return;
-  //   }
+      io.in(streamId).socketsLeave(streamId);
 
-  //   const checkStream = await prismaClient.stream.findUnique({
-  //     where: {
-  //       id: streamId
-  //     },
-  //     select: {
-  //       id: true,
-  //       created_at: true,
-  //       streamerId: true,
-  //       streamer: {
-  //         select: {
-  //           id: true
-  //         }
-  //       }
-  //     }
-  //   });
+      streams.delete(streamId);
+      delete socket.data.streamId;
+    } else {
+      try {
+        channel.sendToQueue(
+          config.rabbitmq.queues.media_server_queue,
+          Buffer.from(
+            JSON.stringify({
+              op: "close-peer",
+              data: {
+                streamId,
+                peerId: user.id
+              },
+              sid: socket.id
+            })
+          )
+        );
+      } catch (error) {
+        logger.error("Error on sending leave_stream message: ", error);
+      }
 
-  //   // stream found ??
-  //   if (!checkStream) {
-  //     return;
-  //   }
+      socket.emit("you-left-stream");
 
-  //   // is host ??
-  //   if (checkStream.streamerId !== socket.data.user.id) {
-  //     return;
-  //   }
+      socket.leave(streamId);
 
-  //   const ended_at = new Date();
-  //   const duration =
-  //     (ended_at.getTime() - checkStream.created_at.getTime()) / 1000;
+      stream.viewerCount--;
+      stream.viewers = stream.viewers.filter(
+        (id) => id !== socket.data.user.id
+      );
+      delete socket.data.streamId;
 
-  //   prismaClient.stream.update({
-  //     where: { id: streamId },
-  //     data: {
-  //       ended_at,
-  //       duration,
-  //       active: false
-  //     }
-  //   });
+      logger.info(
+        `User ${socket.data.user.username} leaved stream: ${streamId}`
+      );
 
-  //   socket.emit("stream_ended", { duration, ended_at: ended_at.toString() });
+      socket.to(streamId).emit("user_leaved", {
+        user: socket.data.user
+      });
 
-  //   io.in(streamId).socketsLeave(streamId);
-
-  //   try {
-  //     channel.sendToQueue(
-  //       config.rabbitmq.queues.media_server_queue,
-  //       Buffer.from(
-  //         JSON.stringify({
-  //           type: OutgoingEventType.END_STREAM,
-  //           streamId: checkStream.id
-  //         })
-  //       )
-  //     );
-  //   } catch (error) {
-  //     logger.error("Error on end_stream: ", error);
-  //   }
-
-  //   streams.delete(streamId);
-  //   delete socket.data.streamId;
-  // });
+      socket
+        .to(streamId)
+        .emit("viewer_count", { viewerCount: stream.viewerCount });
+    }
+  });
 
   socket.on("send_msg", ({ msg }) => {
     console.log(msg);
@@ -579,8 +585,130 @@ io.on("connection", (socket) => {
     console.log(msg, reward);
   });
 
-  socket.on("disconnecting", () => {
+  socket.on("disconnecting", async () => {
     logger.info(`${socket.id} is in disconnecting state`);
+
+    const { streamId, user } = socket.data;
+
+    // check if socket is in stream ?
+    if (!streamId || !user) {
+      return;
+    }
+
+    const checkStream = await prismaClient.stream.findUnique({
+      where: {
+        id: streamId
+      },
+      select: {
+        id: true,
+        created_at: true,
+        streamerId: true,
+        streamer: {
+          select: {
+            id: true
+          }
+        }
+      }
+    });
+
+    // stream found ??
+    if (!checkStream) {
+      logger.warn("leave_stream: stream not found");
+      return;
+    }
+
+    const stream = streams.get(streamId);
+
+    if (!stream) return;
+
+    const checkIfPresent = stream.viewers.find(
+      (v) => v === socket.data.user.id
+    );
+
+    if (!checkIfPresent) {
+      logger.warn("leave_stream:  user is present in stream");
+      return;
+    }
+
+    // is streamer stream host ?
+    if (stream.streamer.id === user.id) {
+      try {
+        channel.sendToQueue(
+          config.rabbitmq.queues.media_server_queue,
+          Buffer.from(
+            JSON.stringify({
+              op: "end-stream",
+              data: {
+                streamId
+              },
+              sid: socket.id
+            })
+          )
+        );
+      } catch (error) {
+        logger.error("Error on sending leave_stream message: ", error);
+      }
+
+      const ended_at = new Date();
+      const duration =
+        (ended_at.getTime() - checkStream.created_at.getTime()) / 1000;
+
+      prismaClient.stream.update({
+        where: { id: streamId },
+        data: {
+          ended_at,
+          duration,
+          active: false
+        }
+      });
+
+      socket
+        .to(streamId)
+        .emit("stream_ended", { duration, ended_at: ended_at.toString() });
+
+      io.in(streamId).socketsLeave(streamId);
+
+      streams.delete(streamId);
+      delete socket.data.streamId;
+    } else {
+      try {
+        channel.sendToQueue(
+          config.rabbitmq.queues.media_server_queue,
+          Buffer.from(
+            JSON.stringify({
+              op: "close-peer",
+              data: {
+                streamId,
+                peerId: user.id
+              },
+              sid: socket.id
+            })
+          )
+        );
+      } catch (error) {
+        logger.error("Error on sending leave_stream message: ", error);
+      }
+
+      socket.leave(streamId);
+
+      stream.viewerCount--;
+      stream.viewers = stream.viewers.filter(
+        (id) => id !== socket.data.user.id
+      );
+      delete socket.data.streamId;
+
+      logger.info(
+        `User ${socket.data.user.username} leaved stream: ${streamId}`
+      );
+
+      socket.to(streamId).emit("user_leaved", {
+        user: socket.data.user
+      });
+
+      socket
+        .to(streamId)
+        .emit("viewer_count", { viewerCount: stream.viewerCount });
+    }
   });
 
   socket.on("disconnect", () => {
