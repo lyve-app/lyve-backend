@@ -32,6 +32,8 @@ env:
 on:
   push:
     branches: [ "main" ]
+    paths:
+      - ./apps/media-server/**
   workflow_dispatch:
 
 permissions:
