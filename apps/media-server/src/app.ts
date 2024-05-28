@@ -280,7 +280,7 @@ export async function main() {
       for (const pid of Object.keys(state)) {
         const peerState = state[pid];
 
-        if (pid === peerId || !peerState || !peerState.producer) {
+        if (!peerState || !peerState.producer) {
           continue;
         }
         try {
@@ -352,8 +352,6 @@ export async function main() {
         return;
       }
 
-      // console.log(prevProducer);
-
       try {
         // if (prevProducer) {
         //   prevProducer.close();
@@ -404,6 +402,28 @@ export async function main() {
         });
       }
     },
-    "end-stream": () => {}
+    "end-stream": ({ streamId }) => {
+      const stream = streamRooms[streamId];
+      if (!stream) {
+        logger.error(`send-track: Stream with id: ${streamId} was not found`);
+
+        return;
+      }
+
+      const { state } = stream;
+
+      if (!state) {
+        logger.error("send-track: state is undefined");
+        return;
+      }
+
+      if (streamId in streamRooms) {
+        for (const peer of Object.values(state)) {
+          closePeer(peer);
+        }
+
+        delete streamRooms[streamId];
+      }
+    }
   });
 }
