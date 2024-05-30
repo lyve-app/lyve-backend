@@ -26,7 +26,8 @@ export const createConsumer = async (
   const consumer = await transport.consume({
     producerId: producer.id,
     rtpCapabilities,
-    paused: producer.kind === "video",
+    // paused: producer.kind === "video",
+    paused: false,
     appData: { peerId, mediaPeerId: producer.appData.peerId }
   });
 
