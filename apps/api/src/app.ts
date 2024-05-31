@@ -578,7 +578,15 @@ io.on("connection", (socket) => {
   });
 
   socket.on("send_msg", ({ msg }) => {
-    console.log(msg);
+    const { streamId, user } = socket.data;
+    if (streamId && user) {
+      io.to(streamId).emit("new_msg", {
+        id: crypto.randomUUID(),
+        msg,
+        sender: user,
+        created_at: Date.now().toString()
+      });
+    }
   });
 
   socket.on("send_reward", ({ msg, reward }) => {
