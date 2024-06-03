@@ -205,7 +205,6 @@ io.use(async (socket, next) => {
       });
     },
     "send-track-send-res": ({ id, error }, sid) => {
-      console.log(error);
       io.to(sid).emit("send-track-send-res", {
         id: id ?? "",
         error: error ?? ""
@@ -217,8 +216,12 @@ io.use(async (socket, next) => {
       });
     },
     "connect-transport-send-res": ({ error }, sid) => {
-      console.log(error);
       io.to(sid).emit("connect-transport-send-res", {
+        error: error ?? ""
+      });
+    },
+    "resume-consumers-done": ({ error }, sid) => {
+      io.to(sid).emit("resume-consumers-done", {
         error: error ?? ""
       });
     }
@@ -438,6 +441,30 @@ io.on("connection", (socket) => {
                 streamId,
                 peerId: user.id,
                 rtpCapabilities
+              },
+              sid: socket.id
+            })
+          )
+        );
+      } catch (error) {
+        logger.error("Error connect-transport");
+      }
+    }
+  });
+
+  socket.on("resume-consumers", () => {
+    const { streamId, user } = socket.data;
+
+    if (streamId && user) {
+      try {
+        channel.sendToQueue(
+          config.rabbitmq.queues.media_server_queue,
+          Buffer.from(
+            JSON.stringify({
+              op: "resume-consumers",
+              data: {
+                streamId,
+                peerId: user.id
               },
               sid: socket.id
             })

@@ -424,6 +424,63 @@ export async function main() {
 
         delete streamRooms[streamId];
       }
+    },
+    "resume-consumers": async ({ streamId, peerId }, sid, send) => {
+      const stream = streamRooms[streamId];
+      if (!stream) {
+        logger.error(
+          `resume-consumers: Stream with id: ${streamId} was not found`
+        );
+
+        return;
+      }
+
+      const { state } = stream;
+
+      if (!state) {
+        logger.error("resume-consumers: state is undefined");
+        return;
+      }
+
+      const peer = state[peerId];
+
+      if (!peer) {
+        logger.error("resume-consumers: peer not found");
+        return;
+      }
+
+      try {
+        for (const consumer of peer.consumers) {
+          await consumer.resume();
+        }
+
+        send({
+          op: "resume-consumers-done",
+          data: {
+            streamId
+          },
+          sid
+        });
+      } catch (error) {
+        const e = error as Error;
+        send({
+          op: "resume-consumers-done",
+          sid,
+          data: {
+            error: e.message,
+            streamId
+          }
+        });
+
+        send({
+          op: "media-server-error",
+          sid,
+          data: {
+            name: e.name,
+            msg: e.message
+          }
+        });
+      }
     }
   });
 }
