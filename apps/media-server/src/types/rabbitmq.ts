@@ -60,6 +60,10 @@ export interface HandlerDataMap {
   "end-stream": {
     streamId: string;
   };
+  "resume-consumers": {
+    streamId: string;
+    peerId: string;
+  };
 }
 
 export type SendTrackDoneOperationName =
@@ -95,6 +99,10 @@ export type OutgoingMessageDataMap = {
   };
   "you-left-stream": {
     streamId: string;
+  };
+  "resume-consumers-done": {
+    streamId: string;
+    error?: string;
   };
 } & {
   [Key in SendTrackDoneOperationName]: {
