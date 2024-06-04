@@ -157,7 +157,7 @@ export const unfollowUser = async (
 
   try {
     // Delete the follow relationship
-    const deletedFollow = await prisma.follows.deleteMany({
+    const deletedFollow = await prismaClient.follows.deleteMany({
       where: {
         followedById: ownId,
         followingId: otherId
