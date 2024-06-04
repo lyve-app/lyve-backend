@@ -2,6 +2,7 @@ import type { Request, Response } from "express";
 import httpStatus from "http-status";
 import prismaClient from "../config/prisma";
 import { CreateUserCredentials, TypedRequest } from "../types/types";
+import { decreaseFollowing, increaseFollowing } from "../service/user.service";
 
 export const getUserInfo = async (
   req: Request<{ id: string }>,
@@ -124,6 +125,8 @@ export const followUser = async (
       }
     });
 
+    increaseFollowing(ownId, otherId);
+
     return res.status(httpStatus.CREATED).json({
       success: true,
       data: {
@@ -144,4 +147,120 @@ export const followUser = async (
       ]
     });
   }
+};
+
+export const unfollowUser = async (
+  req: Request<{ ownId: string; otherId: string }>,
+  res: Response
+) => {
+  const { ownId, otherId } = req.body;
+
+  try {
+    const deletedFollow = await prismaClient.follows.deleteMany({
+      where: {
+        followedById: ownId,
+        followingId: otherId
+      }
+    });
+
+    if (deletedFollow.count === 0) {
+      return res.status(httpStatus.NOT_FOUND).json({
+        success: false,
+        data: null,
+        error: [
+          {
+            name: "Not Found",
+            code: "404",
+            message: "Follow relationship not found"
+          }
+        ]
+      });
+    }
+
+    decreaseFollowing(ownId, otherId);
+
+    return res.status(httpStatus.OK).json({
+      success: true,
+      data: {
+        message: "Unfollowed successfully"
+      },
+      error: "[]"
+    });
+  } catch {
+    return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
+      success: false,
+      data: null,
+      error: [
+        {
+          name: "Internal Server Error",
+          code: "500",
+          message: "An error occurred while unfollowing"
+        }
+      ]
+    });
+  }
+};
+
+export const following = async (
+  req: Request<{ id: string }>,
+  res: Response
+) => {
+  const user = await prismaClient.user.findUnique({
+    where: { id: req.params.id },
+    select: {
+      id: true,
+      username: true,
+
+      following: {
+        include: {
+          following: {
+            select: {
+              id: true,
+              username: true
+            }
+          }
+        }
+      }
+    }
+  });
+
+  return res.status(httpStatus.OK).json({
+    success: true,
+    data: {
+      user
+    },
+    error: "[]"
+  });
+};
+
+export const followedBy = async (
+  req: Request<{ id: string }>,
+  res: Response
+) => {
+  const user = await prismaClient.user.findUnique({
+    where: { id: req.params.id },
+    select: {
+      id: true,
+      username: true,
+
+      followedBy: {
+        include: {
+          followedBy: {
+            select: {
+              id: true,
+              username: true
+            }
+          }
+        }
+      }
+    }
+  });
+
+  return res.status(httpStatus.OK).json({
+    success: true,
+    data: {
+      user
+    },
+    error: "[]"
+  });
 };

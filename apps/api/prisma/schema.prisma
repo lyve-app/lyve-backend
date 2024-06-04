@@ -34,8 +34,10 @@ model User {
 
   streams Stream[]
 
+
   following  Follows[] @relation("followedBy")
   followedBy Follows[] @relation("following")
+
 
   notifications     Notification[]
   userToAchievement UserToAchievement[]
