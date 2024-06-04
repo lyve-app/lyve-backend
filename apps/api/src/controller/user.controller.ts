@@ -2,7 +2,7 @@ import type { Request, Response } from "express";
 import httpStatus from "http-status";
 import prismaClient from "../config/prisma";
 import { CreateUserCredentials, TypedRequest } from "../types/types";
-import { increaseFollowing } from "../service/user.service";
+import { decreaseFollowing, increaseFollowing } from "../service/user.service";
 
 export const getUserInfo = async (
   req: Request<{ id: string }>,
@@ -177,6 +177,8 @@ export const unfollowUser = async (
         ]
       });
     }
+
+    decreaseFollowing(ownId, otherId);
 
     return res.status(httpStatus.OK).json({
       success: true,
