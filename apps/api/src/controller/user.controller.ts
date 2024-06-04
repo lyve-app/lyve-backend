@@ -149,6 +149,58 @@ export const followUser = async (
   }
 };
 
+export const unfollowUser = async (
+  req: Request<{ ownId: string; otherId: string }>,
+  res: Response
+) => {
+  const { ownId, otherId } = req.body;
+
+  try {
+    // Delete the follow relationship
+    const deletedFollow = await prisma.follows.deleteMany({
+      where: {
+        followedById: ownId,
+        followingId: otherId
+      }
+    });
+
+    if (deletedFollow.count === 0) {
+      return res.status(httpStatus.NOT_FOUND).json({
+        success: false,
+        data: null,
+        error: [
+          {
+            name: "Not Found",
+            code: "404",
+            message: "Follow relationship not found"
+          }
+        ]
+      });
+    }
+
+    return res.status(httpStatus.OK).json({
+      success: true,
+      data: {
+        message: "Unfollowed successfully"
+      },
+      error: "[]"
+    });
+  } catch (error) {
+    console.error("Error unfollowing user:", error);
+    return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
+      success: false,
+      data: null,
+      error: [
+        {
+          name: "Internal Server Error",
+          code: "500",
+          message: "An error occurred while unfollowing"
+        }
+      ]
+    });
+  }
+};
+
 export const following = async (
   req: Request<{ id: string }>,
   res: Response
