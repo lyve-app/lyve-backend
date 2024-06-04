@@ -156,7 +156,6 @@ export const unfollowUser = async (
   const { ownId, otherId } = req.body;
 
   try {
-    // Delete the follow relationship
     const deletedFollow = await prismaClient.follows.deleteMany({
       where: {
         followedById: ownId,
@@ -187,8 +186,7 @@ export const unfollowUser = async (
       },
       error: "[]"
     });
-  } catch (error) {
-    console.error("Error unfollowing user:", error);
+  } catch {
     return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
       success: false,
       data: null,
