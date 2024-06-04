@@ -2,6 +2,7 @@ import type { Request, Response } from "express";
 import httpStatus from "http-status";
 import prismaClient from "../config/prisma";
 import { CreateUserCredentials, TypedRequest } from "../types/types";
+import { increaseFollowing } from "../service/user.service";
 
 export const getUserInfo = async (
   req: Request<{ id: string }>,
@@ -123,6 +124,8 @@ export const followUser = async (
         followingId: otherId
       }
     });
+
+    increaseFollowing(ownId, otherId);
 
     return res.status(httpStatus.CREATED).json({
       success: true,
