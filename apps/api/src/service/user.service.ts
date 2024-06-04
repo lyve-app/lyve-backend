@@ -19,9 +19,7 @@ export const createUser = async (
 
 export const increaseFollowing = async (ownId: string, otherId: string) => {
   try {
-    // Start a transaction
     await prismaClient.$transaction(async (prisma) => {
-      // Increase the following count of the user with ownId
       await prisma.user.update({
         where: { id: ownId },
         data: {
@@ -31,7 +29,6 @@ export const increaseFollowing = async (ownId: string, otherId: string) => {
         }
       });
 
-      // Increase the follower count of the user with otherId
       await prisma.user.update({
         where: { id: otherId },
         data: {
@@ -53,7 +50,6 @@ export const increaseFollowing = async (ownId: string, otherId: string) => {
 export const decreaseFollowing = async (ownId: string, otherId: string) => {
   try {
     await prismaClient.$transaction(async (prisma) => {
-      // Decrease the following count of the user with ownId
       await prisma.user.update({
         where: { id: ownId },
         data: {
@@ -63,7 +59,6 @@ export const decreaseFollowing = async (ownId: string, otherId: string) => {
         }
       });
 
-      // Decrease the follower count of the user with otherId
       await prisma.user.update({
         where: { id: otherId },
         data: {
