@@ -5,7 +5,7 @@ FROM node:20-alpine AS build
 WORKDIR /app
 
 # Copy package.json and to the container
-COPY ./apps/api/package.json  ./
+COPY ./apps/media-server/package.json  ./
 
 RUN apk add --update && apk add \
     gcc \
@@ -17,15 +17,13 @@ RUN apk add --update && apk add \
     dumb-init
 
 
-COPY ./apps/api/ .
+COPY ./apps/media-server/ .
 
 RUN yarn install --frozen-lockfile && yarn cache clean && npm install -g typescript
 
 # # Build the application
 RUN yarn build
 
-# Generate prisma client
-RUN yarn prisma generate
 
 # Add a user named nodejs
 RUN adduser -D -H nodejs
@@ -33,12 +31,13 @@ RUN adduser -D -H nodejs
 # Switch to the nodejs user
 USER nodejs
 
+
 ENV NODE_ENV=production
-ENV PORT=4040
+ENV PORT=4041
 ENV HOST=0.0.0.0
 
 # Expose port for the application to listen on
-EXPOSE 4040
+EXPOSE 4041
 
 # Start the application with dumb-init
 CMD ["dumb-init", "node", "dist/src/index.js"]

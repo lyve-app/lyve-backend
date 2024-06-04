@@ -9,7 +9,7 @@
     "src/**/*.test.ts",
     "test",
     "node_modules",
-    "./dist/**"
+    "./dist/**/*"
   ],
-  "include": ["src/**/*.ts"]
+  "include": ["./src/**/*.ts"]
 }
