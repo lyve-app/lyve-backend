@@ -364,6 +364,7 @@ export async function main() {
         //   });
         // }
 
+        logger.info(`Creating a ${kind} producer for stream ${streamId}`);
         const producer = await sendTransport.produce({
           kind,
           rtpParameters,
