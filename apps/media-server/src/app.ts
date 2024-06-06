@@ -81,7 +81,7 @@ export async function main() {
         recvTransport: recvTransport,
         sendTransport: sendTransport,
         consumers: [],
-        producer: null
+        producers: []
       };
 
       send({
@@ -129,7 +129,7 @@ export async function main() {
       stream.state[peerId] = {
         recvTransport,
         consumers: [],
-        producer: null,
+        producers: [],
         sendTransport: null
       };
 
@@ -280,20 +280,22 @@ export async function main() {
       for (const pid of Object.keys(state)) {
         const peerState = state[pid];
 
-        if (!peerState || !peerState.producer) {
+        if (!peerState || !peerState.producers.length) {
           continue;
         }
         try {
-          const { producer } = peerState;
-          const c = await createConsumer(
-            router,
-            producer,
-            rtpCapabilities,
-            recvTransport,
-            pid,
-            peerState
-          );
-          consumerParametersArr.push(c);
+          const { producers } = peerState;
+          for (const producer of producers) {
+            const c = await createConsumer(
+              router,
+              producer,
+              rtpCapabilities,
+              recvTransport,
+              pid,
+              peerState
+            );
+            consumerParametersArr.push(c);
+          }
         } catch (e) {
           errBack(((e as Error).name, (e as Error).message));
           continue;
@@ -344,7 +346,7 @@ export async function main() {
         return;
       }
 
-      const { sendTransport, producer: prevProducer, consumers } = peer;
+      const { sendTransport, producers: prevProducers, consumers } = peer;
 
       if (!sendTransport) {
         logger.error("send-track: sendTransport is undefined or null");
@@ -372,7 +374,7 @@ export async function main() {
           appData: { ...appData, peerId: peerId, transportId }
         });
 
-        peer.producer = producer;
+        peer.producers.push(producer);
 
         send({
           op: `send-track-${direction}-res`,

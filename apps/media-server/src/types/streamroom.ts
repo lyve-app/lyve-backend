@@ -9,7 +9,7 @@ import {
 export type StreamPeer = {
   sendTransport: Transport | null;
   recvTransport: Transport | null;
-  producer: Producer | null;
+  producers: Producer[];
   consumers: Consumer[];
 };
 
