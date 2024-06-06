@@ -8,7 +8,7 @@ import {
 } from "../types/types";
 import { decreaseFollowing, increaseFollowing } from "../service/user.service";
 import { AchievementType, Follows, Stream, User } from "@prisma/client";
-import { createErrorObject } from "src/utils/createErrorObject";
+import { createErrorObject } from "../utils/createErrorObject";
 
 export const getUserInfo = async (
   req: Request<{ id: string }>,
@@ -112,6 +112,8 @@ export const createUser = async (
       id: true,
       username: true,
       dispname: true,
+      avatar_url: true,
+      level: true,
       email: true
     }
   });
