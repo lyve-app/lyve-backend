@@ -157,6 +157,70 @@ export const createStream = async (
   });
 };
 
+export const startStream = async (
+  req: Request<{ id: string }>,
+  res: Response<
+    TypedResponse<{
+      stream: Stream & {
+        streamer: Pick<
+          User,
+          | "id"
+          | "username"
+          | "dispname"
+          | "avatar_url"
+          | "followerCount"
+          | "promotionPoints"
+          | "level"
+        >;
+      };
+    }>
+  >
+) => {
+  const { id } = req.params;
+  try {
+    const stream = await prismaClient.stream.update({
+      where: {
+        id
+      },
+      data: {
+        active: true
+      },
+      include: {
+        streamer: {
+          select: {
+            id: true,
+            username: true,
+            dispname: true,
+            promotionPoints: true,
+            level: true,
+            avatar_url: true,
+            followerCount: true
+          }
+        }
+      }
+    });
+
+    return res.status(httpStatus.OK).json({
+      success: true,
+      data: {
+        stream
+      },
+      error: []
+    });
+  } catch {
+    return res.status(httpStatus.BAD_REQUEST).json({
+      success: false,
+      data: null,
+      error: [
+        ...createErrorObject(
+          httpStatus.INTERNAL_SERVER_ERROR,
+          "Stream couldnt be started, there was an internal sever error"
+        )
+      ]
+    });
+  }
+};
+
 export const getRecommended = async (
   _: Request,
   res: Response<
