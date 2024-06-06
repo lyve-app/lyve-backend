@@ -356,13 +356,11 @@ io.on("connection", (socket) => {
       stream.viewerCount++;
       stream.viewers.push(socket.data.user.id);
 
-      socket.to(streamId).emit("user_joined", {
+      io.to(streamId).emit("user_joined", {
         user: socket.data.user
       });
 
-      socket
-        .to(streamId)
-        .emit("viewer_count", { viewerCount: stream.viewerCount });
+      io.to(streamId).emit("viewer_count", { viewerCount: stream.viewerCount });
     }
 
     socket.data.streamId = streamId;
@@ -599,9 +597,7 @@ io.on("connection", (socket) => {
         user: socket.data.user
       });
 
-      socket
-        .to(streamId)
-        .emit("viewer_count", { viewerCount: stream.viewerCount });
+      io.to(streamId).emit("viewer_count", { viewerCount: stream.viewerCount });
     }
   });
 
@@ -837,9 +833,7 @@ io.on("connection", (socket) => {
         user: socket.data.user
       });
 
-      socket
-        .to(streamId)
-        .emit("viewer_count", { viewerCount: stream.viewerCount });
+      io.to(streamId).emit("viewer_count", { viewerCount: stream.viewerCount });
     }
   });
 
