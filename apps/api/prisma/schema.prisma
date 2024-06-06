@@ -31,13 +31,12 @@ model User {
 
   level           Int @default(1)
   promotionPoints Int @default(0)
+  coins           Int @default(0)
 
   streams Stream[]
 
-
   following  Follows[] @relation("followedBy")
   followedBy Follows[] @relation("following")
-
 
   notifications     Notification[]
   userToAchievement UserToAchievement[]
@@ -116,9 +115,16 @@ model Rewards {
 }
 
 enum RewardType {
-  ONE
-  TWO
-  THREE
+  popsicle
+  pizza
+  gift
+  rocket
+  star
+  cake
+  crown
+  heart
+  bouquet
+  lucky_cat
 }
 
 enum AchievementType {

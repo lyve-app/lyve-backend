@@ -13,12 +13,14 @@ export const getUserInfo = async (
     select: {
       id: true,
       username: true,
+      dispname: true,
       bio: true,
       avatar_url: true,
       followingCount: true,
       followerCount: true,
       level: true,
-      promotionPoints: true
+      promotionPoints: true,
+      coins: true
     }
   });
 

@@ -23,6 +23,7 @@ import amqp, { Channel, Connection } from "amqplib";
 import prismaClient from "./config/prisma";
 import { jwtDecode } from "jwt-decode";
 import { initRabbitMQ } from "./utils/initRabbitMQ";
+import { rewards } from "./utils/rewards";
 
 type Stream = {
   id: string;
@@ -542,7 +543,7 @@ io.on("connection", (socket) => {
       const duration =
         (ended_at.getTime() - checkStream.created_at.getTime()) / 1000;
 
-      prismaClient.stream.update({
+      await prismaClient.stream.update({
         where: { id: streamId },
         data: {
           ended_at,
@@ -616,8 +617,104 @@ io.on("connection", (socket) => {
     }
   });
 
-  socket.on("send_reward", ({ msg, reward }) => {
-    console.log(msg, reward);
+  socket.on("send_reward", async ({ msg, reward }, cb) => {
+    const { streamId, user } = socket.data;
+
+    // check if socket is in stream ?
+    if (!streamId) {
+      return cb({
+        success: false,
+        data: null,
+        error: [
+          {
+            name: "Stream not found",
+            code: -1,
+            msg: "The stream was not found"
+          }
+        ]
+      });
+    }
+
+    if (!user) {
+      return cb({
+        success: false,
+        data: null,
+        error: [
+          {
+            name: "User metadata",
+            code: -1,
+            msg: "Socket has no user metadata"
+          }
+        ]
+      });
+    }
+
+    const stream = streams.get(streamId);
+
+    if (!stream) {
+      return cb({
+        success: false,
+        data: null,
+        error: [
+          {
+            name: "Stream not found",
+            code: -1,
+            msg: "The stream was not found"
+          }
+        ]
+      });
+    }
+
+    // check if reward type is valid and get points
+    const rewardPoints = rewards[reward.type];
+
+    // save in database
+    const newDBReward = await prismaClient.rewards.create({
+      data: {
+        type: reward.type,
+        points: rewardPoints.points,
+        receiverId: stream.streamer.id,
+        senderId: user.id
+      }
+    });
+
+    // create notification
+    await prismaClient.notification.create({
+      data: {
+        type: "REWARD_RECEIVED",
+        userWhoFiredEvent: user.id,
+        recipientId: stream.streamer.id
+      }
+    });
+
+    // update user promotion points
+    await prismaClient.user.update({
+      where: { id: stream.streamer.id },
+      data: {
+        promotionPoints: {
+          increment: rewardPoints.points
+        }
+      }
+    });
+
+    // broadcast to all
+    io.to(streamId).emit("resv_reward", {
+      msg,
+      reward: {
+        id: newDBReward.id,
+        type: reward.type,
+        points: rewardPoints.points
+      },
+      receiver: stream.streamer,
+      sender: user
+    });
+
+    // successful cb
+    cb({
+      success: true,
+      data: null,
+      error: []
+    });
   });
 
   socket.on("disconnecting", async () => {
@@ -688,7 +785,7 @@ io.on("connection", (socket) => {
       const duration =
         (ended_at.getTime() - checkStream.created_at.getTime()) / 1000;
 
-      prismaClient.stream.update({
+      await prismaClient.stream.update({
         where: { id: streamId },
         data: {
           ended_at,

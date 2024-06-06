@@ -1,4 +1,4 @@
-import { User } from "@prisma/client";
+import { RewardType, User } from "@prisma/client";
 import {
   AppData,
   DtlsParameters,
@@ -65,8 +65,7 @@ export interface ServerToClientEvents {
     msg: string;
     reward: {
       id: string;
-      type: string;
-      image: string;
+      type: RewardType;
       points: number; // the promotion points one receives for receiving the reward
     };
     sender: SocketUser;
@@ -97,12 +96,15 @@ export interface ClientToServerEvents {
   ) => void;
   leave_stream: () => void;
   send_msg: (data: { msg: string }) => void;
-  send_reward: (data: {
-    msg: string;
-    reward: {
-      type: string;
-    };
-  }) => void;
+  send_reward: (
+    data: {
+      msg: string;
+      reward: {
+        type: RewardType;
+      };
+    },
+    callback: SocketCallback<null>
+  ) => void;
 }
 
 export interface InterServerEvents {
