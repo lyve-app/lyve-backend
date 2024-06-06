@@ -7,7 +7,7 @@ streamRouter.get("/:id", streamController.getStreamInfo);
 
 streamRouter.post("/create", streamController.createStream);
 
-streamRouter.put("/:id/start", streamController.activateStream);
+streamRouter.put("/:id/start", streamController.startStream);
 
 streamRouter.get("/recommended", streamController.getRecommended);
 
