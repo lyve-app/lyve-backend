@@ -52,6 +52,7 @@ Success:
     "user": {
       "id": "id",
       "username": "username",
+      "dispname": "display name"
       "email": "email"
     }
   },
@@ -62,6 +63,18 @@ Success:
 Error:
 
 ```json
+{
+  "success": false,
+  "data": null,
+  "error": [
+    {
+      "name": "Bad_Request",
+      "code": 400,
+      "msg": "id, username and email must be defined"
+    }
+  ]
+}
+// or
 {
   "success": false,
   "data": null,
@@ -105,14 +118,22 @@ Success:
     "user": {
       "id": "id",
       "username": "username",
+      "dispname": "dispname",
+      "email": "email",
       "bio": "",
-      "avatar_url": "",
+      "avatar_url": "", // or null
+      "created_at": "date"
+      "updatedAt": "date",
       "followingCount": 0,
       "followerCount": 0,
-      "level": 0,
-      "created_at": "date"
-      "achievements": [
-        {
+      "numStreams": 0,
+      "num10minStreams": 0
+      "minStreamed": 0
+      "level":  1
+      "promotionPoints":0
+      "coins": 0
+      "userToAchievement": [
+        "achievement": {
           "id": "achievement id",
           "type": "",
           "name": "",
@@ -122,6 +143,20 @@ Success:
           "progress": 5,
           "promotionPoints": 10
         }
+      ],
+      "streams": [
+        {
+          "id": "stream id",
+          "serverId": "server id",
+          "active": false,
+          "previewImgUrl": "",
+          "viewerCount": 0,
+          "genre": "",
+          "created_at": "YYYY-MM-DD hh:mm:ss",
+          "ended_at": "datetime",
+          "duration": 0 // in seconds
+        },
+        ...
       ]
     }
   },
@@ -140,6 +175,118 @@ Error:
       "name": "Not Found",
       "code": 404,
       "msg": "reason"
+    }
+  ]
+}
+```
+
+#### `/api/user/follow`
+
+Lets a user follow another user
+
+**Method**: POST
+
+Auth required : yes
+
+**Header**:
+
+```json
+Authorization: Bearer <access-token>
+```
+
+**Payload**
+
+```json
+{
+  "ownId": "ownId",
+  "otherId": "otherId"
+}
+```
+
+**Response**
+Success:
+
+```json
+{
+  "success": true,
+  "data": {
+    "follow": {  
+      "followedById": "followedById",
+      "followingId": "followingId",
+      "created_at": "date",
+    }
+  },
+  "error": []
+}
+```
+
+Error:
+
+```json
+{
+  "success": false,
+  "data": null,
+  "error": [
+    {
+      "name": "Conflict",
+      "code": 409,
+      "msg": "already followed"
+    }
+  ]
+}
+```
+
+#### `/api/user/unfollow`
+
+Lets a user unfollow another user
+
+**Method**: POST
+
+Auth required : yes
+
+**Header**:
+
+```json
+Authorization: Bearer <access-token>
+```
+
+**Payload**
+
+```json
+{
+  "ownId": "ownId",
+  "otherId": "otherId"
+}
+```
+
+**Response**
+Success:
+
+```json
+{
+  "success": true,
+  "data": {
+    "follow": {  
+      "followedById": "followedById",
+      "followingId": "followingId",
+      "created_at": "date",
+    }
+  },
+  "error": []
+}
+```
+
+Error:
+
+```json
+{
+  "success": false,
+  "data": null,
+  "error": [
+    {
+      "name": "Internal Server Error",
+      "code": 500,
+      "msg": "An error occurred while unfollowing"
     }
   ]
 }
@@ -175,13 +322,14 @@ Success:
     "user": {
       "id": "id",
       "username": "username",
+      "followingCount": 1000
       "following": [
         {
           "user": {
             "id": "user1 id",
             "username": "",
+            "dispname": "dispname"
             "avatar_url": "",
-            "followerCount": 200
           },
           "created_at": ""
         },
@@ -189,8 +337,8 @@ Success:
           "user": {
             "id": "user2 id",
             "username": "",
+            "dispname": "dispname"
             "avatar_url": "",
-            "followerCount": 0
           },
           "created_at": ""
         },
@@ -205,17 +353,6 @@ Success:
 Error:
 
 ```json
-{
-  "success": false,
-  "data": null,
-  "error": [
-    {
-      "name": "Forbidden",
-      "code": 403,
-      "msg": "No access token defined"
-    }
-  ]
-}
 
 // user not found
 {
@@ -231,7 +368,7 @@ Error:
 }
 ```
 
-#### `/api/user/:id/follower`
+#### `/api/user/:id/followedBy`
 
 Gets all the followers (users) of the specified user
 
@@ -261,13 +398,14 @@ Success:
     "user": {
       "id": "id",
       "username": "username",
-      "follows": [
+      "followerCount": 10000
+      "followedBy": [
         {
           "user": {
             "id": "user1 id",
             "username": "",
+            "dispname": "dispname"
             "avatar_url": "",
-            "followerCount": 0
           },
           "subscribed": false,
           "created_at": ""
@@ -276,8 +414,8 @@ Success:
           "user": {
             "id": "user2 id",
             "username": "",
+            "dispname": "dispname"
             "avatar_url": "",
-            "followerCount": 1736
           },
           "subscribed": true,
           "created_at": ""
@@ -293,18 +431,6 @@ Success:
 Error:
 
 ```json
-{
-    {
-  "success": false,
-  "data": null,
-  "error": [
-    {
-      "name": "Forbidden",
-      "code": 403,
-      "msg": "No access token defined"
-    }
-  ]
-}
 
 // user not found
 {
@@ -318,10 +444,10 @@ Error:
     }
   ]
 }
-}
+
 ```
 
-#### `/api/users/:userId/following-active-streams`
+#### `/api/users/:id/feed`
 
 Gets all the active streams from the users that the users follows
 
@@ -348,88 +474,29 @@ Success:
 {
   "success": true,
   "data": {
-    "activeStreams": [
+    "feed": [
       {
         "id": "stream id",
         "serverId": "server id",
         "active": true,
-        "streamer": {
-          "id": "streamer id",
-          "username": "streamer username",
-          "promotionPoints": 0,
-          "level": 0
-        },
+        "streamerId": "streamer id",
         "previewImgUrl": "",
         "viewerCount": 0,
         "genre": "",
         "created_at": "YYYY-MM-DD hh:mm:ss"
+        "duration": 0,
+        "ended_at": "YYYY-MM-DD hh:mm:ss"
+        "streamer": {
+          "id": "streamer id",
+          "username": "streamer username",
+          "avatar_url": "..."
+          "dispname": "dispname"
+          "promotionPoints": 0,
+          "level": 0
+        },
       },
       ....
     ]
-  },
-  "error": []
-}
-```
-
-Error:
-
-```json
-// user not found
-{
-  "success": false,
-  "data": null,
-  "error": [
-    {
-      "name": "Not Found",
-      "code": 404,
-      "msg": "User Not Found!"
-    }
-  ]
-}
-```
-
-#### `/api/user/:id/achievements`
-
-Gets all the Achievements of the specified user
-
-**Method**: GET
-
-Auth required : yes
-
-**Header**:
-
-```json
-Authorization: Bearer <access-token>
-```
-
-**Payload**
-
-```json
-{}
-```
-
-**Response**
-Success:
-
-```json
-{
-  "success": true,
-  "data": {
-    "user": {
-      "achievements": [
-        {
-          "id": "achievement id",
-          "type": "",
-          "name": "",
-          "level": 0,
-          "bannerUrl": "",
-          "condition": 10,
-          "progress": 5,
-          "promotionPoints": 10
-        },
-        ...
-      ]
-    }
   },
   "error": []
 }
@@ -481,84 +548,11 @@ Success:
   "data": {
     "user": {
       "numStreams": 100,
-      "mostStreamedGenre": [
+      "genres": [
         {
           "name": "genre name",
           "percent": 50
         }
-      ]
-    }
-  },
-  "error": []
-}
-```
-
-Error:
-
-```json
-// user not found
-{
-  "success": false,
-  "data": null,
-  "error": [
-    {
-      "name": "Not Found",
-      "code": 404,
-      "msg": "User Not Found!"
-    }
-  ]
-}
-```
-
-#### `/api/user/:id/streams`
-
-Get all the streams a user created
-
-**Method**: POST
-
-Auth required : yes
-
-**Header**:
-
-```json
-Authorization: Bearer <access-token>
-```
-
-**Payload**
-
-```json
-{}
-```
-
-**Response**
-Success:
-
-```json
-{
-  "success": true,
-  "data": {
-    "user": {
-      "id": "id",
-      "username": "username",
-      "streams": [
-        {
-          "id": "stream id",
-          "serverId": "server id",
-          "active": false,
-          "streamer": {
-            "id": "streamer id",
-            "username": "streamer username",
-            "promotionPoints": 0,
-            "level": 0
-          },
-          "previewImgUrl": "",
-          "viewerCount": 0,
-          "genre": "",
-          "created_at": "YYYY-MM-DD hh:mm:ss",
-          "ended_at": "datetime",
-          "duration": 0 // in seconds
-        },
-        ...
       ]
     }
   },
@@ -601,83 +595,37 @@ Authorization: Bearer <access-token>
 
 ```json
 {
+    "dispname": "dispname";  // or undefined
+    "avatar_url": "url";  // or undefined
+    "bio": "bio" // or undefined
+}
+```
+
+**Response**
+Success:
+
+```json
+{
+  "success": true,
+  "data": {
     "user": {
-        ...
+      "id": "id",
+      "username": "username",
+      "dispname": "dispname",
+      "email": "email",
+      "bio": "",
+      "avatar_url": "", // or null
+      "created_at": "date"
+      "updatedAt": "date",
+      "followingCount": 0,
+      "followerCount": 0,
+      "numStreams": 0,
+      "num10minStreams": 0
+      "minStreamed": 0
+      "level":  1
+      "promotionPoints":0
+      "coins": 0
     }
-}
-```
-
-**Response**
-Success:
-
-```json
-{
-  "success": true,
-  "data": {
-    "user": {}
-  },
-  "error": []
-}
-```
-
-Error:
-
-```json
-// Forbidden
-{
-  "success": false,
-  "data": null,
-  "error": [
-    {
-      "name": "Forbidden",
-      "code": 403,
-      "msg": "Forbidden"
-    }
-  ]
-}
-
-// User Not Found
-{
-  "success": false,
-  "data": null,
-  "error": [
-    {
-      "name": "Not Found",
-      "code": 404,
-      "msg": "User Not Found!"
-    }
-  ]
-}
-```
-
-#### `/api/user/:id/delete`
-
-Deletes the specified user from the database
-
-**Method**: DELETE
-
-Auth required : yes
-
-**Header**:
-
-```json
-Authorization: Bearer <access-token>
-```
-
-**Payload**
-
-```json
-{}
-```
-
-**Response**
-Success:
-
-```json
-{
-  "success": true,
-  "data": {
-    "user": {}
   },
   "error": []
 }
@@ -746,102 +694,24 @@ Success:
 {
   "success": true,
   "data": {
-    "id": "stream id",
-    "serverId": "server id",
-    "active": true,
-    "streamer": {
-      "id": "streamer id",
-      "username": "streamer username",
-      "promotionPoints": 0,
-      "level": 0,
-      "avatar_url": "",
-      "followerCount": 0,
-      "followed": false
-    },
-    "previewImgUrl": "",
-    "viewerCount": 0,
-    "genre": "Chatting,Beauty,Fashion",
-    "created_at": "YYYY-MM-DD hh:mm:ss"
-  },
-  "error": []
-}
-```
-
-Error:
-
-```json
-// Forbidden
-{
-  "success": false,
-  "data": null,
-  "error": [
-    {
-      "name": "Forbidden",
-      "code": 403,
-      "msg": "Forbidden"
-    }
-  ]
-}
-
-// Bad Request
-{
-  "success": false,
-  "data": null,
-  "error": [
-    {
-      "name": "Bad Request",
-      "code": 404,
-      "msg": "... needs to be defined"
-    }
-  ]
-}
-```
-
-#### `/api/stream/:id/join`
-
-Lets a user join a stream and updates the stream record in the database
-
-**Method**: POST
-
-Auth required : yes
-
-**Header**:
-
-```json
-Authorization: Bearer <access-token>
-```
-
-**Payload**
-
-```json
-{}
-```
-
-**Response**
-Success:
-
-```json
-{
-  "success": true,
-  "data": {
-    "rtcCapabilities": {},
-    "stream": {
       "id": "stream id",
       "serverId": "server id",
+      "streamerId": "streamer id",
       "active": true,
-      "streamer": {
-        "id": "streamer id",
-        "username": "streamer username",
-        "promotionPoints": 0,
-        "level": 0,
-        "avatar_url": "",
-        "followerCount": 0,
-        "followed": false
-      },
       "previewImgUrl": "",
       "viewerCount": 0,
       "genre": "Chatting,Beauty,Fashion",
       "created_at": "YYYY-MM-DD hh:mm:ss"
+      "ended_at": "YYYY-MM-DD hh:mm:ss",
+      "duration": 1000, // in sec
+    "streamer": {
+      "id": "streamer id",
+      "username": "streamer username",
+      "dispname": "dispname",
+      "promotionPoints": 0,
+      "level": 0,
+      "avatar_url": "",
+      "followerCount": 0,
     }
   },
   "error": []
@@ -851,15 +721,15 @@ Success:
 Error:
 
 ```json
-// Forbidden
+// Conflict
 {
   "success": false,
   "data": null,
   "error": [
     {
-      "name": "Forbidden",
-      "code": 403,
-      "msg": "Forbidden"
+      "name": "Conflict",
+      "code": 409,
+      "msg": "streamer already has an active stream"
     }
   ]
 }
@@ -871,56 +741,8 @@ Error:
   "error": [
     {
       "name": "Bad Request",
-      "code": 404,
-      "msg": "There was an error"
-    }
-  ]
-}
-```
-
-#### `/api/stream/:id/leave`
-
-Lets a user leave a stream and updates the stream record in the database
-
-**Method**: POST
-
-Auth required : yes
-
-**Header**:
-
-```json
-Authorization: Bearer <access-token>
-```
-
-**Payload**
-
-```json
-{}
-```
-
-**Response**
-Success:
-
-```json
-{
-  "success": true,
-  "data": {},
-  "error": []
-}
-```
-
-Error:
-
-```json
-// Bad Request
-{
-  "success": false,
-  "data": null,
-  "error": [
-    {
-      "name": "Bad Request",
-      "code": 404,
-      "msg": "There was an error"
+      "code": 400,
+      "msg": "streamerId, image and genre must be defined"
     }
   ]
 }
@@ -956,20 +778,24 @@ Success:
     "stream": {
       "id": "stream id",
       "serverId": "server id",
+      "streamerId": "streamer id",
       "active": true,
+      "previewImgUrl": "",
+      "viewerCount": 0,
+      "genre": "Chatting,Beauty,Fashion",
+      "created_at": "YYYY-MM-DD hh:mm:ss"
+      "ended_at": "YYYY-MM-DD hh:mm:ss",
+      "duration": 1000, // in sec
       "streamer": {
         "id": "streamer id",
         "username": "streamer username",
+        "dispname": "dispname",
         "avatar_url": "",
         "followerCount": 0,
         "followed": false,
         "promotionPoints": 0,
         "level": 0
       },
-      "previewImgUrl": "",
-      "viewerCount": 0,
-      "genre": "Chatting,Beauty,Fashion",
-      "created_at": "YYYY-MM-DD hh:mm:ss"
     }
   },
   "error": []
@@ -979,7 +805,86 @@ Success:
 Error:
 
 ```json
+{
+ "success": false,
+  "data": null,
+  "error": [
+    {
+      "name": "Not_Found",
+      "code": 404,
+      "msg": "Stream not found"
+    }
+  ]
+}
+```
+
+#### `/api/stream/:id/start`
+
+Starts the specified stream
+
+**Method**: GET
+
+Auth required : yes
+
+**Header**:
+
+```json
+Authorization: Bearer <access-token>
+```
+
+**Payload**
+
+```json
 {}
+```
+
+**Response**
+Success:
+
+```json
+{
+  "success": true,
+  "data": {
+    "stream": {
+      "id": "stream id",
+      "serverId": "server id",
+      "streamerId": "streamer id",
+      "active": true,
+      "previewImgUrl": "",
+      "viewerCount": 0,
+      "genre": "Chatting,Beauty,Fashion",
+      "created_at": "YYYY-MM-DD hh:mm:ss"
+      "ended_at": "YYYY-MM-DD hh:mm:ss",
+      "duration": 1000, // in sec
+      "streamer": {
+        "id": "streamer id",
+        "username": "streamer username",
+        "dispname": "dispname",
+        "avatar_url": "",
+        "followerCount": 0,
+        "promotionPoints": 0,
+        "level": 0
+      },
+    }
+  },
+  "error": []
+}
+```
+
+Error:
+
+```json
+{
+ "success": false,
+  "data": null,
+  "error": [
+    {
+      "name": "Internal Server Error",
+      "code": 500,
+      "msg": "Stream couldnt be started, there was an internal sever error"
+    }
+  ]
+}
 ```
 
 #### `/api/stream/recommended`
@@ -1008,24 +913,30 @@ Success:
 ```json
 {
   "success": true,
-  "data": {
-    "streams": [
-      {
-        "id": "stream id",
-        "serverId": "server id",
-        "active": true,
-        "streamer": {
-          "id": "streamer id",
-          "username": "streamer username",
-          "promotionPoints": 0,
-          "level": 0
-        },
-        "previewImgUrl": "",
-        "viewerCount": 0,
-        "genre": "",
-        "created_at": "YYYY-MM-DD hh:mm:ss"
+   "data": {
+      streams: [
+        {
+          "id": "stream id",
+          "serverId": "server id",
+          "streamerId": "streamer id",
+          "active": true,
+          "previewImgUrl": "",
+          "viewerCount": 0,
+          "genre": "Chatting,Beauty,Fashion",
+          "created_at": "YYYY-MM-DD hh:mm:ss"
+          "ended_at": "YYYY-MM-DD hh:mm:ss",
+          "duration": 1000, // in sec
+          "streamer": {
+            "id": "streamer id",
+            "username": "streamer username",
+            "dispname": "dispname",
+            "promotionPoints": 0,
+            "level": 0,
+            "avatar_url": "",
+            "followerCount": 0,
+          },
       },
-      ....
+      ...
     ]
   },
   "error": []
@@ -1038,9 +949,9 @@ Error:
 {}
 ```
 
-#### `/api/stream/:id/end`
+#### `/api/stream/:id/delete`
 
-Updates a stream and produces a remove-stream event that will be send to the media server
+Deletes a stream
 
 **Method**: POST
 
@@ -1066,22 +977,26 @@ Success:
   "success": true,
   "data": {
     "stream": {
-      "id": "stream id",
-      "serverId": "server id",
-      "active": true,
-      "streamer": {
-        "id": "streamer id",
-        "username": "streamer username",
-        "promotionPoints": 0,
-        "level": 0
-      },
-      "previewImgUrl": "",
-      "viewerCount": 0,
-      "genre": "Chatting,Beauty,Fashion",
-      "created_at": "YYYY-MM-DD hh:mm:ss",
-      "ended_at": "YYYY-MM-DD hh:mm:ss",
-      "duration": 840 // in seconds
-    }
+          "id": "stream id",
+          "serverId": "server id",
+          "streamerId": "streamer id",
+          "active": true,
+          "previewImgUrl": "",
+          "viewerCount": 0,
+          "genre": "Chatting,Beauty,Fashion",
+          "created_at": "YYYY-MM-DD hh:mm:ss"
+          "ended_at": "YYYY-MM-DD hh:mm:ss",
+          "duration": 1000, // in sec
+          "streamer": {
+            "id": "streamer id",
+            "username": "streamer username",
+            "dispname": "dispname",
+            "promotionPoints": 0,
+            "level": 0,
+            "avatar_url": "",
+            "followerCount": 0,
+          },
+      
   },
   "error": []
 }
@@ -1109,9 +1024,35 @@ Error:
   "data": null,
   "error": [
     {
-      "name": "Bad Request",
+      "name": "Not Found",
       "code": 404,
-      "msg": "There was an error"
+      "msg": "Stream not found"
+    }
+  ]
+}
+
+// Forbidden
+{
+  "success": false,
+  "data": null,
+  "error": [
+    {
+      "name": "Forbidden",
+      "code": 403,
+      "msg": "You cant delete this stream"
+    }
+  ]
+}
+
+// Internal Server Error
+{
+  "success": false,
+  "data": null,
+  "error": [
+    {
+      "name": "Internal Server Error",
+      "code": 500,
+      "msg": "There was an internal server error"
     }
   ]
 }
