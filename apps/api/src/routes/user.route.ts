@@ -22,6 +22,6 @@ userRouter.get(
   userController.getMostStreamedGenres
 );
 
-userRouter.get("/:id/update", userController.updateUser);
+userRouter.put("/:id/update", userController.updateUser);
 
 export default userRouter;
