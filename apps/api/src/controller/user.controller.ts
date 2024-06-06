@@ -64,7 +64,10 @@ export const createUser = async (
   req: TypedRequest<CreateUserCredentials>,
   res: Response<
     TypedResponse<{
-      user: Pick<User, "id" | "username" | "dispname" | "email">;
+      user: Pick<
+        User,
+        "id" | "username" | "dispname" | "avatar_url" | "email" | "level"
+      >;
     }>
   >
 ) => {
