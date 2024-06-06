@@ -2,6 +2,12 @@ import type { NextFunction, Request, Response } from "express";
 import type { DeepPartial } from "utility-types";
 import type { IFilterXSSOptions } from "xss";
 
+export type TypedResponse<Data> = {
+  success: boolean;
+  data: Data | null;
+  error: { name: string; code: number; msg: string }[];
+};
+
 // See this for the following types
 // https://stackoverflow.com/questions/34508081/how-to-add-typescript-definitions-to-express-req-res
 // https://stackoverflow.com/questions/61132262/typescript-deep-partial
