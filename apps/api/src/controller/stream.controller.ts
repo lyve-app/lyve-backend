@@ -1,19 +1,37 @@
 import type { Request, Response } from "express";
 import httpStatus from "http-status";
 import prismaClient from "../config/prisma";
-import { Prisma } from "@prisma/client";
-import { createStreamCredentials, TypedRequest } from "../types/types";
+import { Prisma, Stream, User } from "@prisma/client";
+import {
+  createStreamCredentials,
+  TypedRequest,
+  TypedResponse
+} from "../types/types";
 
 export const getStreamInfo = async (
   req: Request<{ id: string }>,
-  res: Response
+  res: Response<
+    TypedResponse<{
+      stream: Stream & {
+        streamer: Pick<
+          User,
+          | "id"
+          | "username"
+          | "dispname"
+          | "avatar_url"
+          | "followerCount"
+          | "promotionPoints"
+          | "level"
+        > & {
+          followed: boolean;
+        };
+      };
+    }>
+  >
 ) => {
   const stream = await prismaClient.stream.findFirst({
     where: { id: req.params.id },
-    select: {
-      id: true,
-      serverId: true,
-      active: true,
+    include: {
       streamer: {
         select: {
           id: true,
@@ -24,11 +42,7 @@ export const getStreamInfo = async (
           promotionPoints: true,
           level: true
         }
-      },
-      previewImgUrl: true,
-      viewerCount: true,
-      genre: true,
-      created_at: true
+      }
     }
   });
 
@@ -39,8 +53,8 @@ export const getStreamInfo = async (
       error: [
         {
           name: "Not_found",
-          code: "404",
-          message: "stream not found"
+          code: 404,
+          msg: "Stream not found"
         }
       ]
     });
@@ -49,15 +63,36 @@ export const getStreamInfo = async (
   return res.status(httpStatus.OK).json({
     success: true,
     data: {
-      ...stream
+      stream: {
+        ...stream,
+        streamer: {
+          ...stream.streamer,
+          followed: false // Todo
+        }
+      }
     },
-    error: "[]"
+    error: []
   });
 };
 
 export const createStream = async (
   req: TypedRequest<createStreamCredentials>,
-  res: Response
+  res: Response<
+    TypedResponse<{
+      stream: Stream & {
+        streamer: Pick<
+          User,
+          | "id"
+          | "username"
+          | "dispname"
+          | "avatar_url"
+          | "followerCount"
+          | "promotionPoints"
+          | "level"
+        >;
+      };
+    }>
+  >
 ) => {
   const { streamerId, previewImgUrl, genre } = req.body;
 
@@ -68,8 +103,8 @@ export const createStream = async (
       error: [
         {
           name: "Bad_Request",
-          code: "400",
-          msg: "id, image and genre must be defined"
+          code: 400,
+          msg: "streamerId, image and genre must be defined"
         }
       ]
     });
@@ -92,7 +127,7 @@ export const createStream = async (
       error: [
         {
           name: "Conflict",
-          code: "409",
+          code: 409,
           msg: "streamer already has an active stream"
         }
       ]
@@ -105,149 +140,67 @@ export const createStream = async (
       previewImgUrl: previewImgUrl,
       genre: genre
     },
-    select: {
-      id: true,
-      serverId: true,
-      active: true,
+    include: {
       streamer: {
         select: {
           id: true,
           username: true,
+          dispname: true,
           promotionPoints: true,
           level: true,
           avatar_url: true,
           followerCount: true
         }
-      },
-      previewImgUrl: true,
-      viewerCount: true,
-      genre: true,
-      created_at: true
+      }
     }
   });
 
   return res.status(httpStatus.CREATED).json({
     success: true,
     data: {
-      ...stream
+      stream
     },
     error: []
   });
 };
 
-export const deleteStream = async (
-  req: Request<{ id: string }>,
-  res: Response
-) => {
-  const { id } = req.params;
-
-  try {
-    const deletedStream = await prismaClient.stream.delete({
-      where: {
-        id
-      }
-    });
-
-    return res.status(httpStatus.OK).json({
-      success: true,
-      data: {
-        deletedStream
-      },
-      error: "[]"
-    });
-  } catch {
-    return res.status(httpStatus.CONFLICT).json({
-      success: false,
-      data: null,
-      error: [
-        {
-          name: "Conflict",
-          code: "409",
-          message: ""
+export const getRecommended = async (
+  _: Request,
+  res: Response<
+    TypedResponse<{
+      streams: Array<
+        Stream & {
+          streamer: Pick<
+            User,
+            | "id"
+            | "username"
+            | "dispname"
+            | "avatar_url"
+            | "followerCount"
+            | "promotionPoints"
+            | "level"
+          >;
         }
-      ]
-    });
-  }
-};
-
-export const activateStream = async (
-  req: Request<{ id: string }>,
-  res: Response
+      >;
+    }>
+  >
 ) => {
-  const { id } = req.params;
-  try {
-    const stream = await prismaClient.stream.update({
-      where: {
-        id
-      },
-      data: {
-        active: true
-      }
-    });
-
-    return res.status(httpStatus.OK).json({
-      success: true,
-      data: {
-        stream
-      },
-      error: "[]"
-    });
-  } catch {
-    return res.status(httpStatus.BAD_REQUEST).json({
-      success: false,
-      data: null,
-      error: [
-        {
-          name: "Bad_request",
-          code: "400",
-          message: "Stream couldn't be activated"
-        }
-      ]
-    });
-  }
-};
-
-export const endStream = async (
-  req: Request<{ id: string }>,
-  res: Response
-) => {
-  const { id } = req.params;
-  try {
-    const stream = await prismaClient.stream.update({
-      where: {
-        id
-      },
-      data: {
-        active: false
-      }
-    });
-
-    return res.status(httpStatus.OK).json({
-      success: true,
-      data: {
-        stream
-      },
-      error: "[]"
-    });
-  } catch {
-    return res.status(httpStatus.BAD_REQUEST).json({
-      success: false,
-      data: null,
-      error: [
-        {
-          name: "Bad_request",
-          code: "400",
-          message: "Stream couldn't be deactivated"
-        }
-      ]
-    });
-  }
-};
-
-export const getRecommended = async (_: Request, res: Response) => {
-  const recommendedStreams = await prismaClient.stream.findMany({
+  const streams = await prismaClient.stream.findMany({
     where: {
       active: true
+    },
+    include: {
+      streamer: {
+        select: {
+          id: true,
+          username: true,
+          dispname: true,
+          promotionPoints: true,
+          level: true,
+          avatar_url: true,
+          followerCount: true
+        }
+      }
     },
     orderBy: {
       streamer: {
@@ -256,25 +209,109 @@ export const getRecommended = async (_: Request, res: Response) => {
     }
   });
 
-  if (recommendedStreams.length === 0) {
+  return res.status(httpStatus.OK).json({
+    success: true,
+    data: {
+      streams
+    },
+    error: []
+  });
+};
+
+export const deleteStream = async (
+  req: Request<{ id: string }>,
+  res: Response<
+    TypedResponse<{
+      stream: Stream & {
+        streamer: Pick<
+          User,
+          | "id"
+          | "username"
+          | "dispname"
+          | "avatar_url"
+          | "followerCount"
+          | "promotionPoints"
+          | "level"
+        >;
+      };
+    }>
+  >
+) => {
+  const { id } = req.params;
+
+  const checkIfActive = await prismaClient.stream.findUnique({
+    where: { id },
+    select: { active: true, duration: true }
+  });
+
+  if (!checkIfActive) {
     return res.status(httpStatus.NOT_FOUND).json({
       success: false,
       data: null,
       error: [
         {
-          name: "Not_found",
-          code: "404",
-          message: "no streams found"
+          name: "Not Found",
+          code: 404,
+          msg: "Stream not found"
         }
       ]
     });
   }
 
-  return res.status(httpStatus.OK).json({
-    success: true,
-    data: {
-      recommendedStreams
-    },
-    error: "[]"
-  });
+  // Todo check if host
+
+  if (checkIfActive.active || checkIfActive.duration !== 0) {
+    return res.status(httpStatus.FORBIDDEN).json({
+      success: false,
+      data: null,
+      error: [
+        {
+          name: "Forbidden",
+          code: 403,
+          msg: "You cant delete this stream"
+        }
+      ]
+    });
+  }
+
+  try {
+    const stream = await prismaClient.stream.delete({
+      where: {
+        id
+      },
+      include: {
+        streamer: {
+          select: {
+            id: true,
+            username: true,
+            dispname: true,
+            promotionPoints: true,
+            level: true,
+            avatar_url: true,
+            followerCount: true
+          }
+        }
+      }
+    });
+
+    return res.status(httpStatus.OK).json({
+      success: true,
+      data: {
+        stream
+      },
+      error: []
+    });
+  } catch {
+    return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
+      success: false,
+      data: null,
+      error: [
+        {
+          name: "Internal Server Error",
+          code: 500,
+          msg: "There was an internal Server error"
+        }
+      ]
+    });
+  }
 };
