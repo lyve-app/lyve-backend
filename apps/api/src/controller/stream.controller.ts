@@ -7,6 +7,7 @@ import {
   TypedRequest,
   TypedResponse
 } from "../types/types";
+import { createErrorObject } from "../utils/createErrorObject";
 
 export const getStreamInfo = async (
   req: Request<{ id: string }>,
@@ -50,13 +51,7 @@ export const getStreamInfo = async (
     return res.status(httpStatus.NOT_FOUND).json({
       success: false,
       data: null,
-      error: [
-        {
-          name: "Not_found",
-          code: 404,
-          msg: "Stream not found"
-        }
-      ]
+      error: [...createErrorObject(httpStatus.NOT_FOUND, "Stream not found")]
     });
   }
 
@@ -101,11 +96,10 @@ export const createStream = async (
       success: false,
       data: null,
       error: [
-        {
-          name: "Bad_Request",
-          code: 400,
-          msg: "streamerId, image and genre must be defined"
-        }
+        ...createErrorObject(
+          httpStatus.BAD_REQUEST,
+          "streamerId, image and genre must be defined"
+        )
       ]
     });
   }
@@ -125,11 +119,10 @@ export const createStream = async (
       success: false,
       data: null,
       error: [
-        {
-          name: "Conflict",
-          code: 409,
-          msg: "streamer already has an active stream"
-        }
+        ...createErrorObject(
+          httpStatus.CONFLICT,
+          "You are already host of an has an active stream"
+        )
       ]
     });
   }
@@ -248,13 +241,7 @@ export const deleteStream = async (
     return res.status(httpStatus.NOT_FOUND).json({
       success: false,
       data: null,
-      error: [
-        {
-          name: "Not Found",
-          code: 404,
-          msg: "Stream not found"
-        }
-      ]
+      error: [...createErrorObject(httpStatus.NOT_FOUND, "Stream not found")]
     });
   }
 
@@ -265,11 +252,10 @@ export const deleteStream = async (
       success: false,
       data: null,
       error: [
-        {
-          name: "Forbidden",
-          code: 403,
-          msg: "You cant delete this stream"
-        }
+        ...createErrorObject(
+          httpStatus.FORBIDDEN,
+          "You cant delete this stream"
+        )
       ]
     });
   }
@@ -306,11 +292,10 @@ export const deleteStream = async (
       success: false,
       data: null,
       error: [
-        {
-          name: "Internal Server Error",
-          code: 500,
-          msg: "There was an internal Server error"
-        }
+        ...createErrorObject(
+          httpStatus.INTERNAL_SERVER_ERROR,
+          "There was an internal Server error"
+        )
       ]
     });
   }

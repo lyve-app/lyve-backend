@@ -8,6 +8,7 @@ import {
 } from "../types/types";
 import { decreaseFollowing, increaseFollowing } from "../service/user.service";
 import { AchievementType, Follows, Stream, User } from "@prisma/client";
+import { createErrorObject } from "src/utils/createErrorObject";
 
 export const getUserInfo = async (
   req: Request<{ id: string }>,
@@ -48,13 +49,7 @@ export const getUserInfo = async (
     return res.status(httpStatus.NOT_FOUND).json({
       success: false,
       data: null,
-      error: [
-        {
-          name: "Not_found",
-          code: 404,
-          msg: "user not found"
-        }
-      ]
+      error: [...createErrorObject(httpStatus.NOT_FOUND, "User not Found")]
     });
   }
 
@@ -80,11 +75,10 @@ export const createUser = async (
       success: false,
       data: null,
       error: [
-        {
-          name: "Bad_Request",
-          code: 400,
-          msg: ""
-        }
+        ...createErrorObject(
+          httpStatus.BAD_REQUEST,
+          "id, username and email must be defined"
+        )
       ]
     });
   }
@@ -100,13 +94,7 @@ export const createUser = async (
     return res.status(httpStatus.CONFLICT).json({
       success: false,
       data: null,
-      error: [
-        {
-          name: "Conflict",
-          code: 409,
-          msg: ""
-        }
-      ]
+      error: [...createErrorObject(httpStatus.CONFLICT)]
     });
   }
 
@@ -149,11 +137,10 @@ export const followUser = async (
       success: false,
       data: null,
       error: [
-        {
-          name: "Bad_Request",
-          code: 400,
-          msg: "owndId and otherId must be defined"
-        }
+        ...createErrorObject(
+          httpStatus.BAD_REQUEST,
+          "ownId and otherId must be defined"
+        )
       ]
     });
   }
@@ -180,11 +167,10 @@ export const followUser = async (
       success: false,
       data: null,
       error: [
-        {
-          name: "Conflict",
-          code: 409,
-          msg: "already followed"
-        }
+        ...createErrorObject(
+          httpStatus.CONFLICT,
+          "You already follows this user"
+        )
       ]
     });
   }
@@ -205,11 +191,10 @@ export const unfollowUser = async (
       success: false,
       data: null,
       error: [
-        {
-          name: "Bad_Request",
-          code: 400,
-          msg: "owndId and otherId must be defined"
-        }
+        ...createErrorObject(
+          httpStatus.BAD_REQUEST,
+          "ownId and otherId must be defined"
+        )
       ]
     });
   }
@@ -238,11 +223,10 @@ export const unfollowUser = async (
       success: false,
       data: null,
       error: [
-        {
-          name: "Internal Server Error",
-          code: 500,
-          msg: "An error occurred while unfollowing"
-        }
+        ...createErrorObject(
+          httpStatus.INTERNAL_SERVER_ERROR,
+          "An error occurred while unfollowing"
+        )
       ]
     });
   }
@@ -284,16 +268,10 @@ export const following = async (
   });
 
   if (!userFollowingData) {
-    return res.status(httpStatus.CONFLICT).json({
+    return res.status(httpStatus.NOT_FOUND).json({
       success: false,
       data: null,
-      error: [
-        {
-          name: "Not Found",
-          code: 404,
-          msg: "User Not Found!"
-        }
-      ]
+      error: [...createErrorObject(httpStatus.NOT_FOUND, "User not found")]
     });
   }
 
@@ -364,16 +342,10 @@ export const followedBy = async (
   });
 
   if (!user) {
-    return res.status(httpStatus.CONFLICT).json({
+    return res.status(httpStatus.NOT_FOUND).json({
       success: false,
       data: null,
-      error: [
-        {
-          name: "Not Found",
-          code: 404,
-          msg: "User Not Found!"
-        }
-      ]
+      error: [...createErrorObject(httpStatus.NOT_FOUND, "User not found")]
     });
   }
 
@@ -438,16 +410,10 @@ export const getFeed = async (
   });
 
   if (!followingIds) {
-    return res.status(httpStatus.CONFLICT).json({
+    return res.status(httpStatus.NOT_FOUND).json({
       success: false,
       data: null,
-      error: [
-        {
-          name: "Not Found",
-          code: 404,
-          msg: "User Not Found!"
-        }
-      ]
+      error: [...createErrorObject(httpStatus.NOT_FOUND, "User not found")]
     });
   }
 
@@ -525,16 +491,10 @@ export const getMostStreamedGenres = async (
   });
 
   if (!userData) {
-    return res.status(httpStatus.CONFLICT).json({
+    return res.status(httpStatus.NOT_FOUND).json({
       success: false,
       data: null,
-      error: [
-        {
-          name: "Not Found",
-          code: 404,
-          msg: "User Not Found!"
-        }
-      ]
+      error: [...createErrorObject(httpStatus.NOT_FOUND, "User not found")]
     });
   }
 
@@ -588,16 +548,10 @@ export const updateUser = async (
   });
 
   if (!checkUser) {
-    return res.status(httpStatus.CONFLICT).json({
+    return res.status(httpStatus.NOT_FOUND).json({
       success: false,
       data: null,
-      error: [
-        {
-          name: "Not Found",
-          code: 404,
-          msg: "User Not Found!"
-        }
-      ]
+      error: [...createErrorObject(httpStatus.NOT_FOUND, "User not found")]
     });
   }
 
