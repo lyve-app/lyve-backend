@@ -150,6 +150,8 @@ export async function main() {
         const { state } = stream;
         const peer = state[peerId];
 
+        logger.info(`Closing peer ${peerId}`);
+
         if (peer) {
           // close and remove peer
           closePeer(peer);
@@ -286,6 +288,9 @@ export async function main() {
         try {
           const { producers } = peerState;
           for (const producer of producers) {
+            logger.info(
+              `Creating a ${producer.kind} consumer to consume producer: ${producer.id} for stream ${streamId}`
+            );
             const c = await createConsumer(
               router,
               producer,
@@ -373,6 +378,10 @@ export async function main() {
           paused,
           appData: { ...appData, peerId: peerId, transportId }
         });
+
+        logger.info(
+          `Successfully created producer kind: (${producer.kind}): ${producer.id}`
+        );
 
         peer.producers.push(producer);
 
