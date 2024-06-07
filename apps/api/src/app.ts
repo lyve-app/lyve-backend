@@ -662,13 +662,50 @@ io.on("connection", (socket) => {
     }
 
     // check if reward type is valid and get points
-    const rewardPoints = rewards[reward.type];
+    const redwardInfo = rewards[reward.type];
+
+    // check if user can afford this reward
+    const sender = await prismaClient.user.findUnique({
+      where: { id: user.id },
+      select: {
+        id: true,
+        coins: true
+      }
+    });
+
+    if (!sender) {
+      return cb({
+        success: false,
+        data: null,
+        error: [
+          {
+            name: "User not Found",
+            code: -1,
+            msg: `Cannot find user with id: ${user.id}`
+          }
+        ]
+      });
+    }
+
+    if (sender.coins < redwardInfo.cost) {
+      return cb({
+        success: false,
+        data: null,
+        error: [
+          {
+            name: "Not enough coins",
+            code: -1,
+            msg: "You cannot afford this reward"
+          }
+        ]
+      });
+    }
 
     // save in database
     const newDBReward = await prismaClient.rewards.create({
       data: {
         type: reward.type,
-        points: rewardPoints.points,
+        points: redwardInfo.points,
         receiverId: stream.streamer.id,
         senderId: user.id
       }
@@ -688,7 +725,17 @@ io.on("connection", (socket) => {
       where: { id: stream.streamer.id },
       data: {
         promotionPoints: {
-          increment: rewardPoints.points
+          increment: redwardInfo.points
+        }
+      }
+    });
+
+    // decrease sender coins
+    await prismaClient.user.update({
+      where: { id: user.id },
+      data: {
+        coins: {
+          decrement: redwardInfo.cost
         }
       }
     });
@@ -699,7 +746,7 @@ io.on("connection", (socket) => {
       reward: {
         id: newDBReward.id,
         type: reward.type,
-        points: rewardPoints.points
+        points: redwardInfo.points
       },
       receiver: stream.streamer,
       sender: user
