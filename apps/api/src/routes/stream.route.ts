@@ -3,13 +3,13 @@ import { streamController } from "../controller";
 
 const streamRouter = Router();
 
-streamRouter.get("/:id", streamController.getStreamInfo);
-
 streamRouter.post("/create", streamController.createStream);
 
-streamRouter.put("/:id/start", streamController.startStream);
-
 streamRouter.get("/recommended", streamController.getRecommended);
+
+streamRouter.get("/:id", streamController.getStreamInfo);
+
+streamRouter.put("/:id/start", streamController.startStream);
 
 streamRouter.delete("/:id/delete", streamController.deleteStream);
 

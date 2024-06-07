@@ -17,11 +17,11 @@ userRouter.get("/:id/followedBy", userController.followedBy);
 
 userRouter.get("/:id/feed", userController.getFeed);
 
+userRouter.put("/:id/update", userController.updateUser);
+
 userRouter.get(
   "/:id/statistics/most-streamed-genre",
   userController.getMostStreamedGenres
 );
-
-userRouter.put("/:id/update", userController.updateUser);
 
 export default userRouter;
