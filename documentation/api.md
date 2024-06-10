@@ -210,10 +210,10 @@ Success:
 {
   "success": true,
   "data": {
-    "follow": {  
+    "follow": {
       "followedById": "followedById",
       "followingId": "followingId",
-      "created_at": "date",
+      "created_at": "date"
     }
   },
   "error": []
@@ -266,10 +266,10 @@ Success:
 {
   "success": true,
   "data": {
-    "follow": {  
+    "follow": {
       "followedById": "followedById",
       "followingId": "followingId",
-      "created_at": "date",
+      "created_at": "date"
     }
   },
   "error": []
@@ -353,7 +353,6 @@ Success:
 Error:
 
 ```json
-
 // user not found
 {
   "success": false,
@@ -431,7 +430,6 @@ Success:
 Error:
 
 ```json
-
 // user not found
 {
   "success": false,
@@ -444,7 +442,6 @@ Error:
     }
   ]
 }
-
 ```
 
 #### `/api/users/:id/feed`
@@ -577,6 +574,65 @@ Error:
 }
 ```
 
+#### `/api/user/:id/notifications`
+
+Fetches the 30 latest notifications
+
+**Method**: GET
+
+Auth required : yes
+
+**Header**:
+
+```json
+Authorization: Bearer <access-token>
+```
+
+**Payload**
+
+```json
+{}
+```
+
+**Response**
+Success:
+
+```json
+{
+  "success": true,
+  "data": {
+    "notifications": {
+      "id": "id",
+      "type": "username",
+      "dispname": "dispname",
+      "streamId": "stream id", // can be null
+      "userWhoFiredEvent": "id user who fired the event", // can be null
+      "recipientId": "id from receiver of the notification",
+      "created_at": "date",
+      "updated_at": "date"
+    }
+  },
+  "error": []
+}
+```
+
+Error:
+
+```json
+// User Not Found
+{
+  "success": false,
+  "data": null,
+  "error": [
+    {
+      "name": "Not Found",
+      "code": 404,
+      "msg": "User Not Found!"
+    }
+  ]
+}
+```
+
 #### `/api/user/:id/update`
 
 Update a user
@@ -615,15 +671,15 @@ Success:
       "email": "email",
       "bio": "",
       "avatar_url": "", // or null
-      "created_at": "date"
+      "created_at": "date",
       "updatedAt": "date",
       "followingCount": 0,
       "followerCount": 0,
       "numStreams": 0,
-      "num10minStreams": 0
-      "minStreamed": 0
-      "level":  1
-      "promotionPoints":0
+      "num10minStreams": 0,
+      "minStreamed": 0,
+      "level": 1,
+      "promotionPoints": 0,
       "coins": 0
     }
   },
@@ -806,7 +862,7 @@ Error:
 
 ```json
 {
- "success": false,
+  "success": false,
   "data": null,
   "error": [
     {
@@ -875,7 +931,7 @@ Error:
 
 ```json
 {
- "success": false,
+  "success": false,
   "data": null,
   "error": [
     {
@@ -996,7 +1052,7 @@ Success:
             "avatar_url": "",
             "followerCount": 0,
           },
-      
+
   },
   "error": []
 }

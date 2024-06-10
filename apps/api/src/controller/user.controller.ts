@@ -7,7 +7,13 @@ import {
   TypedResponse
 } from "../types/types";
 import { decreaseFollowing, increaseFollowing } from "../service/user.service";
-import { AchievementType, Follows, Stream, User } from "@prisma/client";
+import {
+  AchievementType,
+  Follows,
+  Notification,
+  Stream,
+  User
+} from "@prisma/client";
 import { createErrorObject } from "../utils/createErrorObject";
 
 export const getUserInfo = async (
@@ -159,6 +165,14 @@ export const followUser = async (
     });
 
     increaseFollowing(ownId, otherId);
+
+    await prismaClient.notification.create({
+      data: {
+        type: "NEW_FOLLOWER",
+        userWhoFiredEvent: ownId,
+        recipientId: otherId
+      }
+    });
 
     return res.status(httpStatus.CREATED).json({
       success: true,
@@ -526,6 +540,45 @@ export const getMostStreamedGenres = async (
         numStreams: totalStreams,
         genres
       }
+    },
+    error: []
+  });
+};
+
+export const getNotifications = async (
+  req: Request<{ id: string }>,
+  res: Response<
+    TypedResponse<{
+      notifications: Notification[];
+    }>
+  >
+) => {
+  const { id } = req.params;
+
+  const notifications = await prismaClient.user.findUnique({
+    where: { id },
+    select: {
+      notifications: {
+        take: 30,
+        orderBy: {
+          created_at: "asc"
+        }
+      }
+    }
+  });
+
+  if (!notifications) {
+    return res.status(httpStatus.NOT_FOUND).json({
+      success: false,
+      data: null,
+      error: [...createErrorObject(httpStatus.NOT_FOUND, "User not found")]
+    });
+  }
+
+  return res.status(httpStatus.OK).json({
+    success: true,
+    data: {
+      notifications: notifications.notifications
     },
     error: []
   });
