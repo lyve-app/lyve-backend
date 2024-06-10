@@ -17,6 +17,8 @@ userRouter.get("/:id/followedBy", userController.followedBy);
 
 userRouter.get("/:id/feed", userController.getFeed);
 
+userRouter.get("/:id/notifications", userController.getNotifications);
+
 userRouter.put("/:id/update", userController.updateUser);
 
 userRouter.get(
