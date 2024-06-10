@@ -1,6 +1,7 @@
 import type { NextFunction, Request, Response } from "express";
 import type { DeepPartial } from "utility-types";
 import type { IFilterXSSOptions } from "xss";
+import { SocketUser } from "./socket";
 
 export type TypedResponse<Data> = {
   success: boolean;
@@ -16,6 +17,16 @@ export type RequireAtLeastOne<T> = {
   [K in keyof T]-?: Required<Pick<T, K>> &
     Partial<Pick<T, Exclude<keyof T, K>>>;
 }[keyof T];
+
+// https://stackoverflow.com/questions/40510611/typescript-interface-require-one-of-two-properties-to-exist
+export type RequireOnlyOne<T, Keys extends keyof T = keyof T> = Pick<
+  T,
+  Exclude<keyof T, Keys>
+> &
+  {
+    [K in Keys]-?: Required<Pick<T, K>> &
+      Partial<Record<Exclude<Keys, K>, undefined>>;
+  }[Keys];
 
 // More strictly typed Express.Request type
 export type TypedRequest<
@@ -61,4 +72,18 @@ export type createStreamCredentials = {
   streamerId: string;
   previewImgUrl: string;
   genre: string;
+};
+
+export type ChatMessage = {
+  id: string;
+  msg?: string;
+  gif?: GIF;
+  sender: SocketUser;
+  created_at: string;
+};
+
+export type GIF = {
+  height: string;
+  width: string;
+  url: string;
 };

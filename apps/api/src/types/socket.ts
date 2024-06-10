@@ -7,6 +7,7 @@ import {
   RtpParameters
 } from "mediasoup/node/lib/types";
 import { Consumer, StreamSendDirection, TransportOptions } from "./rabbitmq";
+import { ChatMessage, GIF, RequireOnlyOne } from "./types";
 
 export type SocketUser = Pick<
   User,
@@ -55,12 +56,7 @@ export interface ServerToClientEvents {
   user_leaved: (data: { user: SocketUser }) => void;
   viewer_count: (data: { viewerCount: number }) => void;
   stream_ended: (data: { ended_at: string; duration: number }) => void;
-  new_msg: (data: {
-    id: string;
-    msg: string;
-    sender: SocketUser;
-    created_at: string;
-  }) => void;
+  new_msg: (data: ChatMessage) => void;
   resv_reward: (data: {
     msg: string;
     reward: {
@@ -95,7 +91,9 @@ export interface ClientToServerEvents {
     callback: SocketCallback<null>
   ) => void;
   leave_stream: () => void;
-  send_msg: (data: { msg: string }) => void;
+  send_msg: (
+    data: RequireOnlyOne<{ msg?: string; gif?: GIF }, "gif" | "msg">
+  ) => void;
   send_reward: (
     data: {
       msg: string;

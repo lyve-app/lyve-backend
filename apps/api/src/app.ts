@@ -489,6 +489,7 @@ io.on("connection", (socket) => {
       },
       select: {
         id: true,
+        active: true,
         created_at: true,
         streamerId: true,
         streamer: {
@@ -514,12 +515,12 @@ io.on("connection", (socket) => {
     );
 
     if (!checkIfPresent) {
-      logger.warn("leave_stream:  user is present in stream");
+      logger.warn("leave_stream: user is not present in stream");
       return;
     }
 
     // is streamer stream host ?
-    if (stream.streamer.id === user.id) {
+    if (checkStream.streamerId === user.id) {
       try {
         channel.sendToQueue(
           config.rabbitmq.queues.media_server_queue,
@@ -537,22 +538,47 @@ io.on("connection", (socket) => {
         logger.error("Error on sending leave_stream message: ", error);
       }
 
-      const ended_at = new Date();
-      const duration =
-        (ended_at.getTime() - checkStream.created_at.getTime()) / 1000;
+      // has stream started ??
+      if (!checkStream.active) {
+        // if host left before he started the stream we delete the stream
+        await prismaClient.stream.delete({
+          where: {
+            id: checkStream.id
+          }
+        });
+      } else {
+        const ended_at = new Date();
+        const duration =
+          (ended_at.getTime() - checkStream.created_at.getTime()) / 1000;
 
-      await prismaClient.stream.update({
-        where: { id: streamId },
-        data: {
-          ended_at,
+        // update stream
+        await prismaClient.stream.update({
+          where: { id: streamId },
+          data: {
+            ended_at,
+            duration,
+            active: false
+          }
+        });
+
+        // update user stats
+        await prismaClient.user.update({
+          where: { id: checkStream.streamerId },
+          data: {
+            numStreams: {
+              increment: 1
+            },
+            minStreamed: { increment: Math.round(duration / 60) },
+            num10minStreams: { increment: duration / 60 > 10 ? 1 : 0 }
+          }
+        });
+
+        // broadcast stream end to all clients
+        io.to(streamId).emit("stream_ended", {
           duration,
-          active: false
-        }
-      });
-
-      socket
-        .to(streamId)
-        .emit("stream_ended", { duration, ended_at: ended_at.toString() });
+          ended_at: ended_at.toString()
+        });
+      }
 
       socket.emit("you-left-stream");
 
@@ -579,34 +605,38 @@ io.on("connection", (socket) => {
         logger.error("Error on sending leave_stream message: ", error);
       }
 
-      socket.emit("you-left-stream");
-
-      socket.leave(streamId);
-
       stream.viewerCount--;
       stream.viewers = stream.viewers.filter(
         (id) => id !== socket.data.user.id
       );
-      delete socket.data.streamId;
 
-      logger.info(
-        `User ${socket.data.user.username} leaved stream: ${streamId}`
-      );
+      socket.emit("you-left-stream");
 
       socket.to(streamId).emit("user_leaved", {
         user: socket.data.user
       });
 
-      io.to(streamId).emit("viewer_count", { viewerCount: stream.viewerCount });
+      socket
+        .to(streamId)
+        .emit("viewer_count", { viewerCount: stream.viewerCount });
+
+      socket.leave(streamId);
+
+      delete socket.data.streamId;
+
+      logger.info(
+        `User ${socket.data.user.username} leaved stream: ${streamId}`
+      );
     }
   });
 
-  socket.on("send_msg", ({ msg }) => {
+  socket.on("send_msg", ({ msg, gif }) => {
     const { streamId, user } = socket.data;
     if (streamId && user) {
       io.to(streamId).emit("new_msg", {
         id: crypto.randomUUID(),
-        msg,
+        ...(msg && { msg }),
+        ...(gif && { gif }),
         sender: user,
         created_at: Date.now().toString()
       });
@@ -776,6 +806,7 @@ io.on("connection", (socket) => {
       },
       select: {
         id: true,
+        active: true,
         created_at: true,
         streamerId: true,
         streamer: {
@@ -801,12 +832,12 @@ io.on("connection", (socket) => {
     );
 
     if (!checkIfPresent) {
-      logger.warn("leave_stream:  user is present in stream");
+      logger.warn("leave_stream: user is not present in stream");
       return;
     }
 
     // is streamer stream host ?
-    if (stream.streamer.id === user.id) {
+    if (checkStream.streamerId === user.id) {
       try {
         channel.sendToQueue(
           config.rabbitmq.queues.media_server_queue,
@@ -824,22 +855,47 @@ io.on("connection", (socket) => {
         logger.error("Error on sending leave_stream message: ", error);
       }
 
-      const ended_at = new Date();
-      const duration =
-        (ended_at.getTime() - checkStream.created_at.getTime()) / 1000;
+      // has stream started ??
+      if (!checkStream.active) {
+        // if host left before he started the stream we delete the stream
+        await prismaClient.stream.delete({
+          where: {
+            id: checkStream.id
+          }
+        });
+      } else {
+        const ended_at = new Date();
+        const duration =
+          (ended_at.getTime() - checkStream.created_at.getTime()) / 1000;
 
-      await prismaClient.stream.update({
-        where: { id: streamId },
-        data: {
-          ended_at,
+        // update stream
+        await prismaClient.stream.update({
+          where: { id: streamId },
+          data: {
+            ended_at,
+            duration,
+            active: false
+          }
+        });
+
+        // update user stats
+        await prismaClient.user.update({
+          where: { id: checkStream.streamerId },
+          data: {
+            numStreams: {
+              increment: 1
+            },
+            minStreamed: { increment: Math.round(duration / 60) },
+            num10minStreams: { increment: duration / 60 > 10 ? 1 : 0 }
+          }
+        });
+
+        // broadcast stream end to all clients
+        io.to(streamId).emit("stream_ended", {
           duration,
-          active: false
-        }
-      });
-
-      socket
-        .to(streamId)
-        .emit("stream_ended", { duration, ended_at: ended_at.toString() });
+          ended_at: ended_at.toString()
+        });
+      }
 
       io.in(streamId).socketsLeave(streamId);
 
@@ -884,8 +940,10 @@ io.on("connection", (socket) => {
     }
   });
 
-  socket.on("disconnect", () => {
-    logger.info(`Client with socket id: ${socket.id} disconnected`);
+  socket.on("disconnect", (reason) => {
+    logger.info(
+      `Client with socket id: ${socket.id} disconnected reason: ${reason}`
+    );
   });
 });
 
