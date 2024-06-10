@@ -510,15 +510,6 @@ io.on("connection", (socket) => {
 
     if (!stream) return;
 
-    const checkIfPresent = stream.viewers.find(
-      (v) => v === socket.data.user.id
-    );
-
-    if (!checkIfPresent) {
-      logger.warn("leave_stream: user is not present in stream");
-      return;
-    }
-
     // is streamer stream host ?
     if (checkStream.streamerId === user.id) {
       try {
@@ -587,6 +578,15 @@ io.on("connection", (socket) => {
       streams.delete(streamId);
       delete socket.data.streamId;
     } else {
+      const checkIfPresent = stream.viewers.find(
+        (v) => v === socket.data.user.id
+      );
+
+      if (!checkIfPresent) {
+        logger.warn("leave_stream: user is not present in stream");
+        return;
+      }
+
       try {
         channel.sendToQueue(
           config.rabbitmq.queues.media_server_queue,
@@ -606,9 +606,7 @@ io.on("connection", (socket) => {
       }
 
       stream.viewerCount--;
-      stream.viewers = stream.viewers.filter(
-        (id) => id !== socket.data.user.id
-      );
+      stream.viewers = stream.viewers.filter((id) => id !== user.id);
 
       socket.emit("you-left-stream");
 
@@ -827,15 +825,6 @@ io.on("connection", (socket) => {
 
     if (!stream) return;
 
-    const checkIfPresent = stream.viewers.find(
-      (v) => v === socket.data.user.id
-    );
-
-    if (!checkIfPresent) {
-      logger.warn("leave_stream: user is not present in stream");
-      return;
-    }
-
     // is streamer stream host ?
     if (checkStream.streamerId === user.id) {
       try {
@@ -902,6 +891,13 @@ io.on("connection", (socket) => {
       streams.delete(streamId);
       delete socket.data.streamId;
     } else {
+      const checkIfPresent = stream.viewers.find((v) => v === user.id);
+
+      if (!checkIfPresent) {
+        logger.warn("leave_stream: user is not present in stream");
+        return;
+      }
+
       try {
         channel.sendToQueue(
           config.rabbitmq.queues.media_server_queue,
