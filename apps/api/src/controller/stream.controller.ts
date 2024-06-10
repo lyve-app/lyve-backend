@@ -178,6 +178,7 @@ export const startStream = async (
 ) => {
   const { id } = req.params;
   try {
+    // todo check if host
     const stream = await prismaClient.stream.update({
       where: {
         id
@@ -200,6 +201,35 @@ export const startStream = async (
       }
     });
 
+    // create notfication for all followers of the streamer that the stream started
+    // get all followers
+    const follower = await prismaClient.user.findUnique({
+      where: { id: stream.streamer.id },
+      select: {
+        followedBy: {
+          select: {
+            followedById: true
+          }
+        }
+      }
+    });
+
+    if (follower) {
+      const notifications: Prisma.NotificationCreateManyInput[] =
+        follower.followedBy.map((f) => ({
+          type: "STREAM_STARTED",
+          userWhoFiredEvent: stream.streamer.id,
+          streamId: stream.id,
+          recipientId: f.followedById
+        }));
+
+      // create notification records
+      await prismaClient.notification.createMany({
+        data: notifications,
+        skipDuplicates: true
+      });
+    }
+
     return res.status(httpStatus.OK).json({
       success: true,
       data: {
@@ -214,7 +244,7 @@ export const startStream = async (
       error: [
         ...createErrorObject(
           httpStatus.INTERNAL_SERVER_ERROR,
-          "Stream couldnt be started, there was an internal sever error"
+          "Stream couldn't be started, there was an internal sever error"
         )
       ]
     });
