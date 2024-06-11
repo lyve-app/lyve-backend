@@ -8,6 +8,7 @@ import {
   TypedResponse
 } from "../types/types";
 import { createErrorObject } from "../utils/createErrorObject";
+import { getNotificationsMessage } from "../utils/notificationsMessages";
 
 export const getStreamInfo = async (
   req: Request<{ id: string }>,
@@ -218,6 +219,10 @@ export const startStream = async (
       const notifications: Prisma.NotificationCreateManyInput[] =
         follower.followedBy.map((f) => ({
           type: "STREAM_STARTED",
+          message: getNotificationsMessage(
+            "STREAM_STARTED",
+            stream.streamer.dispname
+          ),
           userWhoFiredEvent: stream.streamer.id,
           streamId: stream.id,
           recipientId: f.followedById

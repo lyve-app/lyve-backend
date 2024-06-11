@@ -74,12 +74,17 @@ model Notification {
   type NotificationType
 
   streamId          String?
+  achievemntId      String?
+  rewardId          String?
   userWhoFiredEvent String?
 
-  recipient   User     @relation(fields: [recipientId], references: [id])
+  message String @default("")
+
+  recipient   User   @relation(fields: [recipientId], references: [id])
   recipientId String
-  created_at  DateTime @default(now())
-  updated_at  DateTime @updatedAt
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
 }
 
 model Achievement {
