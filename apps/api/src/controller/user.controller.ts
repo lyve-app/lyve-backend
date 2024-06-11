@@ -15,6 +15,7 @@ import {
   User
 } from "@prisma/client";
 import { createErrorObject } from "../utils/createErrorObject";
+import { getNotificationsMessage } from "../utils/notificationsMessages";
 
 export const getUserInfo = async (
   req: Request<{ id: string }>,
@@ -161,6 +162,13 @@ export const followUser = async (
       data: {
         followedById: ownId,
         followingId: otherId
+      },
+      include: {
+        followedBy: {
+          select: {
+            dispname: true
+          }
+        }
       }
     });
 
@@ -169,6 +177,10 @@ export const followUser = async (
     await prismaClient.notification.create({
       data: {
         type: "NEW_FOLLOWER",
+        message: getNotificationsMessage(
+          "NEW_FOLLOWER",
+          follow.followedBy.dispname
+        ),
         userWhoFiredEvent: ownId,
         recipientId: otherId
       }
@@ -177,7 +189,7 @@ export const followUser = async (
     return res.status(httpStatus.CREATED).json({
       success: true,
       data: {
-        follow
+        follow: { ...follow }
       },
       error: []
     });

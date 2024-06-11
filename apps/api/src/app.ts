@@ -24,6 +24,7 @@ import prismaClient from "./config/prisma";
 import { jwtDecode } from "jwt-decode";
 import { initRabbitMQ } from "./utils/initRabbitMQ";
 import { rewards } from "./utils/rewards";
+import { getNotificationsMessage } from "./utils/notificationsMessages";
 
 type Stream = {
   id: string;
@@ -743,6 +744,8 @@ io.on("connection", (socket) => {
     await prismaClient.notification.create({
       data: {
         type: "REWARD_RECEIVED",
+        rewardId: newDBReward.id,
+        message: getNotificationsMessage("REWARD_RECEIVED", user.dispname),
         userWhoFiredEvent: user.id,
         recipientId: stream.streamer.id
       }
