@@ -9,7 +9,7 @@ import { errorHandler } from "./middleware/errorHandler";
 import config from "./config/config";
 import { xssMiddleware } from "./middleware/xssMiddleware";
 import { createServer } from "http";
-import { streamRouter, userRouter } from "./routes";
+import { searchRouter, streamRouter, userRouter } from "./routes";
 import { Server } from "socket.io";
 import logger from "./middleware/logger";
 import {
@@ -131,6 +131,8 @@ app.get("/", (_req, res) => {
 app.use("/api/user", userRouter);
 
 app.use("/api/stream", streamRouter);
+
+app.use("/api/search", searchRouter);
 
 io.use(async (socket, next) => {
   const { token } = socket.handshake.auth;
