@@ -31,8 +31,24 @@ export const getStreamInfo = async (
     }>
   >
 ) => {
+  const { user } = req;
+  const { id } = req.params;
+
+  if (!user) {
+    return res.status(httpStatus.FORBIDDEN).json({
+      success: false,
+      data: null,
+      error: [
+        ...createErrorObject(
+          httpStatus.FORBIDDEN,
+          "Access denied. Invalid token"
+        )
+      ]
+    });
+  }
+
   const stream = await prismaClient.stream.findFirst({
-    where: { id: req.params.id },
+    where: { id },
     include: {
       streamer: {
         select: {
@@ -56,6 +72,21 @@ export const getStreamInfo = async (
     });
   }
 
+  let followed = false;
+
+  if (user.id !== stream.streamerId) {
+    // find follow record of user and streamer
+    const followsStreamer = prismaClient.follows.findUnique({
+      where: {
+        followingId_followedById: {
+          followedById: user.id,
+          followingId: stream.streamerId
+        }
+      }
+    });
+
+    followed = !!followsStreamer;
+  }
   return res.status(httpStatus.OK).json({
     success: true,
     data: {
@@ -63,7 +94,7 @@ export const getStreamInfo = async (
         ...stream,
         streamer: {
           ...stream.streamer,
-          followed: false // Todo
+          followed
         }
       }
     },
