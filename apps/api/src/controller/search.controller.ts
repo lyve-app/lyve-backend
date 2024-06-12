@@ -62,6 +62,46 @@ export const search = async (
   }
 
   try {
+    const { user } = req;
+
+    if (!user) {
+      return res.status(httpStatus.FORBIDDEN).json({
+        success: false,
+        data: null,
+        error: [
+          ...createErrorObject(
+            httpStatus.FORBIDDEN,
+            "Access denied. Invalid token"
+          )
+        ]
+      });
+    }
+
+    const userFollowings = await prismaClient.user.findUnique({
+      where: {
+        id: user.id
+      },
+      select: {
+        following: {
+          select: {
+            followingId: true
+          }
+        }
+      }
+    });
+
+    if (!userFollowings) {
+      return res.status(httpStatus.NOT_FOUND).json({
+        success: false,
+        data: null,
+        error: [...createErrorObject(httpStatus.NOT_FOUND, "User not found.")]
+      });
+    }
+
+    const followingMap = new Set(
+      userFollowings.following.map((f) => f.followingId)
+    );
+
     // prisma query
     const userData = await prismaClient.user.findMany({
       take: parsedLimit,
@@ -142,7 +182,7 @@ export const search = async (
       > & { subscribed: boolean }
     > = userData.map((u) => ({
       ...u,
-      subscribed: false
+      subscribed: followingMap.has(u.id)
     }));
 
     return res.status(httpStatus.OK).json({
