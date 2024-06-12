@@ -175,9 +175,41 @@ export const startStream = async (
     }>
   >
 ) => {
+  const { user } = req;
   const { id } = req.params;
+
+  const host = await prismaClient.stream.findUnique({
+    where: {
+      id
+    },
+    select: {
+      streamerId: true
+    }
+  });
+
+  if (!host) {
+    return res.status(httpStatus.NOT_FOUND).json({
+      success: false,
+      data: null,
+      error: [...createErrorObject(httpStatus.NOT_FOUND, "Stream not found")]
+    });
+  }
+
+  // check if host
+  if (!user || user.id !== host.streamerId) {
+    return res.status(httpStatus.FORBIDDEN).json({
+      success: false,
+      data: null,
+      error: [
+        ...createErrorObject(
+          httpStatus.NOT_FOUND,
+          "You are not the host of this stream."
+        )
+      ]
+    });
+  }
+
   try {
-    // todo check if host
     const stream = await prismaClient.stream.update({
       where: {
         id
