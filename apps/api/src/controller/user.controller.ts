@@ -608,8 +608,24 @@ export const updateUser = async (
     }>
   >
 ) => {
+  const { id } = req.params;
+  const { user } = req;
+
+  if (!user || user.id !== id) {
+    return res.status(httpStatus.FORBIDDEN).json({
+      success: false,
+      data: null,
+      error: [
+        ...createErrorObject(
+          httpStatus.FORBIDDEN,
+          "You cannot update other users"
+        )
+      ]
+    });
+  }
+
   const checkUser = await prismaClient.user.findUnique({
-    where: { id: req.params.id },
+    where: { id },
     select: {
       dispname: true,
       avatar_url: true,
@@ -628,7 +644,7 @@ export const updateUser = async (
   const { dispname, avatar_url, bio } = req.body;
 
   const updatedUser = await prismaClient.user.update({
-    where: { id: req.params.id },
+    where: { id },
     data: {
       dispname: dispname ?? checkUser.dispname,
       avatar_url: avatar_url ?? checkUser.avatar_url,
