@@ -202,7 +202,7 @@ export const startStream = async (
       data: null,
       error: [
         ...createErrorObject(
-          httpStatus.NOT_FOUND,
+          httpStatus.FORBIDDEN,
           "You are not the host of this stream."
         )
       ]
@@ -359,14 +359,15 @@ export const deleteStream = async (
     }>
   >
 ) => {
+  const { user } = req;
   const { id } = req.params;
 
-  const checkIfActive = await prismaClient.stream.findUnique({
+  const stream = await prismaClient.stream.findUnique({
     where: { id },
-    select: { active: true, duration: true }
+    select: { active: true, duration: true, streamerId: true }
   });
 
-  if (!checkIfActive) {
+  if (!stream) {
     return res.status(httpStatus.NOT_FOUND).json({
       success: false,
       data: null,
@@ -374,9 +375,20 @@ export const deleteStream = async (
     });
   }
 
-  // Todo check if host
+  if (!user || user.id !== stream.streamerId) {
+    return res.status(httpStatus.FORBIDDEN).json({
+      success: false,
+      data: null,
+      error: [
+        ...createErrorObject(
+          httpStatus.FORBIDDEN,
+          "You are not the host of this stream."
+        )
+      ]
+    });
+  }
 
-  if (checkIfActive.active || checkIfActive.duration !== 0) {
+  if (stream.active || stream.duration !== 0) {
     return res.status(httpStatus.FORBIDDEN).json({
       success: false,
       data: null,
