@@ -32,7 +32,7 @@ const isAuth = (
       error: [
         ...createErrorObject(
           httpStatus.FORBIDDEN,
-          "Access denied. Invalid token format."
+          "Access denied. Invalid token"
         )
       ]
     });
