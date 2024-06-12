@@ -25,6 +25,7 @@ import { jwtDecode } from "jwt-decode";
 import { initRabbitMQ } from "./utils/initRabbitMQ";
 import { rewards } from "./utils/rewards";
 import { getNotificationsMessage } from "./utils/notificationsMessages";
+import isAuth from "./middleware/isAuth";
 
 type Stream = {
   id: string;
@@ -128,11 +129,11 @@ app.get("/", (_req, res) => {
   res.status(200).json({ msg: "Up" });
 });
 
-app.use("/api/user", userRouter);
+app.use("/api/user", isAuth, userRouter);
 
-app.use("/api/stream", streamRouter);
+app.use("/api/stream", isAuth, streamRouter);
 
-app.use("/api/search", searchRouter);
+app.use("/api/search", isAuth, searchRouter);
 
 io.use(async (socket, next) => {
   const { token } = socket.handshake.auth;
