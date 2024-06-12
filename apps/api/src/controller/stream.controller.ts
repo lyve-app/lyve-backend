@@ -3,7 +3,7 @@ import httpStatus from "http-status";
 import prismaClient from "../config/prisma";
 import { Prisma, Stream, User } from "@prisma/client";
 import {
-  createStreamCredentials,
+  CreateStreamCredentials,
   TypedRequest,
   TypedResponse
 } from "../types/types";
@@ -72,7 +72,7 @@ export const getStreamInfo = async (
 };
 
 export const createStream = async (
-  req: TypedRequest<createStreamCredentials>,
+  req: TypedRequest<CreateStreamCredentials>,
   res: Response<
     TypedResponse<{
       stream: Stream & {
@@ -90,9 +90,10 @@ export const createStream = async (
     }>
   >
 ) => {
-  const { streamerId, previewImgUrl, genre } = req.body;
+  const { user } = req;
+  const { previewImgUrl, genre } = req.body;
 
-  if (!streamerId || !previewImgUrl || !genre) {
+  if (!user || !previewImgUrl || !genre) {
     return res.status(httpStatus.BAD_REQUEST).json({
       success: false,
       data: null,
@@ -107,10 +108,7 @@ export const createStream = async (
 
   const checkForActiveStreams = await prismaClient.stream.findFirst({
     where: {
-      AND: [
-        { streamerId: { equals: streamerId } },
-        { active: { equals: true } }
-      ]
+      AND: [{ streamerId: { equals: user.id } }, { active: { equals: true } }]
     },
     select: { streamerId: true }
   });
@@ -130,7 +128,7 @@ export const createStream = async (
 
   const stream = await prismaClient.stream.create({
     data: {
-      streamerId: streamerId,
+      streamerId: user.id,
       previewImgUrl: previewImgUrl,
       genre: genre
     },

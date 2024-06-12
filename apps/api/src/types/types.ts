@@ -68,8 +68,7 @@ export type CreateUserCredentials = {
   email: string;
 };
 
-export type createStreamCredentials = {
-  streamerId: string;
+export type CreateStreamCredentials = {
   previewImgUrl: string;
   genre: string;
 };
