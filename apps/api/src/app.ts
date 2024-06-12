@@ -693,6 +693,20 @@ io.on("connection", (socket) => {
       });
     }
 
+    if (user.id === stream.streamer.id) {
+      return cb({
+        success: false,
+        data: null,
+        error: [
+          {
+            name: "Forbidden",
+            code: -1,
+            msg: "You cannot send a reward to yourself"
+          }
+        ]
+      });
+    }
+
     // check if reward type is valid and get points
     const redwardInfo = rewards[reward.type];
 
