@@ -88,23 +88,32 @@ export type GIF = {
 };
 
 export interface JwtPayload {
-  sub: string; // assuming 'sub' is the user ID
-  acr: string;
-  at_hash: string;
-  aud: string;
-  auth_time: number;
-  azp: string;
-  email: string;
-  email_verified: boolean;
   exp: number;
-  family_name: string;
-  given_name: string;
   iat: number;
-  iss: string;
+  auth_time: number;
   jti: string;
+  iss: string;
+  aud: string;
+  sub: string;
+  typ: string;
+  azp: string;
+  session_state: string;
+  acr: string;
+  "allowed-origins": string[];
+  realm_access: {
+    roles: string[];
+  };
+  resource_access: {
+    account: {
+      roles: string[];
+    };
+  };
+  scope: string;
+  sid: string;
+  email_verified: boolean;
   name: string;
   preferred_username: string;
-  session_state: string;
-  sid: string;
-  typ: string;
+  given_name: string;
+  family_name: string;
+  email: string;
 }
