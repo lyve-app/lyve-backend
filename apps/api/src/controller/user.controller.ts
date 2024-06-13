@@ -9,7 +9,7 @@ import {
 } from "../types/types";
 import { decreaseFollowing, increaseFollowing } from "../service/user.service";
 import {
-  AchievementType,
+  Achievement,
   Follows,
   Notification,
   Stream,
@@ -26,17 +26,9 @@ export const getUserInfo = async (
   res: Response<
     TypedResponse<{
       user: User & {
+        subscribed: boolean;
         userToAchievement: {
-          achievement: {
-            id: string;
-            type: AchievementType;
-            name: string;
-            level: number;
-            bannerUrl: string;
-            condition: number;
-            progress: number;
-            promotionPoints: number;
-          };
+          achievement: Achievement;
         }[];
         streams: Stream[];
       };
@@ -64,9 +56,25 @@ export const getUserInfo = async (
     });
   }
 
+  let subscribed = false;
+
+  if (user.id !== req.user!.id) {
+    const checkSubscribed = await prismaClient.follows.findUnique({
+      where: {
+        followingId_followedById: {
+          followedById: req.user!.id,
+          followingId: user.id
+        }
+      }
+    });
+    subscribed = !!checkSubscribed;
+  }
+
+  const result = { ...user, subscribed };
+
   return res.status(httpStatus.OK).json({
     success: true,
-    data: { user },
+    data: { user: result },
     error: []
   });
 };
