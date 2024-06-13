@@ -16,6 +16,8 @@ import {
 } from "@prisma/client";
 import { createErrorObject } from "../utils/createErrorObject";
 import { getNotificationsMessage } from "../utils/notificationsMessages";
+import path from "path";
+import { uploadFileToBlob } from "../service/blob.service";
 
 export const getUserInfo = async (
   req: Request<{ id: string }>,
@@ -600,7 +602,7 @@ export const updateUser = async (
   req: Request<
     { id: string },
     Record<string, unknown>,
-    { dispname?: string; avatar_url?: string; bio?: string }
+    { dispname?: string; bio?: string }
   >,
   res: Response<
     TypedResponse<{
@@ -641,14 +643,52 @@ export const updateUser = async (
     });
   }
 
-  const { dispname, avatar_url, bio } = req.body;
+  const { dispname, bio } = req.body;
+
+  if (!dispname && !bio && !req.file) {
+    return res.status(httpStatus.BAD_REQUEST).json({
+      success: false,
+      data: null,
+      error: [
+        ...createErrorObject(
+          httpStatus.BAD_REQUEST,
+          "dispname, bio and file are all not defined. Define at least one"
+        )
+      ]
+    });
+  }
+
+  let avatar_url = "";
+
+  if (req.file) {
+    try {
+      const buffer = req.file.buffer;
+      const fileExtension = path.extname(req.file.originalname);
+      const blobName = `${crypto.randomUUID()}${fileExtension}`;
+
+      const uploadedImage = await uploadFileToBlob(buffer, blobName);
+      avatar_url = uploadedImage.url;
+    } catch (error) {
+      console.log(error);
+      return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
+        success: false,
+        data: null,
+        error: [
+          ...createErrorObject(
+            httpStatus.INTERNAL_SERVER_ERROR,
+            "Error uploading file."
+          )
+        ]
+      });
+    }
+  }
 
   const updatedUser = await prismaClient.user.update({
     where: { id },
     data: {
-      dispname: dispname ?? checkUser.dispname,
-      avatar_url: avatar_url ?? checkUser.avatar_url,
-      bio: bio ?? checkUser.bio
+      ...(dispname && { dispname }),
+      ...(bio && { bio }),
+      ...(avatar_url && { avatar_url })
     }
   });
 
