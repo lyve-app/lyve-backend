@@ -2,13 +2,11 @@ import type { Request, Response } from "express";
 import httpStatus from "http-status";
 import prismaClient from "../config/prisma";
 import { Prisma, Stream, User } from "@prisma/client";
-import {
-  CreateStreamCredentials,
-  TypedRequest,
-  TypedResponse
-} from "../types/types";
+import { TypedRequest, TypedResponse } from "../types/types";
 import { createErrorObject } from "../utils/createErrorObject";
 import { getNotificationsMessage } from "../utils/notificationsMessages";
+import { uploadFileToBlob } from "../service/blob.service";
+import path from "path";
 
 export const getStreamInfo = async (
   req: Request<{ id: string }>,
@@ -103,7 +101,7 @@ export const getStreamInfo = async (
 };
 
 export const createStream = async (
-  req: TypedRequest<CreateStreamCredentials>,
+  req: TypedRequest<{ genre: string }>,
   res: Response<
     TypedResponse<{
       stream: Stream & {
@@ -122,17 +120,14 @@ export const createStream = async (
   >
 ) => {
   const { user } = req;
-  const { previewImgUrl, genre } = req.body;
+  const { genre } = req.body;
 
-  if (!user || !previewImgUrl || !genre) {
+  if (!user || !genre) {
     return res.status(httpStatus.BAD_REQUEST).json({
       success: false,
       data: null,
       error: [
-        ...createErrorObject(
-          httpStatus.BAD_REQUEST,
-          "streamerId, image and genre must be defined"
-        )
+        ...createErrorObject(httpStatus.BAD_REQUEST, " genre must be defined")
       ]
     });
   }
@@ -155,6 +150,31 @@ export const createStream = async (
         )
       ]
     });
+  }
+
+  let previewImgUrl = "";
+
+  if (req.file) {
+    try {
+      const buffer = req.file.buffer;
+      const fileExtension = path.extname(req.file.originalname);
+      const blobName = `${crypto.randomUUID()}${fileExtension}`;
+
+      const uploadedImage = await uploadFileToBlob(buffer, blobName);
+      previewImgUrl = uploadedImage.url;
+    } catch (error) {
+      console.log(error);
+      return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
+        success: false,
+        data: null,
+        error: [
+          ...createErrorObject(
+            httpStatus.INTERNAL_SERVER_ERROR,
+            "Error uploading file."
+          )
+        ]
+      });
+    }
   }
 
   const stream = await prismaClient.stream.create({

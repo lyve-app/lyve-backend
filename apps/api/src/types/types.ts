@@ -68,11 +68,6 @@ export type CreateUserCredentials = {
   email: string;
 };
 
-export type CreateStreamCredentials = {
-  previewImgUrl: string;
-  genre: string;
-};
-
 export type ChatMessage = {
   id: string;
   msg?: string;

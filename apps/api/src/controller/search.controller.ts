@@ -174,7 +174,6 @@ export const search = async (
       hasNext = next.length > 0;
     }
 
-    // Todo add real subscribed value
     const responseData: Array<
       Pick<
         User,

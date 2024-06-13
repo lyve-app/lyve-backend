@@ -11,7 +11,10 @@ const envSchema = Joi.object().keys({
   PORT: Joi.number().port().required().default(4040),
   HOST: Joi.string().required(),
   CORS_ORIGIN: Joi.string().required().default("*"),
-  RABBITMQ_URL: Joi.string().required()
+  RABBITMQ_URL: Joi.string().required(),
+  AZURE_STORAGE_ACCOUNT_NAME: Joi.string().required(),
+  AZURE_STORAGE_ACCOUNT_KEY: Joi.string().required(),
+  AZURE_STORAGE_CONTAINER_NAME: Joi.string().required()
 });
 
 const { value: validatedEnv, error } = envSchema
@@ -42,6 +45,17 @@ const config = {
       media_server_queue: "media_server_queue"
     },
     retryInterval: 5000
+  },
+  azure: {
+    storage: {
+      account: {
+        name: validatedEnv.AZURE_STORAGE_ACCOUNT_NAME,
+        key: validatedEnv.AZURE_STORAGE_ACCOUNT_KEY
+      },
+      container: {
+        name: validatedEnv.AZURE_STORAGE_CONTAINER_NAME
+      }
+    }
   }
 } as const;
 

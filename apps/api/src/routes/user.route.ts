@@ -1,5 +1,6 @@
 import { Router } from "express";
 import { userController } from "../controller";
+import { upload } from "../middleware/upload";
 
 const userRouter = Router();
 
@@ -19,7 +20,11 @@ userRouter.get("/:id/feed", userController.getFeed);
 
 userRouter.get("/:id/notifications", userController.getNotifications);
 
-userRouter.put("/:id/update", userController.updateUser);
+userRouter.put(
+  "/:id/update",
+  upload.single("image"),
+  userController.updateUser
+);
 
 userRouter.get(
   "/:id/statistics/most-streamed-genre",

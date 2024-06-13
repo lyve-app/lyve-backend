@@ -1,9 +1,14 @@
 import { Router } from "express";
 import { streamController } from "../controller";
+import { upload } from "../middleware/upload";
 
 const streamRouter = Router();
 
-streamRouter.post("/create", streamController.createStream);
+streamRouter.post(
+  "/create",
+  upload.single("image"),
+  streamController.createStream
+);
 
 streamRouter.get("/recommended", streamController.getRecommended);
 
