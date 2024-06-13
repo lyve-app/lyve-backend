@@ -3,6 +3,7 @@ import httpStatus from "http-status";
 import prismaClient from "../config/prisma";
 import {
   CreateUserCredentials,
+  Days,
   TypedRequest,
   TypedResponse
 } from "../types/types";
@@ -18,6 +19,7 @@ import { createErrorObject } from "../utils/createErrorObject";
 import { getNotificationsMessage } from "../utils/notificationsMessages";
 import path from "path";
 import { uploadFileToBlob } from "../service/blob.service";
+import { getDayOfWeek } from "../utils/getDayOfWeek";
 
 export const getUserInfo = async (
   req: Request<{ id: string }>,
@@ -506,6 +508,8 @@ export const getMostStreamedGenres = async (
         genres: {
           name: string;
           percent: number;
+          days: Days[];
+          avgViewers: number;
         }[];
       };
     }>
@@ -516,8 +520,10 @@ export const getMostStreamedGenres = async (
     select: {
       streams: {
         select: {
-          id: true,
-          genre: true
+          id: true, // cuid
+          genre: true, // string that has the genres seperated via comma "genre1,genre2,genre3"
+          created_at: true, // datetime
+          mostViewers: true // int
         }
       }
     }
@@ -532,20 +538,51 @@ export const getMostStreamedGenres = async (
   }
 
   const genreStats = new Map<string, number>();
+  const genreDays = new Map<string, Map<Days, number>>(); // Map<genre, Map<day, count>>
+  const genreViewers = new Map<
+    string,
+    { totalViewers: number; count: number }
+  >();
 
-  // Calculate which genres the user has streamed and how often
-  userData.streams.forEach((s) =>
-    s.genre
-      .split(",")
-      .forEach((g) => genreStats.set(g, (genreStats.get(g) || 0) + 1))
-  );
+  // Calculate which genres the user has streamed, how often, and accumulate viewers
+  userData.streams.forEach((s) => {
+    const day = getDayOfWeek(new Date(s.created_at));
 
-  // Calculate percentage
+    s.genre.split(",").forEach((g) => {
+      genreStats.set(g, (genreStats.get(g) || 0) + 1);
+
+      if (!genreDays.has(g)) {
+        genreDays.set(g, new Map());
+      }
+      const dayMap = genreDays.get(g)!;
+      dayMap.set(day, (dayMap.get(day) || 0) + 1);
+
+      if (!genreViewers.has(g)) {
+        genreViewers.set(g, { totalViewers: 0, count: 0 });
+      }
+      const viewerStats = genreViewers.get(g)!;
+      viewerStats.totalViewers += s.mostViewers;
+      viewerStats.count += 1;
+    });
+  });
+
+  // Calculate percentage, most/second most streamed days, and avgViewers
   const totalStreams = userData.streams.length;
-  const genres = Array.from(genreStats.entries()).map(([name, count]) => ({
-    name,
-    percent: count / totalStreams
-  }));
+  const genres = Array.from(genreStats.entries()).map(([name, count]) => {
+    const dayMap = genreDays.get(name)!;
+    const sortedDays = Array.from(dayMap.entries()).sort((a, b) => b[1] - a[1]);
+    const mostStreamedDays = sortedDays.slice(0, 2).map(([day]) => day);
+
+    const viewerStats = genreViewers.get(name)!;
+    const avgViewers = viewerStats.totalViewers / viewerStats.count;
+
+    return {
+      name,
+      percent: (count / totalStreams) * 100,
+      days: mostStreamedDays,
+      avgViewers
+    };
+  });
 
   return res.status(httpStatus.OK).json({
     success: true,

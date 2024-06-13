@@ -112,3 +112,12 @@ export interface JwtPayload {
   family_name: string;
   email: string;
 }
+
+export type Days =
+  | "Monday"
+  | "Tuesday"
+  | "Wednesday"
+  | "Thursday"
+  | "Friday"
+  | "Saturday"
+  | "Sunday";

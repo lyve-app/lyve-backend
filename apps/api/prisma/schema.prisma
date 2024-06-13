@@ -68,6 +68,8 @@ model Stream {
   duration   Float     @default(0) // in seconds
 
   genre String
+
+  mostViewers Int @default(0)
 }
 
 model Notification {
