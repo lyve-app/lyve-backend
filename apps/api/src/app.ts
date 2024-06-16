@@ -242,7 +242,8 @@ io.on("connection", (socket) => {
       select: {
         id: true,
         streamerId: true,
-        created_at: true
+        created_at: true,
+        ended_at: true
       }
     });
 
@@ -255,6 +256,20 @@ io.on("connection", (socket) => {
             name: "Not Found",
             code: -1,
             msg: "Stream not found"
+          }
+        ]
+      });
+    }
+
+    if (checkStream.ended_at) {
+      return callback({
+        success: false,
+        data: null,
+        error: [
+          {
+            name: "Stream Ended",
+            code: -1,
+            msg: "This stream has already ended."
           }
         ]
       });

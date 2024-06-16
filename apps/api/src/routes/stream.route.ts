@@ -10,8 +10,6 @@ streamRouter.post(
   streamController.createStream
 );
 
-streamRouter.get("/recommended", streamController.getRecommended);
-
 streamRouter.get("/:id", streamController.getStreamInfo);
 
 streamRouter.put("/:id/start", streamController.startStream);
