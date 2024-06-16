@@ -424,7 +424,12 @@ export const followedBy = async (
 };
 
 export const getFeed = async (
-  req: Request<{ id: string }>,
+  req: Request<
+    { id: string },
+    object,
+    object,
+    { cursor?: string; limit?: string }
+  >,
   res: Response<
     TypedResponse<{
       feed: Array<
@@ -435,76 +440,154 @@ export const getFeed = async (
             | "username"
             | "dispname"
             | "avatar_url"
+            | "followerCount"
             | "promotionPoints"
             | "level"
-          >;
+          > & {
+            subscribed: boolean;
+          };
         }
       >;
+      nextCursor: string | null;
+      hasNext: boolean;
     }>
   >
 ) => {
-  const followingIds = await prismaClient.user.findUnique({
-    where: { id: req.params.id },
-    select: {
-      following: {
-        select: { followingId: true }
-      }
-    }
-  });
+  try {
+    const userId = req.params.id;
+    const cursor = req.query.cursor;
+    const limit = parseInt(req.query.limit || "20", 10);
 
-  if (!followingIds) {
-    return res.status(httpStatus.NOT_FOUND).json({
-      success: false,
-      data: null,
-      error: [...createErrorObject(httpStatus.NOT_FOUND, "User not found")]
-    });
-  }
-
-  const streams: Array<
-    Stream & {
-      streamer: Pick<
-        User,
-        | "id"
-        | "username"
-        | "dispname"
-        | "avatar_url"
-        | "promotionPoints"
-        | "level"
-      >;
-    }
-  > = [];
-
-  for (const following of followingIds.following) {
-    const streamData = await prismaClient.stream.findFirst({
-      where: {
-        streamerId: { equals: following.followingId },
-        active: { equals: true }
-      },
-      include: {
-        streamer: {
-          select: {
-            id: true,
-            username: true,
-            avatar_url: true,
-            dispname: true,
-            promotionPoints: true,
-            level: true
+    const [followingIds, recommendedStreams] = await Promise.all([
+      prismaClient.user.findUnique({
+        where: { id: userId },
+        select: {
+          following: {
+            select: { followingId: true }
           }
         }
-      }
-    });
+      }),
+      prismaClient.stream.findMany({
+        where: {
+          active: true,
+          NOT: { streamerId: userId }
+        },
+        include: {
+          streamer: {
+            select: {
+              id: true,
+              username: true,
+              dispname: true,
+              promotionPoints: true,
+              level: true,
+              avatar_url: true,
+              followerCount: true
+            }
+          }
+        },
+        orderBy: {
+          streamer: {
+            promotionPoints: "desc"
+          }
+        },
+        take: limit + 1, // Fetch one more item than the limit to check if there's a next page
+        ...(cursor && {
+          skip: 1, // Do not include the cursor itself in the query result.
+          cursor: {
+            id: cursor
+          }
+        })
+      })
+    ]);
 
-    // check if null
-    if (streamData) {
-      streams.push(streamData);
+    if (!followingIds) {
+      return res.status(httpStatus.NOT_FOUND).json({
+        success: false,
+        data: null,
+        error: [...createErrorObject(httpStatus.NOT_FOUND, "User not found")]
+      });
     }
-  }
 
-  return res.status(httpStatus.OK).json({
-    success: true,
-    data: { feed: streams },
-    error: []
-  });
+    const followingMap = new Set(
+      followingIds.following.map((f) => f.followingId)
+    );
+
+    const followedStreamsPromises = followingIds.following.map((following) =>
+      prismaClient.stream.findFirst({
+        where: {
+          streamerId: following.followingId,
+          active: true
+        },
+        include: {
+          streamer: {
+            select: {
+              id: true,
+              username: true,
+              avatar_url: true,
+              dispname: true,
+              followerCount: true,
+              promotionPoints: true,
+              level: true
+            }
+          }
+        }
+      })
+    );
+
+    const followedStreamsResults = await Promise.all(followedStreamsPromises);
+    const followedStreams = followedStreamsResults.filter(
+      (stream) => stream !== null
+    ) as Array<Stream & { streamer: User }>;
+
+    const allStreams = [
+      ...followedStreams.map((stream) => ({
+        ...stream,
+        streamer: { ...stream.streamer, subscribed: true }
+      })),
+      ...recommendedStreams.map((stream) => ({
+        ...stream,
+        streamer: {
+          ...stream.streamer,
+          subscribed: followingMap.has(stream.streamer.id)
+        }
+      }))
+    ];
+
+    const uniqueStreams = allStreams.reduce(
+      (acc: typeof allStreams, current) => {
+        if (!acc.find((item) => item.id === current.id)) {
+          acc.push(current);
+        }
+        return acc;
+      },
+      []
+    );
+
+    const hasNext = uniqueStreams.length > limit;
+    const nextCursor = uniqueStreams.at(-1)?.id ?? "";
+
+    return res.status(httpStatus.OK).json({
+      success: true,
+      data: {
+        feed: uniqueStreams.slice(0, limit),
+        nextCursor,
+        hasNext
+      },
+      error: []
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
+      success: false,
+      data: null,
+      error: [
+        ...createErrorObject(
+          httpStatus.INTERNAL_SERVER_ERROR,
+          "Internal server error"
+        )
+      ]
+    });
+  }
 };
 
 export const getMostStreamedGenres = async (
