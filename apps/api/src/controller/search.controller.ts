@@ -12,7 +12,7 @@ export const search = async (
     unknown,
     {
       query: string;
-      courser: string;
+      curser: string;
       limit: string;
     }
   >,
@@ -31,7 +31,7 @@ export const search = async (
     }>
   >
 ) => {
-  const { query, courser, limit } = req.query;
+  const { query, curser, limit } = req.query;
 
   if (!query || !limit) {
     return res.status(httpStatus.BAD_REQUEST).json({
@@ -104,11 +104,11 @@ export const search = async (
 
     // prisma query
     const userData = await prismaClient.user.findMany({
-      take: parsedLimit,
-      ...(courser && {
+      take: parsedLimit + 1, // Fetch one more item than the limit to check if there's a next page
+      ...(curser && {
         skip: 1, // Do not include the cursor itself in the query result.
         cursor: {
-          id: courser
+          id: curser
         }
       }),
       where: {
@@ -138,41 +138,8 @@ export const search = async (
 
     // if nextCourser is undefined we dont need to run the next query so we
     // set hasNext false here and only update when nextCourser is defined
-    let hasNext = false;
-    const nextCourser = userData.at(-1)?.id;
-
-    if (nextCourser) {
-      const next = await prismaClient.user.findMany({
-        take: parsedLimit,
-
-        skip: 1,
-        cursor: {
-          id: nextCourser
-        },
-
-        where: {
-          OR: [
-            {
-              dispname: {
-                contains: query,
-                mode: "insensitive"
-              }
-            },
-            {
-              username: {
-                contains: query,
-                mode: "insensitive"
-              }
-            }
-          ]
-        },
-        select: {
-          id: true
-        }
-      });
-
-      hasNext = next.length > 0;
-    }
+    const hasNext = userData.length > parsedLimit;
+    const nextCurser = userData.at(-1)?.id;
 
     const responseData: Array<
       Pick<
@@ -190,7 +157,7 @@ export const search = async (
         result: {
           users: responseData
         },
-        nextCursor: nextCourser ?? "",
+        nextCursor: nextCurser ?? "",
         hasNext
       },
       error: []
