@@ -337,60 +337,6 @@ export const startStream = async (
   }
 };
 
-export const getRecommended = async (
-  _: Request,
-  res: Response<
-    TypedResponse<{
-      streams: Array<
-        Stream & {
-          streamer: Pick<
-            User,
-            | "id"
-            | "username"
-            | "dispname"
-            | "avatar_url"
-            | "followerCount"
-            | "promotionPoints"
-            | "level"
-          >;
-        }
-      >;
-    }>
-  >
-) => {
-  const streams = await prismaClient.stream.findMany({
-    where: {
-      active: true
-    },
-    include: {
-      streamer: {
-        select: {
-          id: true,
-          username: true,
-          dispname: true,
-          promotionPoints: true,
-          level: true,
-          avatar_url: true,
-          followerCount: true
-        }
-      }
-    },
-    orderBy: {
-      streamer: {
-        promotionPoints: Prisma.SortOrder.desc
-      }
-    }
-  });
-
-  return res.status(httpStatus.OK).json({
-    success: true,
-    data: {
-      streams
-    },
-    error: []
-  });
-};
-
 export const deleteStream = async (
   req: Request<{ id: string }>,
   res: Response<
