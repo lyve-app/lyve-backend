@@ -91,13 +91,11 @@ model Notification {
 }
 
 model Achievement {
-  id                String              @id
+  id                String              @id @default(cuid())
   type              AchievementType
   name              String
   level             Int                 @default(0)
-  bannerUrl         String
   condition         Int
-  progress          Int // progress to condition 1/10 progress/condition
   promotionPoints   Int // promotionPoints a user receives for reaching the achievement
   userToAchievement UserToAchievement[]
 }
@@ -107,7 +105,9 @@ model UserToAchievement {
   userId        String
   achievement   Achievement @relation(fields: [achievementId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   achievementId String
+  progress      Int         @default(0) // progress to condition 1/10 progress/condition
   created_at    DateTime    @default(now())
+  updated_at    DateTime    @updatedAt
 
   @@id([userId, achievementId])
 }
@@ -137,6 +137,7 @@ enum RewardType {
 
 enum AchievementType {
   NTH_STREAM
+  MINUTES_STREAMED
   NTH_VIEWERS
 }
 

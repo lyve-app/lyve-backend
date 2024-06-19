@@ -13,7 +13,8 @@ import {
   Follows,
   Notification,
   Stream,
-  User
+  User,
+  UserToAchievement
 } from "@prisma/client";
 import { createErrorObject } from "../utils/createErrorObject";
 import { getNotificationsMessage } from "../utils/notificationsMessages";
@@ -27,9 +28,10 @@ export const getUserInfo = async (
     TypedResponse<{
       user: User & {
         subscribed: boolean;
-        userToAchievement: {
-          achievement: Achievement;
-        }[];
+        userToAchievement: (Pick<
+          UserToAchievement,
+          "progress" | "created_at" | "updated_at"
+        > & { achievement: Achievement })[];
         streams: Stream[];
       };
     }>
@@ -41,6 +43,9 @@ export const getUserInfo = async (
       streams: true,
       userToAchievement: {
         select: {
+          progress: true,
+          created_at: true,
+          updated_at: true,
           achievement: true
         }
       }
@@ -120,12 +125,31 @@ export const createUser = async (
     });
   }
 
+  // Get all achievements a user can collect
+  const getAllAchievements = await prismaClient.achievement.findMany({
+    select: {
+      id: true
+    }
+  });
+
+  // create a relationship to all achievements
+  const userToAchievementsData: { userId: string; achievementId: string }[] =
+    getAllAchievements.map((v) => ({
+      userId: id,
+      achievementId: v.id
+    }));
+
   const newUser = await prismaClient.user.create({
     data: {
       id,
       username,
       dispname: username,
-      email
+      email,
+      userToAchievement: {
+        createMany: {
+          data: userToAchievementsData
+        }
+      }
     },
     select: {
       id: true,

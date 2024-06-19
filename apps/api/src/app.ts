@@ -26,18 +26,20 @@ import { initRabbitMQ } from "./utils/initRabbitMQ";
 import { rewards } from "./utils/rewards";
 import { getNotificationsMessage } from "./utils/notificationsMessages";
 import isAuth from "./middleware/isAuth";
+import { handleAchievements } from "./service/achievments.service";
 
 type Stream = {
   id: string;
   created_at: string;
   streamer: SocketUser;
   viewerCount: number;
-  viewers: Array<string>;
+  viewers: Array<string>; // viewers that are currently in the livestream
+  mostViewers: number;
 };
 
 // Holds state of active streams
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-const streams: Map<string, Stream> = new Map(); // key is the id of the stream
+export const streams: Map<string, Stream> = new Map(); // key is the id of the stream
 // eslint-disable-next-line prefer-const
 
 const app: Express = express();
@@ -282,7 +284,8 @@ io.on("connection", (socket) => {
         created_at: checkStream.created_at.toString(),
         streamer: socket.data.user,
         viewerCount: 0,
-        viewers: []
+        viewers: [],
+        mostViewers: 0
       });
 
       logger.info(`Created stream: ${streamId}`);
@@ -374,6 +377,21 @@ io.on("connection", (socket) => {
 
       stream.viewerCount++;
       stream.viewers.push(socket.data.user.id);
+
+      if (stream.viewerCount > stream.mostViewers) {
+        stream.mostViewers = stream.viewerCount;
+      }
+
+      await prismaClient.stream.update({
+        where: {
+          id: streamId
+        },
+        data: {
+          viewerCount: {
+            increment: 1
+          }
+        }
+      });
 
       io.to(streamId).emit("user_joined", {
         user: socket.data.user
@@ -567,7 +585,8 @@ io.on("connection", (socket) => {
           data: {
             ended_at,
             duration,
-            active: false
+            active: false,
+            mostViewers: stream.mostViewers
           }
         });
 
@@ -582,6 +601,8 @@ io.on("connection", (socket) => {
             num10minStreams: { increment: duration / 60 > 10 ? 1 : 0 }
           }
         });
+
+        await handleAchievements(checkStream.streamerId);
 
         // broadcast stream end to all clients
         io.to(streamId).emit("stream_ended", {
@@ -628,6 +649,17 @@ io.on("connection", (socket) => {
       stream.viewers = stream.viewers.filter((id) => id !== user.id);
 
       socket.emit("you-left-stream");
+
+      await prismaClient.stream.update({
+        where: {
+          id: streamId
+        },
+        data: {
+          viewerCount: {
+            decrement: 1
+          }
+        }
+      });
 
       socket.to(streamId).emit("user_leaved", {
         user: socket.data.user
@@ -898,6 +930,7 @@ io.on("connection", (socket) => {
           data: {
             ended_at,
             duration,
+            mostViewers: stream.mostViewers,
             active: false
           }
         });
@@ -913,6 +946,8 @@ io.on("connection", (socket) => {
             num10minStreams: { increment: duration / 60 > 10 ? 1 : 0 }
           }
         });
+
+        await handleAchievements(checkStream.streamerId);
 
         // broadcast stream end to all clients
         io.to(streamId).emit("stream_ended", {
@@ -957,6 +992,18 @@ io.on("connection", (socket) => {
       stream.viewers = stream.viewers.filter(
         (id) => id !== socket.data.user.id
       );
+
+      await prismaClient.stream.update({
+        where: {
+          id: streamId
+        },
+        data: {
+          viewerCount: {
+            decrement: 1
+          }
+        }
+      });
+
       delete socket.data.streamId;
 
       logger.info(

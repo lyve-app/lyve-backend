@@ -85,6 +85,7 @@ export const getStreamInfo = async (
 
     followed = !!followsStreamer;
   }
+
   return res.status(httpStatus.OK).json({
     success: true,
     data: {
