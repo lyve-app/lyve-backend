@@ -27,20 +27,18 @@
 name: Build and deploy a container to an Azure Web App
 
 env:
-  AZURE_WEBAPP_NAME: lyve-api  # set this to the name of your Azure Web App
+  AZURE_WEBAPP_NAME: lyve-api # set this to the name of your Azure Web App
 
 on:
+  pull_request:
   push:
-    branches: [ "main" ]
-  workflow_dispatch:
+    branches: ["main"]
 
 permissions:
   contents: read
   packages: write
 
-
 jobs:
-
   test:
     runs-on: ubuntu-latest
 
@@ -51,7 +49,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: "20"
 
       - name: Install dependencies
         run: yarn install
@@ -61,7 +59,6 @@ jobs:
         run: yarn test-unit
         working-directory: apps/api/
 
-        
   build:
     runs-on: ubuntu-latest
 
@@ -95,7 +92,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: build
     environment:
-      name: 'Development'
+      name: "Development"
       url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
 
     steps:
@@ -108,4 +105,4 @@ jobs:
         with:
           app-name: ${{ env.AZURE_WEBAPP_NAME }}
           publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE_API }}
-          images: 'ghcr.io/${{ env.REPO }}/lyve-api:${{ github.sha }}'
+          images: "ghcr.io/${{ env.REPO }}/lyve-api:${{ github.sha }}"
