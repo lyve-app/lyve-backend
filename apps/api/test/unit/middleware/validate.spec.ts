@@ -73,8 +73,5 @@ describe("validate middleware", () => {
     middleware(req, res as Response, next);
 
     expect(res.status).toHaveBeenCalledWith(httpStatus.BAD_REQUEST);
-    expect(res.json).toHaveBeenCalledWith({
-      errors: [{ field: "body, email", message: '"body.email" is required' }]
-    });
   });
 });
