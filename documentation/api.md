@@ -1116,133 +1116,407 @@ Error:
 
 ## Websocket Schnittstelle
 
-### Live Chat
+### Types
+
+```ts
+type SocketCallback<T> = (response?: SocketResponse<T>) => void;
+
+interface SocketResponse<T> {
+  success: boolean;
+  data: T | null;
+  error: {
+    name: string;
+    code: number;
+    msg: string;
+  }[];
+}
+```
+
+> The payloads also use Mediasoup datatypes. Further information on these data types can be found in the official Mediasoup and Mediasoup client documentation https://mediasoup.org/documentation/v3/.
 
 #### Client to Server
 
-##### `"join"`
+##### `"connect-transport"`
 
-Lets the user join the chat room
+Will send a signal over the API to the media-server to connects the client-side WebRTC transport with the server-side WebRTC transport
+
+**Payload**
+
+```json
+{
+  "data": {
+    "transportId": "transport id",
+    "dtlsParameters": DtlsParameters,
+    "direction": StreamSendDirection,
+  }
+}
+```
+
+##### `"send-track"`
+
+Will send a signal over the api to the media-server to instruct the mediasoup router to receive audio and video streams
+
+**Payload**
+
+```json
+{
+  "data": {
+    "transportId": "tranport id",
+    "direction": StreamSendDirection, // "send" or "recv"
+    "paused": boolean,
+    "kind": MediaKind,
+    "rtpParameters": RtpParameters,
+    "rtpCapabilities": RtpCapabilities,
+    "appData": AppData
+  }
+}
+```
+
+##### `"get-recv-tracks"`
+
+Will send a signal over the api to the media-server to instruct the mediasoup router to send audio and video streams
+
+**Payload**
+
+```json
+{
+  "data": {
+    "rtpCapabilities": RtpCapabilities
+  }
+}
+```
+
+##### `"resume-consumers"`
+
+Will send a signal over the api to the media-server to instruct the mediasoup router to unpause the video stream
 
 **Payload**
 
 ```json
 {}
+```
+
+##### `"join_stream"`
+
+Allows a client to join a stream. When a new peer requests to join, the API signals the media server. The media server then initiates the signaling process to connect the peer with the router. Additionally, the API adds the client to the WebSocket room, enabling interaction with specific WebSocket events related to the stream.
+
+If the client is a viewer the API will broadcast a `"user_joined"` event to all clients in the stream.
+
+**Payload**
+
+```json
+{
+  "data": {
+    "streamId": "stream id"
+  }
+}
 ```
 
 **Acknowledgment:** Yes
 
-```json
-{
-  "data": {
-    "viewerCount": 0
-  }
-}
-```
-
-##### `"leave"`
-
-Lets the user leave the chat room
-
-**Payload**
+Acknowledgment Data:
 
 ```json
-{}
+data: null
 ```
 
-**Acknowledgment:** No
+##### `"leave_stream"`
 
-##### `"sendMsg"`
-
-Broadcasts a message to all users in the same room
+Allows a client to leave a stream. API will send a event to the media-server to cleanup the websocket tranports, producers, and consumers of the peer.
+If the client is the host of the stream the stream will end and the API will broadcast the `"stream-ended"` event.
+If the client was a viewer the API will broadcast a `"user_leaved"` event to all clients in the stream.
 
 **Payload**
 
 ```json
 {
   "data": {
-    "msg": "..."
+    "streamId": "stream id"
   }
 }
 ```
 
-**Acknowledgment:** No
+##### `"send_msg"`
 
-#### Server to Client
+Allows a client to send a message in the stream chat
 
-##### `"streamEnded"`
+Message Types that are supported are:
 
-Informs all users in the room that the stream has ended
+- Text
+- GIF
+- Sticker
+- Emojis
 
 **Payload**
 
 ```json
 {
   "data": {
-    "ended_at": ""
-  }
-}
-```
-
-**Acknowledgment:** No
-
-##### `"userJoined"`
-
-Informs all users in the room that a new user has joined
-
-**Receiving Payload**
-
-```json
-{
-  "data": {
-    "viewerCount": 100 // for updating the viewer count
-  }
-}
-```
-
-**Acknowledgment:** No
-
-##### `"userLeaved"`
-
-Informs all users in the room that a user leaved
-
-**Receiving Payload**
-
-```json
-{
-  "data": {
-    "viewerCount": 100 // for updating the viewer count
-  }
-}
-```
-
-**Acknowledgment:** No
-
-##### `"newChatMsg"`
-
-Broadcasts message to all users in the room that a new user has joined
-
-**Receiving Payload**
-
-```json
-{
-  "data": {
-    "id": "", // msg id
-    "msg": "" // maybe this is later updated to tokens: MessageToken[]
-    "sender": {
-      "id": "",
-      "username": "",
-      "avatar_url": ""
+    // only one is required (msg or gif)
+    "msg": "message",
+    "gif": {
+      "height": "100",
+      "width": "100",
+      "url": "gif url"
     }
   }
 }
 ```
 
-**Acknowledgment:** No
+##### `"send_reward"`
 
-##### `"receivedReward"`
+Allows a client to send a reward to the streamer
 
-Broadcasts to all users in the room user gifted a reward
+**Payload**
+
+```json
+{
+  "data": {
+    "msg": "message",
+    "reward": {
+      "type": "" // RewardType (see prisma schema),
+    }
+  }
+}
+```
+
+**Acknowledgment:** Yes
+
+Acknowledgment Data:
+
+```json
+data: null
+```
+
+#### Server to Client
+
+##### `"you-joined-as-streamer"`
+
+Informs client that he joined a stream as streamer
+
+**Payload**
+
+```json
+{
+  "data": {
+    "streamId": "stream id",
+    "routerRtpCapabilities": RtpCapabilities,
+    "recvTransportOptions": TransportOptions,
+    "sendTransportOptions": TransportOptions,
+  }
+}
+```
+
+##### `"you-joined-as-streamer"`
+
+Informs client that he joined a stream as streamer
+
+**Payload**
+
+```json
+{
+  "data": {
+    "streamId": "stream id",
+    "routerRtpCapabilities": RtpCapabilities,
+    "recvTransportOptions": TransportOptions,
+  }
+}
+```
+
+##### `"get-recv-tracks-res"`
+
+Returns a list of consumer parameters as results of `"get-recv-tracks"`
+
+**Payload**
+
+```json
+{
+  "data": {
+     "consumerParametersArr": Consumer[],
+  }
+}
+```
+
+##### `"send-track-send-res"`
+
+Returns the results of `"send-track"` type: send
+
+**Payload**
+
+```json
+{
+  "data": {
+    "id": "server-side transport id",
+    "error": "error msg" // or empty
+  }
+}
+```
+
+##### `"send-track-recv-res"`
+
+Returns the results of `"send-track"` type: recv
+
+**Payload**
+
+```json
+{
+  "data": {
+    "id": "server-side transport id",
+    "error": "error msg" // or empty
+  }
+}
+```
+
+##### `"connect-transport-send-res"`
+
+Returns the results of `"connect-transport"` type: send
+
+**Payload**
+
+```json
+{
+  "data": {
+    "error": "error msg" // or empty
+  }
+}
+```
+
+##### `"connect-transport-recv-res"`
+
+Returns the results of `"connect-transport"` type: recv
+
+**Payload**
+
+```json
+{
+  "data": {
+    "error": "error msg" // or empty
+  }
+}
+```
+
+##### `"you-left-stream"`
+
+Informs the clients that `"leave_stream"` was successful
+
+**Payload**
+
+```json
+{}
+```
+
+##### `"resume-consumers-done"`
+
+Returns the results of `"resume-consumers"`
+
+**Payload**
+
+```json
+{
+  "data": {
+    "error": "error msg" // or empty
+  }
+}
+```
+
+##### `"user_joined"`
+
+Informs all users in the stream that a new user has joined
+
+**Payload**
+
+```json
+{
+  "data": {
+    "user": {
+      "id": "user id",
+      "username": "username",
+      "dispname": "dispname",
+      "avatar_url": "url" // or null
+    }
+  }
+}
+```
+
+##### `"user_leaved"`
+
+Informs all users in the stream that a new user has leaved
+
+**Payload**
+
+```json
+{
+  "data": {
+    "user": {
+      "id": "user id",
+      "username": "username",
+      "dispname": "dispname",
+      "avatar_url": "url" // or null
+    }
+  }
+}
+```
+
+##### `"viewer_count"`
+
+Sends the current viewer count of a stream. Will be send every time a user joined or leaved
+
+**Payload**
+
+```json
+{
+  "data": {
+    "viewerCount": 100
+  }
+}
+```
+
+##### `"stream_ended"`
+
+Informs all viewer that the current stream ended. Will be send if the streamer ends the stream.
+
+**Payload**
+
+```json
+{
+  "data": {
+    "ended_at": Date, // as string
+    "duration": 100, // duration of the stream in seconds
+    }
+}
+```
+
+##### `"new_msg"`
+
+Broadcasts message to all users in the stream
+
+**Payload**
+
+```json
+{
+  "data": {
+    "id": "", // msg id
+    // either msg or gif
+    "msg": "",
+    "gif": {
+      "height": "100",
+      "width": "100",
+      "url": "gif url"
+    },
+    "sender": {
+      "id": "user id",
+      "username": "username",
+      "dispname": "dispname",
+      "avatar_url": "url"
+    },
+    "created_at": "date time" // as string
+  }
+}
+```
+
+##### `"resv_reward"`
+
+Broadcasts that a viewer gifted a reward to a streamer
 
 **Receiving Payload**
 
@@ -1256,12 +1530,17 @@ Broadcasts to all users in the room user gifted a reward
       "points": "" // the promotion points one receives for receiving the reward
     },
     "sender": {
-      "id": "",
-      "username": "",
-      "avatar_url": ""
+      "id": "user id",
+      "username": "username",
+      "dispname": "dispname",
+      "avatar_url": "url"
+    },
+    "receiver": {
+      "id": "user id",
+      "username": "username",
+      "dispname": "dispname",
+      "avatar_url": "url"
     }
   }
 }
 ```
-
-**Acknowledgment:** No
