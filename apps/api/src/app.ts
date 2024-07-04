@@ -615,7 +615,10 @@ io.on("connection", (socket) => {
 
       io.in(streamId).socketsLeave(streamId);
 
-      streams.delete(streamId);
+      if (stream.viewerCount === 0) {
+        streams.delete(streamId);
+      }
+
       delete socket.data.streamId;
     } else {
       const checkIfPresent = stream.viewers.find(
@@ -672,6 +675,10 @@ io.on("connection", (socket) => {
       socket.leave(streamId);
 
       delete socket.data.streamId;
+
+      if (stream.viewerCount === 0) {
+        streams.delete(streamId);
+      }
 
       logger.info(
         `User ${socket.data.user.username} leaved stream: ${streamId}`
