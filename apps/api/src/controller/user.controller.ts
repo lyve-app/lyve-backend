@@ -144,12 +144,7 @@ export const createUser = async (
       id,
       username,
       dispname: username,
-      email,
-      userToAchievement: {
-        createMany: {
-          data: userToAchievementsData
-        }
-      }
+      email
     },
     select: {
       id: true,
@@ -159,6 +154,10 @@ export const createUser = async (
       level: true,
       email: true
     }
+  });
+
+  await prismaClient.userToAchievement.createMany({
+    data: userToAchievementsData
   });
 
   return res.status(httpStatus.CREATED).json({
