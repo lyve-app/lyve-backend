@@ -6,6 +6,10 @@
 
 Lyve is a livestreaming platform where users can create and watch livestreams. Viewers can engage with streamers through chat and by sending rewards, fostering a lively and interactive community. Lyve enhances the experience with gamification, offering achievements and promotion points that help streamers gain more visibility on the platform.
 
+### System Architecture
+
+![System Architecture](./assets/system_architecture.png)
+
 ### Techstack
 
 #### API
