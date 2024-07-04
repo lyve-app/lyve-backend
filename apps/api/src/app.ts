@@ -277,10 +277,21 @@ io.on("connection", (socket) => {
       });
     }
 
-    if (
-      !streams.get(streamId) &&
-      socket.data.user.id === checkStream.streamerId
-    ) {
+    if (!streams.get(streamId)) {
+      // stream does not exist in memory and client is not host then return error
+      if (socket.data.user.id !== checkStream.streamerId) {
+        return callback({
+          success: false,
+          data: null,
+          error: [
+            {
+              name: "Stream Error",
+              code: -1,
+              msg: "There is something wrong."
+            }
+          ]
+        });
+      }
       // create stream
       streams.set(streamId, {
         id: checkStream.id,
@@ -292,18 +303,6 @@ io.on("connection", (socket) => {
       });
 
       logger.info(`Created stream: ${streamId}`);
-    } else {
-      return callback({
-        success: false,
-        data: null,
-        error: [
-          {
-            name: "Stream Error",
-            code: -1,
-            msg: "There is something wrong."
-          }
-        ]
-      });
     }
 
     const stream = streams.get(streamId)!;
