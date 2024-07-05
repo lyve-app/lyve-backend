@@ -629,7 +629,9 @@ io.on("connection", (socket) => {
 
       io.in(streamId).socketsLeave(streamId);
 
-      if (stream.viewerCount === 0) {
+      const socketCount = await io.in(streamId).fetchSockets();
+
+      if (stream.viewerCount === 0 && socketCount.length === 0) {
         streams.delete(streamId);
       }
 
@@ -690,7 +692,9 @@ io.on("connection", (socket) => {
 
       delete socket.data.streamId;
 
-      if (stream.viewerCount === 0) {
+      const socketCount = await io.in(streamId).fetchSockets();
+
+      if (stream.viewerCount === 0 && socketCount.length === 0) {
         streams.delete(streamId);
       }
 
